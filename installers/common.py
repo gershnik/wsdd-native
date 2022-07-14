@@ -11,7 +11,7 @@ def buildCode(builddir):
     subprocess.run(['cmake', '--build', builddir], check=True)
 
 def installCode(builddir, stagedir):
-    subprocess.run(['cmake', '--install', builddir, '--prefix', stagedir], check=True)
+    subprocess.run(['cmake', '--install', builddir, '--prefix', stagedir, '--strip'], check=True)
 
 
 def copyTemplated(src, dst, map):
