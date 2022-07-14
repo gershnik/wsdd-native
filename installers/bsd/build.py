@@ -44,6 +44,7 @@ name: wsddn
 version: "{VERSION}"
 arch: {ARCH}
 origin: sysutils/wsddn
+conflict: py*-wsdd-*
 maintainer: Eugene Gershnik <gershnik@hotmail.com>
 www: https://github.com/gershnik/wsddn
 comment: WS-Discovery Host Daemon
