@@ -1,0 +1,24 @@
+{
+    "C_Cpp.autoAddFileAssociations": false,
+    "cmake.buildDirectory": "${workspaceFolder}/out/vscode/${buildKit}",
+    "cmake.configureSettings": {
+        "CMAKE_OSX_ARCHITECTURES": ["x86_64", "arm64"],
+        "FETCHCONTENT_QUIET": "OFF"
+    },
+    "cmake.configureOnOpen": true,
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext",
+        "properties",
+        "html"
+    ],
+    "spellright.parserByClass": {
+        "properties": {
+            "parser": "markdown"
+        }
+    }
+}

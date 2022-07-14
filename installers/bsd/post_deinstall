@@ -1,0 +1,13 @@
+#! /bin/sh
+
+rm -rf /var/run/wsddn
+rm -rf /var/log/wsddn.*
+
+if pw usershow wsddn > /dev/null 2>&1; then
+    pw userdel wsddn
+fi
+
+if pw groupshow wsddn > /dev/null 2>&1; then
+    pw groupdel wsddn
+fi
+

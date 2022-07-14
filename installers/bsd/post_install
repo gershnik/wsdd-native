@@ -1,0 +1,8 @@
+#! /bin/sh
+
+set -e
+
+CONF=/usr/local/etc/wsddn.conf
+if [ ! -f "$CONF" ]; then
+     cp $CONF.sample $CONF
+fi

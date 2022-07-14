@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# PROVIDE: wsddn
+# BEFORE: login
+# REQUIRE: DAEMON
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name=wsddn
+rcvar=${name}_enable
+
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin
+
+command="/usr/local/bin/wsddn"
+command_args="--unixd --config=/usr/local/etc/wsddn.conf --pid-file=/var/run/${name}/${name}.pid --log-file=/var/log/wsddn.log"
+pidfile="/var/run/${name}/${name}.pid"
+extra_commands="reload"
+
+load_rc_config $name
+run_rc_command "$1"

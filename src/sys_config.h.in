@@ -1,0 +1,41 @@
+// Copyright (c) 2022, Eugene Gershnik
+// SPDX-License-Identifier: BSD-3-Clause
+
+#ifndef HEADER_SYS_CONFIG_H_INCLUDED
+#define HEADER_SYS_CONFIG_H_INCLUDED
+
+#cmakedefine01 HAVE_NETLINK
+#cmakedefine01 HAVE_PF_ROUTE
+#cmakedefine01 HAVE_SIGABBREV_NP
+#cmakedefine01 HAVE_SYS_SIGNAME
+#cmakedefine01 HAVE_EXECINFO_H
+#cmakedefine01 HAVE_CXXABI_H
+#cmakedefine01 HAVE_ABI_CXA_THROW
+#cmakedefine01 HAVE_SYSTEMD
+#cmakedefine01 HAVE_USERADD
+#cmakedefine01 HAVE_PW
+
+
+#if (defined(__APPLE__) && defined(__MACH__))
+    #define WSDDN_PLATFORM_APPLE 1
+    #define ADMIN_GROUP_NAME "admin"
+    #define WSDDN_DEFAULT_USER_NAME "_wsddn"
+    #define WSDDN_DEFAULT_CHROOT_DIR "/var/empty"
+#else
+    #define WSDDN_PLATFORM_APPLE 0
+    #define WSDDN_DEFAULT_USER_NAME "wsddn"
+    #define WSDDN_DEFAULT_CHROOT_DIR "/var/run/wsddn"
+#endif 
+
+#define CAN_HAVE_SAMBA !WSDDN_PLATFORM_APPLE
+#define HAVE_APPLE_SAMBA WSDDN_PLATFORM_APPLE
+#define HAVE_APPLE_USER_CREATION WSDDN_PLATFORM_APPLE
+#define HAVE_LAUNCHD WSDDN_PLATFORM_APPLE
+
+#define CAN_CREATE_USERS HAVE_APPLE_USER_CREATION || HAVE_USERADD || HAVE_PW
+
+
+#define WSDDN_VERSION "${WSDDN_VERSION}"
+#define WSDDN_PROGNAME "$<TARGET_FILE_NAME:wsddn>"
+
+#endif

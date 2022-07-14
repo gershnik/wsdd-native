@@ -1,0 +1,5 @@
+#! /bin/sh
+
+if service wsddn status > /dev/null 2>&1; then
+    service wsddn stop
+fi

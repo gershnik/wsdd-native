@@ -1,0 +1,38 @@
+#! /bin/bash
+
+if [[ $EUID -ne 0 ]]; then
+    exec sudo "$0" "$@"
+fi
+
+while true; do
+    read -p "Do you want to unsinstal WS-Discovery Host? [yN] " -r
+    case $REPLY in
+        ([yY]) break;;
+        ("" | [nN]) exit 0;;
+        (*) continue;;
+    esac
+done
+
+if /bin/launchctl list "io.github.gershnik.wsddn" &> /dev/null; then
+    /bin/launchctl bootout system/io.github.gershnik.wsddn
+fi
+
+rm -f /Library/LaunchDaemons/io.github.gershnik.wsddn.plist
+rm -f /usr/local/bin/wsddn
+rm -f /usr/local/share/man/man8/wsddn.8.gz
+rm -f /etc/newsyslog.d/wsddn.conf
+rm -rf /var/run/wsddn
+rm -f /var/log/wsddn.*
+
+if dscl . -read /Users/_wsddn > /dev/null 2>&1; then
+    dscl . -delete /Users/_wsddn 
+fi
+if dscl . -read /Groups/_wsddn > /dev/null 2>&1; then
+    dscl . -delete /Groups/_wsddn 
+fi
+
+if pkgutil --pkgs=io.github.gershnik.wsddn > /dev/null; then
+    pkgutil --forget io.github.gershnik.wsddn
+fi
+
+rm -f "$0"
