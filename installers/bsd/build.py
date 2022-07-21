@@ -6,17 +6,31 @@
 import sys
 import subprocess
 import shutil
+import re
 from pathlib import Path
 
 ARCH = subprocess.run(['uname', '-m'], check=True, capture_output=True, encoding="utf-8").stdout.strip()
 
+ABI = None
+for line in subprocess.run(['pkg', '-vv'], check=True, encoding="utf-8", capture_output=True).stdout.splitlines():
+    m = re.match(r'ABI\s*=\s*"([^"]+)";', line)
+    if m:
+        ABI = m.group(1)
+        break
+
+if ABI is None:
+    print("Unable to determine ABI", file=sys.stderr)
+    sys.exit(1)
+
 mydir = Path(sys.argv[0]).parent
-srcdir = Path(sys.argv[1])
-builddir = Path(sys.argv[2])
 
 sys.path.append(str(mydir.absolute().parent))
 
-from common import VERSION, buildCode, installCode, copyTemplated
+from common import VERSION, parseCommandLine, buildCode, installCode, copyTemplated, uploadResults
+
+args = parseCommandLine()
+srcdir = args.srcdir
+builddir = args.builddir
 
 buildCode(builddir)
 
@@ -46,7 +60,7 @@ arch: {ARCH}
 origin: sysutils/wsddn
 conflict: py*-wsdd-*
 maintainer: Eugene Gershnik <gershnik@hotmail.com>
-www: https://github.com/gershnik/wsddn
+www: https://github.com/gershnik/wsdd-native
 comment: WS-Discovery Host Daemon
 desc: Allows your  machine to be discovered by Windows 10 and above systems and displayed by their Explorer "Network" views. 
 prefix: /
@@ -64,3 +78,16 @@ shutil.copy(mydir / 'post_deinstall', workdir / '+POST_DEINSTALL')
 
 subprocess.run(['pkg', 'create', '--verbose', '-m', workdir, '-r',  stagedir, '-p', workdir/'plist', '-o', workdir], check=True)
 
+
+if args.uploadResults:
+    repo = workdir / f'repo'
+    subprocess.run(['aws', 's3', 'sync', f's3://gershnik.com/bsd-repo/{ABI}', repo], check=True)
+    (repo / 'All').mkdir(parents=True, exist_ok=True)
+    shutil.copy(workdir / f'wsddn-{VERSION}.pkg', repo / 'All')
+    subprocess.run(['pkg', 'repo', repo, Path.home() / '.ssh/bsd-repo-key'], check=True)
+    subprocess.run(['aws', 's3', 'sync', repo, f's3://gershnik.com/bsd-repo/{ABI}'], check=True)
+
+    subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
+    shutil.move(builddir / 'wsddn.gz', workdir / f'wsddn-bsd-{VERSION}.gz')
+    shutil.move(workdir / f'wsddn-{VERSION}.pkg', workdir / f'wsddn-bsd-{VERSION}.pkg')
+    uploadResults(workdir / f'wsddn-bsd-{VERSION}.pkg', workdir / f'wsddn-bsd-{VERSION}.gz')

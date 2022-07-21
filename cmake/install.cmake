@@ -15,7 +15,11 @@ install(FILES
     DESTINATION ${CMAKE_INSTALL_MANDIR}/man8
 )
 
-# install(CODE
-#     "execute_process(COMMAND  gzip -f \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_MANDIR}/man8/wsddn.8\")"
-# )
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    install(CODE "
+        if(CMAKE_INSTALL_DO_STRIP)
+            execute_process(COMMAND codesign --force --sign - --timestamp=none \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/bin/wsddn\")
+        endif()
+    ")
+endif()
 

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+set -u
+
+echo $SIGN_CERTIFICATE | base64 --decode > certificate.p12
+security create-keychain -p $KEYCHAIN_PWD build.keychain
+security default-keychain -s build.keychain
+security unlock-keychain -p $KEYCHAIN_PWD build.keychain
+security import certificate.p12 -k build.keychain -P $SIGN_CERTIFICATE_PWD -T /usr/bin/productsign -T /usr/bin/codesign
+security set-key-partition-list -S apple-tool:,apple:,productsign:,codesign: -s -k $KEYCHAIN_PWD build.keychain
+

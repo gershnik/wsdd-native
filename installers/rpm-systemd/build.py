@@ -4,20 +4,23 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import sys
+import os
 import subprocess
 import shutil
 from pathlib import Path
 
 RELEASE = '1'
-#ARCH = subprocess.run(['uname', '-m'], check=True, capture_output=True, encoding="utf-8").stdout.strip()
+ARCH = subprocess.run(['uname', '-m'], check=True, capture_output=True, encoding="utf-8").stdout.strip()
 
 mydir = Path(sys.argv[0]).parent
-srcdir = Path(sys.argv[1])
-builddir = Path(sys.argv[2])
 
 sys.path.append(str(mydir.absolute().parent))
 
-from common import VERSION, buildCode, installCode, copyTemplated
+from common import VERSION, parseCommandLine, buildCode, installCode, copyTemplated, uploadResults
+
+args = parseCommandLine()
+srcdir: Path = args.srcdir
+builddir: Path = args.builddir
 
 buildCode(builddir)
 
@@ -54,7 +57,7 @@ Release:        {RELEASE}%{{?dist}}
 Summary:        WS-Discovery Host Daemon
 
 License:        BSD-3-Clause
-URL:            https://github.com/gershnik/wsddn
+URL:            https://github.com/gershnik/wsdd-native
 Source0:        %{{name}}.tar.gz
 
 BuildRequires:  systemd-rpm-macros
@@ -107,3 +110,43 @@ fi
 
 subprocess.run(['rpmbuild', '--define', f'_topdir {rpmbuild.absolute()}', '-bb', spec], check=True)
 
+subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
+
+rpm = list((rpmbuild / f'RPMS/{ARCH}').glob('*.rpm'))[0]
+
+shutil.move(builddir / 'wsddn.gz', workdir / f'wsddn-rpm-systemd-{VERSION}.gz')
+
+if args.sign:
+    (Path.home() / '.rpmmacros').write_text(f"""
+    %_signature gpg
+    %_gpg_name {os.environ['PGP_KEY_NAME']}
+    %__gpg_sign_cmd %{{__gpg}} gpg --force-v3-sigs --batch --pinentry-mode=loopback --verbose --no-armor --passphrase {os.environ['PGP_KEY_PASSWD']} -u "%{{_gpg_name}}" -sbo %{{__signature_filename}} --digest-algo sha256 %{{__plaintext_filename}}
+    """.lstrip())
+
+    subprocess.run(['rpm', '--addsign', rpm], check=True)
+
+
+
+if args.uploadResults:
+    repo = workdir / 'rpm-repo'
+    subprocess.run(['aws', 's3', 'sync', 's3://gershnik.com/rpm-repo', repo], check=True)
+    repo.mkdir(parents=True, exist_ok=True)
+    shutil.copy(rpm, repo)
+    subprocess.run(['createrepo', '--update', '.'], cwd=repo, check=True)
+    (repo / 'repodata/repomd.xml.asc').unlink(missing_ok=True)
+    subprocess.run(['gpg', '--batch', '--pinentry-mode=loopback', 
+                    '--detach-sign', '--armor', 
+                    '--default-key', os.environ['PGP_KEY_NAME'],
+                    '--passphrase', os.environ['PGP_KEY_PASSWD'],
+                    repo / 'repodata/repomd.xml'], check=True)
+
+    (repo / 'gershnik.repo').write_text("""
+[gershnik-repo]
+name=github.com/gershnik repository
+baseurl=https://www.gershnik.com/rpm-repo
+enabled=1
+gpgcheck=1
+gpgkey=https://www.gershnik.com/rpm-repo/pgp-key.public
+""".lstrip())
+    subprocess.run(['aws', 's3', 'sync', repo, 's3://gershnik.com/rpm-repo'], check=True)
+    uploadResults(rpm, workdir / f'wsddn-rpm-systemd-{VERSION}.gz')

@@ -1,0 +1,139 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+    - name: Make release
+      uses: actions/create-release@v1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        draft: true
+        prerelease: false
+        release_name: ${{ github.ref }}
+        tag_name: ${{ github.ref }}
+        body: ...edit me...
+  
+  bsd: 
+    concurrency: bsd_remote
+    runs-on: ubuntu-latest
+    needs: prepare
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    
+    - name: Run remote build
+      env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          AWS_KEY: ${{ secrets.AWS_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          python3 .github/remote-build.py \
+              --type=bsd \
+              --ref=${{ github.sha }} \
+              --instance=${{ secrets.AWS_BSD_INSTANCE }} \
+              --instance-user=${{ secrets.AWS_BSD_INSTANCE_USER }} \
+              --upload-results
+  centos: 
+    concurrency: centos_remote
+    runs-on: ubuntu-latest
+    needs: prepare
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    
+    - name: Run remote build
+      env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          AWS_KEY: ${{ secrets.AWS_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PGP_KEY: ${{ secrets.PGP_KEY }}
+          PGP_KEY_NAME: ${{ secrets.PGP_KEY_NAME }}
+          PGP_KEY_PASSWD: ${{ secrets.PGP_KEY_PASSWD }}
+      run: |
+          python3 .github/remote-build.py \
+              --type=rpm-systemd \
+              --ref=${{ github.sha }} \
+              --instance=${{ secrets.AWS_CENTOS_INSTANCE }} \
+              --instance-user=${{ secrets.AWS_CENTOS_INSTANCE_USER }} \
+              --upload-results
+
+  ubuntu:
+    runs-on: ubuntu-22.04
+    needs: prepare
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Cache Build Dir
+      id: cache-build-dir
+      uses: actions/cache@v3
+      with:
+        path: out
+        key: ${{ runner.os }}-out
+
+    - name: Build
+      env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          AWS_KEY: ${{ secrets.AWS_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PGP_KEY: ${{ secrets.PGP_KEY }}
+          PGP_KEY_NAME: ${{ secrets.PGP_KEY_NAME }}
+          PGP_KEY_PASSWD: ${{ secrets.PGP_KEY_PASSWD }}
+      run: |
+          echo $PGP_KEY | base64 --decode | gpg --import --batch --pinentry-mode=loopback
+          cmake -E make_directory out
+          cd out
+          cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF ..
+          ../installers/deb-systemd/build.py --upload-results .. .
+
+  macos:
+    runs-on: macos-latest
+    needs: prepare
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Cache Build Dir
+      id: cache-build-dir
+      uses: actions/cache@v3
+      with:
+        path: out
+        key: ${{ runner.os }}-out
+
+    - name: Build
+      env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          AWS_KEY: ${{ secrets.AWS_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SIGN_CERTIFICATE: ${{ secrets.SIGN_CERTIFICATE }}
+          SIGN_CERTIFICATE_PWD: ${{ secrets.SIGN_CERTIFICATE_PWD }}
+          KEYCHAIN_PWD: ${{ secrets.KEYCHAIN_PWD }}
+          NOTARIZE_USER: ${{ secrets.NOTARIZE_USER }}
+          NOTARIZE_PWD: ${{ secrets.NOTARIZE_PWD }}
+      run: |
+          installers/mac/set-github-keychain
+          cmake -E make_directory out
+          cd out
+          cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF ..
+          ../installers/mac/build.py --upload-results .. .

@@ -1,0 +1,97 @@
+name: Build
+
+on: 
+  push:
+    branches: 
+      - '*'
+      - '*/**'
+    paths-ignore:
+      - 'README.md'
+      - '.gitignore'
+      - 'LICENSE'
+      - '.github/workflows/publish.yml'
+      - 'installers/mac/notarize'
+      - 'installers/mac/github-sign'
+
+
+jobs:
+  bsd: 
+    concurrency: bsd_remote
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    
+    - name: Run remote build
+      env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          AWS_KEY: ${{ secrets.AWS_KEY }}
+      run: |
+          python3 .github/remote-build.py \
+              --type=bsd \
+              --ref=${{ github.sha }} \
+              --instance=${{ secrets.AWS_BSD_INSTANCE }} \
+              --instance-user=${{ secrets.AWS_BSD_INSTANCE_USER }}
+
+  centos: 
+    concurrency: centos_remote
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    
+    - name: Run remote build
+      env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          AWS_KEY: ${{ secrets.AWS_KEY }}
+      run: |
+          python3 .github/remote-build.py \
+              --type=rpm-systemd \
+              --ref=${{ github.sha }} \
+              --instance=${{ secrets.AWS_CENTOS_INSTANCE }} \
+              --instance-user=${{ secrets.AWS_CENTOS_INSTANCE_USER }} 
+
+  
+  ubuntu_and_mac:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-22.04]
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Cache Build Dir
+      id: cache-build-dir
+      uses: actions/cache@v3
+      with:
+        path: out
+        key: ${{ runner.os }}-out
+
+    - name: Configure
+      run: |
+          cmake -E make_directory out
+          cd out
+          cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF ..
+
+    - name: Ubuntu Build
+      if: startsWith(matrix.os,'ubuntu')
+      run: installers/deb-systemd/build.py . out
+
+    - name: Mac Build
+      if: startsWith(matrix.os, 'macOS')
+      run: installers/mac/build.py . out
+
+
+
+

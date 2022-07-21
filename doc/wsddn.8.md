@@ -198,4 +198,4 @@ wsddn -i eth0 -i eth2 -6
 Eugene Gershnik <gershnik@hotmail.com>
 
 # BUG REPORTS
-Report bugs at <https://github.com/gershnik/wsddn/issues>.
+Report bugs at <https://github.com/gershnik/wsdd-native/issues>.
