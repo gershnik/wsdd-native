@@ -115,6 +115,7 @@ exploits into wsddn. If not specified the behavior is as follows
 
 `SIGHUP`
 : gracefully stop network communications, reload configuration and re-start communications.
+
 `SIGTERM`, `SIGINT`
 : gracefully stop network communications and exit. 
 

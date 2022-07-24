@@ -237,7 +237,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 endif()
 
 add_custom_target(manpage ALL
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doc/wsddn.8.gz
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doc/wsddn.8.gz ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.html
     SOURCES doc/wsddn.8.md
 )
 
@@ -259,6 +259,15 @@ if (PANDOC_PATH)
         VERBATIM
     )
 
+endif()
+
+if (GROFF_PATH)
+    add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.html
+        MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8
+        COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8 | groff -mandoc -Thtml > ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.html
+        VERBATIM
+    )
 endif()
 
 

@@ -135,3 +135,4 @@ if (HAVE_SYSTEMD AND NOT DEFINED CACHE{SYSTEMD_SYSTEM_UNIT_DIR})
 endif()
 
 find_program(PANDOC_PATH pandoc)
+find_program(GROFF_PATH groff)

@@ -23,24 +23,6 @@ For your convenience here is the index by license type:
   * [libxml2](#libxml2)
 
 
-And an index by library name
-
-<!-- TOC depthfrom:2 -->
-
-- [Argum](#argum)
-- [Asio C++ Library](#asio-c-library)
-- [{fmt}](#fmt)
-- [intrusive_shared_ptr](#intrusive_shared_ptr)
-- [libuuid](#libuuid)
-- [libxml2](#libxml2)
-- [outcome](#outcome)
-- [spdlog](#spdlog)
-- [SysString](#sysstring)
-- [tomplusplus](#tomplusplus)
-- [wsdd](#wsdd)
-
-<!-- /TOC -->
-
 # Software
 
 ## [Argum](https://github.com/gershnik/argum)
