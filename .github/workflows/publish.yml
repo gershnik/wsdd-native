@@ -46,6 +46,8 @@ jobs:
               --instance=${{ secrets.AWS_BSD_INSTANCE }} \
               --instance-user=${{ secrets.AWS_BSD_INSTANCE_USER }} \
               --upload-results
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION }} --paths "/bsd-repo"
+
   centos: 
     concurrency: centos_remote
     runs-on: ubuntu-latest
@@ -73,6 +75,7 @@ jobs:
               --instance=${{ secrets.AWS_CENTOS_INSTANCE }} \
               --instance-user=${{ secrets.AWS_CENTOS_INSTANCE_USER }} \
               --upload-results
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION }} --paths "/rpm-repo"
 
   ubuntu:
     runs-on: ubuntu-22.04
@@ -100,10 +103,12 @@ jobs:
           PGP_KEY_PASSWD: ${{ secrets.PGP_KEY_PASSWD }}
       run: |
           echo $PGP_KEY | base64 --decode | gpg --import --batch --pinentry-mode=loopback
+          sudo apt-get install -y libsystemd-dev
           cmake -E make_directory out
           cd out
           cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF ..
           ../installers/deb-systemd/build.py --upload-results .. .
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION }} --paths "/apt-repo"
 
   macos:
     runs-on: macos-latest
