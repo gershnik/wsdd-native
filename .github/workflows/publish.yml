@@ -46,7 +46,7 @@ jobs:
               --instance=${{ secrets.AWS_BSD_INSTANCE }} \
               --instance-user=${{ secrets.AWS_BSD_INSTANCE_USER }} \
               --upload-results
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION }} --paths "/bsd-repo"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION }} --paths "/bsd-repo/*"
 
   centos: 
     concurrency: centos_remote
@@ -75,7 +75,7 @@ jobs:
               --instance=${{ secrets.AWS_CENTOS_INSTANCE }} \
               --instance-user=${{ secrets.AWS_CENTOS_INSTANCE_USER }} \
               --upload-results
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION }} --paths "/rpm-repo"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION }} --paths "/rpm-repo/*"
 
   ubuntu:
     runs-on: ubuntu-22.04
@@ -108,7 +108,7 @@ jobs:
           cd out
           cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF ..
           ../installers/deb-systemd/build.py --upload-results .. .
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION }} --paths "/apt-repo"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION }} --paths "/apt-repo/*"
 
   macos:
     runs-on: macos-latest
