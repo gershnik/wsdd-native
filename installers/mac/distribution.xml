@@ -4,7 +4,7 @@
     SPDX-License-Identifier: BSD-3-Clause
 -->
 <installer-gui-script minSpecVersion="1">
-    <title>WS-Discovery Host</title>
+    <title>WS-Discovery Host Daemon</title>
     <organization>io.github.gershnik</organization>
     <domains enable_localSystem="true"/>
     <options customize="never" require-scripts="true" rootVolumeOnly="true" hostArchitectures="arm64,x86_64" />

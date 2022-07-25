@@ -5,7 +5,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 while true; do
-    read -p "Do you want to unsinstal WS-Discovery Host? [yN] " -r
+    read -p "Do you want to unsinstal WS-Discovery Host Daemon? [yN] " -r
     case $REPLY in
         ([yY]) break;;
         ("" | [nN]) exit 0;;
