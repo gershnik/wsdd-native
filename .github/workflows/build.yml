@@ -79,7 +79,7 @@ jobs:
           cmake -E make_directory out
           cd out
           cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF ..
-          installers/deb-systemd/build.py . out
+          ../installers/deb-systemd/build.py .. .
 
   mac:
     runs-on: macos-latest
@@ -99,7 +99,7 @@ jobs:
           cmake -E make_directory out
           cd out
           cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF ..
-          installers/mac/build.py . out
+          ../installers/mac/build.py .. .
 
 
 
