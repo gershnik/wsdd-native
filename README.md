@@ -25,16 +25,15 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 <!-- TOC depthfrom:2 -->
 
 - [Features](#features)
-- [Installing](#installing)
-    - [Binary packages](#binary-packages)
-        - [Ubuntu/Debian](#ubuntudebian)
-        - [RedHat/CentOS](#redhatcentos)
-        - [FreeBSD](#freebsd)
-        - [macOS](#macos)
-    - [Building from sources](#building-from-sources)
-        - [Prerequisites](#prerequisites)
-        - [Building and installing](#building-and-installing)
-        - [Setting up daemon](#setting-up-daemon)
+- [Binary packages](#binary-packages)
+    - [Ubuntu/Debian](#ubuntudebian)
+    - [RedHat/CentOS](#redhatcentos)
+    - [FreeBSD](#freebsd)
+    - [macOS](#macos)
+- [Building from sources](#building-from-sources)
+    - [Prerequisites](#prerequisites)
+    - [Building and installing](#building-and-installing)
+    - [Setting up daemon](#setting-up-daemon)
 - [Usage](#usage)
     - [Firewall Setup](#firewall-setup)
     - [Security](#security)
@@ -57,11 +56,9 @@ There are a couple of similar projects available: [wsdd][wsdd] written in Python
 
 The biggest drawback of **wsdd-native** compared to these projects is that it requires modern (as of 2022) C++ compiler to build and set of modern `libc`, `libstdc++`/`libc++` etc. to run. This usually limits it to recent versions of operating systems it supports. (It is possible to build it on older ones with newer toolchains but doing so is non-trivial). Of course, as time passes this limitation will become less and less significant.
 
-## Installing
+## Binary packages
 
-### Binary packages
-
-#### Ubuntu/Debian 
+### Ubuntu/Debian 
 
 Pre-built packages are available in a custom apt repository. Currently only amd64 (aka x86_64) architecture is supported. 
 Dependencies are: systemd, libc6 (>= 2.34), libgcc-s1 (>= 3.3.1), libstdc++6 (>= 11), libsystemd0
@@ -103,7 +100,7 @@ Daemon log can be viewed via `journalctl` as usual
 journalctl -u wsddn
 ```
 
-#### RedHat/CentOS
+### RedHat/CentOS
 
 Pre-built packages are available in a custom rpm repository. Currently only x86_64 architecture and el9 distribution (RHEL9/CentOS Stream 9) are supported. 
 
@@ -139,7 +136,7 @@ journalctl -u wsddn
 ```
 
 
-#### FreeBSD
+### FreeBSD
 
 Pre-built packages are available in a custom binary package repository. Currently only amd64 (aka x86_64) and FreeBSD 13 are supported.
 
@@ -190,7 +187,7 @@ You can also use `man wsddn` to learn about configuration or see online version 
 
 Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsylogd`. To modify rotation settings edit `/usr/local/etc/newsyslog.conf.d/wsddn.conf`
 
-#### macOS
+### macOS
 
 Installer package is available for macOS Catalina (10.15) and above on both x86_64 and ARM. To install
 
@@ -218,15 +215,23 @@ You can also use `man wsddn` to learn about configuration or see online version 
 
 Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsylogd`. To modify rotation settings edit `/etc/newsyslog.d/wsdd.conf`
 
-### Building from sources
+## Building from sources
 
-#### Prerequisites
+### Prerequisites
 
 * Git
 * C++20 capable compiler. Compilers known to work are GCC 11.3, Clang 13, Xcode 13 or above.
 * CMake 3.23 or greater. If your distribution CMake is older than that you can download a newer version from https://cmake.org/download/
+* Optional: if you wish to enable systemd integration make sure you have libsystemd library and headers installed on your system. On APT systems use:
+  ```bash
+  sudo apt install libsystemd-dev
+  ```
+  On DNF systems use
+  ```bash
+  sudo dnf install systemd-devel
+  ```
 
-#### Building and installing
+### Building and installing
 
 ```bash
 git clone https://github.com/gershnik/wsdd-native.git
@@ -240,7 +245,19 @@ sudo cmake --install . --strip
 
 The `wsddn` executable will be installed into `/usr/local/bin` and manpage added to section 8 of the manual.
 
-#### Setting up daemon
+The following flags can be passed to CMake configure step:
+
+`-DWSDDN_PREFER_SYSTEM=ON|OFF` 
+
+This controls whether to prefer system version of 3rd party libraries or fetch, build and use static ones. Currently only `libxml2` is affected.
+
+On Linux:
+
+`-DWSDDN_WITH_SYSTEMD="yes"|"no"|"auto"`. 
+
+This controls whether to enable systemd integration. Auto performs auto-detection (this is the default). 
+
+### Setting up daemon
 
 The [config](config) directory of this repo contains sample configuration files for different init systems (systemd, FreeBSD rc.d and macOS launchd). You can adapt those as appropriate to your system. 
 
