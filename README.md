@@ -13,7 +13,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 
 <!-- Links -->
 
-[manpage]: https://htmlpreview.github.io/?https://github.com/gershnik/wsdd-native/blob/readme/doc/wsddn.8.html
+[manpage]: https://htmlpreview.github.io/?https://github.com/gershnik/wsdd-native/blob/master/doc/wsddn.8.html
 [releases]: https://github.com/gershnik/wsdd-native/releases
 [issues]: https://github.com/gershnik/wsdd-native/issues
 [wsdd]: https://github.com/christgau/wsdd
