@@ -69,7 +69,7 @@ To set the repo up
 * Create a file named `/etc/apt/sources.list.d/wsddn.list` 
 * Put the following line in it
   ```
-  deb https://www.gershnik.com/apt-repo/ stable main
+  deb [arch=amd64] https://www.gershnik.com/apt-repo/ stable main
   ```
 * Import the repository public key
   ```bash
