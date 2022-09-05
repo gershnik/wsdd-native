@@ -4,6 +4,14 @@
 cmake_minimum_required(VERSION 3.23)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.15)
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_OBJCXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+
+set(BUILD_SHARED_LIBS OFF)
+
+set(CMAKE_XCODE_GENERATE_TOP_LEVEL_PROJECT_ONLY ON)
 
 project(wsddn)
 
@@ -22,7 +30,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 endif()
 
-set(BUILD_SHARED_LIBS OFF)
+
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -62,8 +70,6 @@ set_target_properties(wsddn PROPERTIES
     C_STANDARD 11
     CXX_STANDARD_REQUIRED True
     C_STANDARD_REQUIRED True
-    CXX_VISIBILITY_PRESET hidden
-    VISIBILITY_INLINES_HIDDEN True
 )
 
 target_link_libraries(wsddn
@@ -88,13 +94,12 @@ target_compile_options(wsddn
 PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8;/W4;/WX>
     $<$<CXX_COMPILER_ID:Clang>:-Wall;-Wextra;-pedantic;-ftemplate-backtrace-limit=0>
-    $<$<CXX_COMPILER_ID:AppleClang>:-Wall;-Wextra;-pedantic;-ftemplate-backtrace-limit=0>
+    $<$<CXX_COMPILER_ID:AppleClang>:-Wall;-Wextra;-pedantic;-fpch-instantiate-templates;-ftemplate-backtrace-limit=0>
     $<$<CXX_COMPILER_ID:GNU>:-Wall;-Wextra;-pedantic>   
 )
 
 target_link_options(wsddn 
 PRIVATE
-    #"$<$<CXX_COMPILER_ID:GNU>:-static-libstdc++;-static-libgcc>" 
     "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-object_path_lto,${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lto.o>"
 )
 
@@ -179,9 +184,6 @@ PRIVATE
     ${SERVERS_SOURCES}
     ${MAIN_SOURCES}
     ${CMAKE_SOURCES}
-    #"$<$<PLATFORM_ID:Darwin>:src/interface_monitor_bsd.cpp>"
-    
-    
 )
 
 execute_process(
@@ -216,22 +218,14 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     if (CMAKE_GENERATOR MATCHES "Xcode")
         set_target_properties(wsddn PROPERTIES
             XCODE_ATTRIBUTE_INFOPLIST_FILE ${CMAKE_CURRENT_BINARY_DIR}/Info.plist
-            #XCODE_ATTRIBUTE_PRODUCT_NAME ${PRODUCT_NAME}
-            #XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER ${PRODUCT_BUNDLE_IDENTIFIER}
-            #XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS ${ENTITLEMENTS_FILE}
-
+            XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME YES
             XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS YES
-
-            XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT[variant=Debug] dwarf-with-dsym
-            XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT[variant=Release] dwarf-with-dsym
-            XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT[variant=MinSizeRel] dwarf-with-dsym
-            XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT[variant=RelWithDebInfo] dwarf-with-dsym
+            XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf-with-dsym
         )
     else()
         add_custom_command(TARGET wsddn POST_BUILD
             COMMAND dsymutil "$<TARGET_FILE:wsddn>" -o "$<TARGET_FILE:wsddn>.dSYM"
-            COMMAND codesign --force --sign - --timestamp=none "$<TARGET_FILE:wsddn>" 
-            #--entitlements wsddn.xcent  --generate-entitlement-der 
+            COMMAND codesign --force --sign - --timestamp=none --options runtime "$<TARGET_FILE:wsddn>" 
         )
     endif()
 endif()
