@@ -62,6 +62,7 @@ The biggest drawback of **wsdd-native** compared to these projects is that it re
 
 Pre-built packages are available in a custom apt repository for:
 * Ubuntu 22.04 (jammy)
+* Ubuntu 20.04 (focal)
 * Debian 11 (bullseye)
 
 Currently only amd64 (aka x86_64) architecture is supported. 
