@@ -66,10 +66,9 @@ Note that Ubuntu 22.04 meets these requirements.
 
 To set the repo up
 
-* Create a file named `/etc/apt/sources.list.d/wsddn.list` 
-* Put the following line in it
-  ```
-  deb https://www.gershnik.com/apt-repo/ stable main
+* Configure apt repo
+  ```bash
+  echo "deb https://www.gershnik.com/apt-repo/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/wsddn.list >/dev/null
   ```
 * Import the repository public key
   ```bash
