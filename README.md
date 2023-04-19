@@ -68,7 +68,7 @@ To set the repo up
 
 * Configure apt repo
   ```bash
-  echo "deb https://www.gershnik.com/apt-repo/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/wsddn.list >/dev/null
+  echo "deb [arch=amd64] https://www.gershnik.com/apt-repo/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/wsddn.list >/dev/null
   ```
 * Import the repository public key
   ```bash
