@@ -60,13 +60,14 @@ The biggest drawback of **wsdd-native** compared to these projects is that it re
 
 ### Ubuntu/Debian 
 
-Pre-built packages are available in a custom apt repository. Currently only amd64 (aka x86_64) architecture is supported. 
-Dependencies are: systemd, libc6 (>= 2.34), libgcc-s1 (>= 3.3.1), libstdc++6 (>= 11), libsystemd0
-Note that Ubuntu 22.04 meets these requirements.
+Pre-built packages are available in a custom apt repository for:
+* Ubuntu 22.04 (jammy)
+* Debian 11 (bullseye)
+Currently only amd64 (aka x86_64) architecture is supported. 
 
-To set the repo up
+To set up the apt repository:
 
-* Configure apt repo
+* Configure it
   ```bash
   echo "deb [arch=amd64] https://www.gershnik.com/apt-repo/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/wsddn.list >/dev/null
   ```
