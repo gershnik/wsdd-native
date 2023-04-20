@@ -91,11 +91,17 @@ deb = list(workdir.glob('*.deb'))[0]
 shutil.move(builddir / 'wsddn.gz', workdir / f'wsddn-deb-systemd-{VERSION}-{CODENAME}.gz')
 
 if args.uploadResults:
+    debForRelease = workdir / f'{CODENAME}-{deb.name}'
+    shutil.copy(deb, debForRelease)
+
     repo = builddir / 'apt-repo'
     subprocess.run(['aws', 's3', 'sync', 's3://gershnik.com/apt-repo', repo], check=True)
     (repo / 'pool/main').mkdir(parents=True, exist_ok=True)
     (repo / f'dists/{CODENAME}/main/binary-{ARCH}').mkdir(parents=True, exist_ok=True)
-    shutil.copy(deb, repo / 'pool/main')
+    shutil.copy(debForRelease, repo / 'pool/main')
+    for f in list((repo / 'pool/main').iterdir()):
+        if not f.name.startswith(f'{CODENAME}-'):
+            f.unlink()
     with open(repo / f'dists/{CODENAME}/main/binary-{ARCH}/Packages', "w") as packages:
         subprocess.run(['apt-ftparchive', '--arch', ARCH, 'packages', 'pool'], stdout=packages, cwd=repo, check=True)
     subprocess.run(['gzip', '--keep', '--force', repo / f'dists/{CODENAME}/main/binary-{ARCH}/Packages'], check=True)
@@ -125,6 +131,5 @@ Description: Software repository for github.com/gershnik
                     '-o', repo / f'dists/{CODENAME}/InRelease', repo / f'dists/{CODENAME}/Release'], check=True)
     subprocess.run(['aws', 's3', 'sync', repo, 's3://gershnik.com/apt-repo'], check=True)
 
-    debForRelease = workdir / f'{CODENAME}-{deb.name}'
-    shutil.copy(deb, debForRelease)
+    
     uploadResults(debForRelease, workdir / f'wsddn-deb-systemd-{VERSION}-{CODENAME}.gz')
