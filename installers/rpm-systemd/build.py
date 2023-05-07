@@ -114,7 +114,7 @@ subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
 
 rpm = list((rpmbuild / f'RPMS/{ARCH}').glob('*.rpm'))[0]
 
-shutil.move(builddir / 'wsddn.gz', workdir / f'wsddn-rpm-systemd-{VERSION}.gz')
+shutil.move(builddir / 'wsddn.gz', workdir / f'wsddn-rpm-systemd-{VERSION}-{ARCH}.gz')
 
 if args.sign:
     (Path.home() / '.rpmmacros').write_text(f"""
@@ -128,25 +128,5 @@ if args.sign:
 
 
 if args.uploadResults:
-    repo = workdir / 'rpm-repo'
-    subprocess.run(['aws', 's3', 'sync', 's3://gershnik.com/rpm-repo', repo], check=True)
-    repo.mkdir(parents=True, exist_ok=True)
-    shutil.copy(rpm, repo)
-    subprocess.run(['createrepo', '--update', '.'], cwd=repo, check=True)
-    (repo / 'repodata/repomd.xml.asc').unlink(missing_ok=True)
-    subprocess.run(['gpg', '--batch', '--pinentry-mode=loopback', 
-                    '--detach-sign', '--armor', 
-                    '--default-key', os.environ['PGP_KEY_NAME'],
-                    '--passphrase', os.environ['PGP_KEY_PASSWD'],
-                    repo / 'repodata/repomd.xml'], check=True)
-
-    (repo / 'gershnik.repo').write_text("""
-[gershnik-repo]
-name=github.com/gershnik repository
-baseurl=https://www.gershnik.com/rpm-repo
-enabled=1
-gpgcheck=1
-gpgkey=https://www.gershnik.com/rpm-repo/pgp-key.public
-""".lstrip())
-    subprocess.run(['aws', 's3', 'sync', repo, 's3://gershnik.com/rpm-repo'], check=True)
-    uploadResults(rpm, workdir / f'wsddn-rpm-systemd-{VERSION}.gz')
+    subprocess.run(['aws', 's3', 'cp', rpm, 's3://gershnik.com/rpm-repo/'], check=True)
+    uploadResults(rpm, workdir / f'wsddn-rpm-systemd-{VERSION}-{ARCH}.gz')

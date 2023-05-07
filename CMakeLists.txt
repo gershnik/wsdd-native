@@ -3,6 +3,8 @@
 
 cmake_minimum_required(VERSION 3.23)
 
+cmake_policy(SET CMP0135 NEW) #set the timestamps of all extracted contents to the time of the extraction
+
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.15)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)

@@ -65,13 +65,13 @@ Pre-built packages are available in a custom apt repository for:
 * Ubuntu 20.04 (focal)
 * Debian 11 (bullseye)
 
-Currently only amd64 (aka x86_64) architecture is supported. 
+Both `amd64` (aka `x86_64`) and `arm64` (aka `aarch64`) architectures are supported. 
 
 To set up the apt repository:
 
 * Configure it
   ```bash
-  echo "deb [arch=amd64] https://www.gershnik.com/apt-repo/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/wsddn.list >/dev/null
+  echo "deb [arch=$(dpkg --print-architecture)] https://www.gershnik.com/apt-repo/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/wsddn.list >/dev/null
   ```
 * Import the repository public key
   ```bash
@@ -104,7 +104,10 @@ journalctl -u wsddn
 
 ### RedHat/CentOS
 
-Pre-built packages are available in a custom rpm repository. Currently only x86_64 architecture and el9 distribution (RHEL9/CentOS Stream 9) are supported. 
+Pre-built packages are available in a custom rpm repository for
+* el9 distribution (RHEL9/CentOS Stream 9)
+
+Both `amd64` (aka `x86_64`) and `arm64` (aka `aarch64`) architectures are supported. 
 
 To set the repo up:
 

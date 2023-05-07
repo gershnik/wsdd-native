@@ -15,91 +15,90 @@ on:
 
 
 jobs:
-  bsd: 
-    concurrency: bsd_remote
-    runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    
-    - name: Run remote build
-      env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          AWS_KEY: ${{ secrets.AWS_KEY }}
-      run: |
-          python3 .github/remote-build.py \
-              --type=bsd \
-              --ref=${{ github.sha }} \
-              --instance=${{ secrets.AWS_BSD_INSTANCE }} \
-              --instance-user=${{ secrets.AWS_BSD_INSTANCE_USER }}
+  selfhosted:
+    concurrency: ${{ matrix.remote_host }}
+    runs-on: [self-hosted, server]
+    strategy:
+      fail-fast: false
+      matrix:
+        include: 
+        - remote_host: debian-11
+          installer: deb-systemd
+        - remote_host: debian-11-arm
+          installer: deb-systemd
+        - remote_host: ubuntu-20.04-arm
+          installer: deb-systemd
+        - remote_host: ubuntu-22.04-arm
+          installer: deb-systemd
+        - remote_host: freebsd-13.1
+          installer: bsd
+        - remote_host: freebsd-13.1-arm
+          installer: bsd
+        - remote_host: centos-9
+          installer: rpm-systemd
+        - remote_host: centos-9-arm
+          installer: rpm-systemd
 
-  centos: 
-    concurrency: centos_remote
-    runs-on: ubuntu-latest
     steps:
-    - name: checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    
     - name: Run remote build
-      env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          AWS_KEY: ${{ secrets.AWS_KEY }}
       run: |
-          python3 .github/remote-build.py \
-              --type=rpm-systemd \
-              --ref=${{ github.sha }} \
-              --instance=${{ secrets.AWS_CENTOS_INSTANCE }} \
-              --instance-user=${{ secrets.AWS_CENTOS_INSTANCE_USER }} 
+        "$RUNNER_TOOLS_PATH"/run-agent gh-${{ matrix.remote_host }} <<'EOF'
+        set -e
+        cd work/wsdd-native
+        git fetch --all
+        git fetch -f --prune --tags
+        git reset --hard ${{ github.sha }}
+        [ -d "out" ] || mkdir out
+        if [[ '${{ matrix.remote_host }}' == 'ubuntu-20.04-arm' ]]; then
+          export CC=gcc-10
+          export CXX=g++-10
+        fi
+        cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF 
+        installers/${{ matrix.installer }}/build.py . out
+        EOF
 
-  
-  ubuntu:
-    runs-on: ubuntu-22.04
+  local:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: 
+        - os: ubuntu-22.04
+          installer: deb-systemd
+        - os: ubuntu-20.04
+          installer: deb-systemd
+        - os: macos-latest
+          installer: mac
+    
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+
+    - name: Collect System Info
+      id: system-info
+      uses: kenchan0130/actions-system-info@master
 
     - name: Cache Build Dir
       id: cache-build-dir
       uses: actions/cache@v3
       with:
         path: out
-        key: ${{ runner.os }}-out
+        key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-out
 
-    - name: Build
+    - name: Setup Linux
+      if: runner.os == 'Linux'
       run: |
-          sudo apt-get install -y libsystemd-dev
-          cmake -E make_directory out
-          cd out
-          cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF ..
-          ../installers/deb-systemd/build.py .. .
-
-  mac:
-    runs-on: macos-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    - name: Cache Build Dir
-      id: cache-build-dir
-      uses: actions/cache@v3
-      with:
-        path: out
-        key: ${{ runner.os }}-out
+        sudo apt-get install -y libsystemd-dev
+        if [[ '${{ matrix.os }}' == 'ubuntu-20.04' ]]; then
+          echo "CC=gcc-10"  >> $GITHUB_ENV
+          echo "CXX=g++-10" >> $GITHUB_ENV
+        fi
 
     - name: Build
       run: |
           cmake -E make_directory out
-          cd out
-          cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF ..
-          ../installers/mac/build.py .. .
+          cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF 
+          installers/${{ matrix.installer }}/build.py . out
 
 
 

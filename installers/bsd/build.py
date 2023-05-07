@@ -88,6 +88,7 @@ if args.uploadResults:
     subprocess.run(['aws', 's3', 'sync', repo, f's3://gershnik.com/bsd-repo/{ABI}'], check=True)
 
     subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
-    shutil.move(builddir / 'wsddn.gz', workdir / f'wsddn-bsd-{VERSION}.gz')
-    shutil.move(workdir / f'wsddn-{VERSION}.pkg', workdir / f'wsddn-bsd-{VERSION}.pkg')
-    uploadResults(workdir / f'wsddn-bsd-{VERSION}.pkg', workdir / f'wsddn-bsd-{VERSION}.gz')
+    abiMarker = ABI.replace(':', '-')
+    shutil.move(builddir / 'wsddn.gz', workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.gz')
+    shutil.move(workdir / f'wsddn-{VERSION}.pkg', workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.pkg')
+    uploadResults(workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.pkg', workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.gz')

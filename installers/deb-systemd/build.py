@@ -88,48 +88,10 @@ subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
 
 deb = list(workdir.glob('*.deb'))[0]
 
-shutil.move(builddir / 'wsddn.gz', workdir / f'wsddn-deb-systemd-{VERSION}-{CODENAME}.gz')
+shutil.move(builddir / 'wsddn.gz', workdir / f'wsddn-deb-systemd-{VERSION}-{ARCH}-{CODENAME}.gz')
 
 if args.uploadResults:
     debForRelease = workdir / f'{CODENAME}-{deb.name}'
     shutil.copy(deb, debForRelease)
-
-    repo = builddir / 'apt-repo'
-    subprocess.run(['aws', 's3', 'sync', 's3://gershnik.com/apt-repo', repo], check=True)
-    (repo / 'pool/main').mkdir(parents=True, exist_ok=True)
-    (repo / f'dists/{CODENAME}/main/binary-{ARCH}').mkdir(parents=True, exist_ok=True)
-    shutil.copy(debForRelease, repo / 'pool/main')
-    for f in list((repo / 'pool/main').iterdir()):
-        if not f.name.startswith(f'{CODENAME}-'):
-            f.unlink()
-    with open(repo / f'dists/{CODENAME}/main/binary-{ARCH}/Packages', "w") as packages:
-        subprocess.run(['apt-ftparchive', '--arch', ARCH, 'packages', 'pool'], stdout=packages, cwd=repo, check=True)
-    subprocess.run(['gzip', '--keep', '--force', repo / f'dists/{CODENAME}/main/binary-{ARCH}/Packages'], check=True)
-    (repo / f'dists/{CODENAME}/Release').unlink(missing_ok=True)
-    relaseContent = subprocess.run(['apt-ftparchive', '--arch', ARCH, 'release', repo / f'dists/{CODENAME}'], capture_output=True, encoding='utf-8', check=True).stdout
-    (repo / f'dists/{CODENAME}/Release').write_text(f"""
-Origin: github.com/gershnik repository
-Label: github.com/gershnik
-Suite: {CODENAME}
-Codename: {CODENAME}
-Version: 1.0
-Architectures: amd64
-Components: main
-Description: Software repository for github.com/gershnik
-{relaseContent}
-""".lstrip())
-        
-    (repo / f'dists/{CODENAME}/Release.pgp').unlink(missing_ok=True)
-    subprocess.run(['gpg', '--batch', '--pinentry-mode=loopback',
-                    '--default-key', os.environ['PGP_KEY_NAME'], '-abs',  
-                    '--passphrase', os.environ['PGP_KEY_PASSWD'],
-                    '-o', repo / f'dists/{CODENAME}/Release.pgp', repo / f'dists/{CODENAME}/Release'], check=True)
-    (repo / f'dists/{CODENAME}/InRelease').unlink(missing_ok=True)
-    subprocess.run(['gpg', '--batch', '--pinentry-mode=loopback', 
-                    '--default-key', os.environ['PGP_KEY_NAME'], '-abs', '--clearsign', 
-                    '--passphrase', os.environ['PGP_KEY_PASSWD'],
-                    '-o', repo / f'dists/{CODENAME}/InRelease', repo / f'dists/{CODENAME}/Release'], check=True)
-    subprocess.run(['aws', 's3', 'sync', repo, 's3://gershnik.com/apt-repo'], check=True)
-
-    
-    uploadResults(debForRelease, workdir / f'wsddn-deb-systemd-{VERSION}-{CODENAME}.gz')
+    subprocess.run(['aws', 's3', 'cp', debForRelease, 's3://gershnik.com/apt-repo/pool/main/'], check=True)
+    uploadResults(debForRelease, workdir / f'wsddn-deb-systemd-{VERSION}-{ARCH}-{CODENAME}.gz')
