@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        remote_host: [debian-11, debian-11-arm, ubuntu-20.04-arm, freebsd-13.1, centos-9, centos-9-arm]
+        remote_host: [debian-11, debian-11-arm, ubuntu-20.04-arm, ubuntu-23.04, freebsd-13.1, centos-9, centos-9-arm]
         include: 
         - remote_host: debian-11
           installer: deb-systemd
@@ -38,6 +38,10 @@ jobs:
         - remote_host: ubuntu-20.04-arm
           installer: deb-systemd
         - remote_host: ubuntu-22.04-arm
+          installer: deb-systemd
+        - remote_host: ubuntu-23.04
+          installer: deb-systemd
+        - remote_host: ubuntu-23.04-arm
           installer: deb-systemd
         - remote_host: freebsd-13.1
           installer: bsd
@@ -103,7 +107,7 @@ jobs:
           echo "CXX=g++-10" >> $GITHUB_ENV
         fi
 
-    - name: Build
+    - name: Configure
       run: |
           cmake -E make_directory out
           cd out
@@ -132,54 +136,3 @@ jobs:
           installers/mac/set-github-keychain
           installers/mac/build.py --upload-results . out
         fi
-
-  update-rpm:
-    concurrency: centos-9
-    runs-on: [self-hosted, server]
-    needs: [local, remote]
-    steps:
-
-    - name: Update RPM repo
-      run: |
-        "$RUNNER_TOOLS_PATH"/run-agent gh-centos-9 <<'EOF'
-        set -e
-        cd work/wsdd-native
-        git fetch --all
-        git fetch -f --prune --tags
-        git reset --hard ${{ github.sha }}
-
-        export PGP_KEY_NAME='${{ secrets.PGP_KEY_NAME }}'
-        export PGP_KEY_PASSWD='${{ secrets.PGP_KEY_PASSWD }}'
-          
-        installers/rpm-systemd/update-repo.py out
-        EOF
-  
-  wrapup:
-    runs-on: ubuntu-latest
-    needs: [local, remote, update-rpm]
-    steps:
-
-    - name: Checkout
-      uses: actions/checkout@v3
-
-    - name: Update APT repo
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-      run: |
-        export PGP_KEY_NAME='${{ secrets.PGP_KEY_NAME }}'
-        export PGP_KEY_PASSWD='${{ secrets.PGP_KEY_PASSWD }}'
-          
-        echo ${{ secrets.PGP_KEY }} | base64 --decode | gpg --import --batch --pinentry-mode=loopback
-
-        installers/deb-systemd/update-repo.py out
-        
-    - name: Invalidate distributions cache
-      env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          CLOUDFRONT_DISTRIBUTION: ${{ secrets.CLOUDFRONT_DISTRIBUTION }}
-      run: |
-        aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION --paths "/apt-repo/*" "/rpm-repo/*" "/bsd-repo/*"

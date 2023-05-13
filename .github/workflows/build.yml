@@ -30,6 +30,10 @@ jobs:
           installer: deb-systemd
         - remote_host: ubuntu-22.04-arm
           installer: deb-systemd
+        - remote_host: ubuntu-23.04
+          installer: deb-systemd
+        - remote_host: ubuntu-23.04-arm
+          installer: deb-systemd
         - remote_host: freebsd-13.1
           installer: bsd
         - remote_host: freebsd-13.1-arm

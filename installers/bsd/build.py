@@ -80,13 +80,8 @@ subprocess.run(['pkg', 'create', '--verbose', '-m', workdir, '-r',  stagedir, '-
 
 
 if args.uploadResults:
-    repo = workdir / f'repo'
-    subprocess.run(['aws', 's3', 'sync', f's3://gershnik.com/bsd-repo/{ABI}', repo], check=True)
-    (repo / 'All').mkdir(parents=True, exist_ok=True)
-    shutil.copy(workdir / f'wsddn-{VERSION}.pkg', repo / 'All')
-    subprocess.run(['pkg', 'repo', repo, Path.home() / '.ssh/bsd-repo-key'], check=True)
-    subprocess.run(['aws', 's3', 'sync', repo, f's3://gershnik.com/bsd-repo/{ABI}'], check=True)
-
+    subprocess.run(['aws', 's3', 'cp', workdir / f'wsddn-{VERSION}.pkg', f's3://gershnik.com/bsd-repo/{ABI}/All'], check=True)
+    
     subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
     abiMarker = ABI.replace(':', '-')
     shutil.move(builddir / 'wsddn.gz', workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.gz')

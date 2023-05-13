@@ -61,6 +61,7 @@ The biggest drawback of **wsdd-native** compared to these projects is that it re
 ### Ubuntu/Debian 
 
 Pre-built packages are available in a custom apt repository for:
+* Ubuntu 23.04 (lunar)
 * Ubuntu 22.04 (jammy)
 * Ubuntu 20.04 (focal)
 * Debian 11 (bullseye)
@@ -71,11 +72,17 @@ To set up the apt repository:
 
 * Configure it
   ```bash
-  echo "deb [arch=$(dpkg --print-architecture)] https://www.gershnik.com/apt-repo/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/wsddn.list >/dev/null
+  echo "deb" \
+  "[arch=$(dpkg --print-architecture)]" \
+  "https://www.gershnik.com/apt-repo/" \
+  "$(lsb_release -sc)" \
+  "main" \
+    | sudo tee /etc/apt/sources.list.d/wsddn.list >/dev/null
   ```
 * Import the repository public key
   ```bash
-  wget -qO- https://www.gershnik.com/apt-repo/conf/pgp-key.public | sudo tee /etc/apt/trusted.gpg.d/gershnik.asc >/dev/null
+  wget -qO- https://www.gershnik.com/apt-repo/conf/pgp-key.public \
+    | sudo tee /etc/apt/trusted.gpg.d/gershnik.asc >/dev/null
   ```
 
 Once the repository is set up you can install `wsddn` as usual via:
