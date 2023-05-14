@@ -27,7 +27,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 - [Features](#features)
 - [Binary packages](#binary-packages)
     - [Ubuntu/Debian](#ubuntudebian)
-    - [RedHat/CentOS](#redhatcentos)
+    - [RedHat/CentOS/Fedora](#redhatcentosfedora)
     - [FreeBSD](#freebsd)
     - [macOS](#macos)
 - [Building from sources](#building-from-sources)
@@ -109,10 +109,10 @@ Daemon log can be viewed via `journalctl` as usual
 journalctl -u wsddn
 ```
 
-### RedHat/CentOS
+### RedHat/CentOS/Fedora
 
-Pre-built packages are available in a custom rpm repository for
-* el9 distribution (RHEL9/CentOS Stream 9)
+Pre-built packages are available in a custom rpm repository. 
+It provides "el9" packages that should work for RHEL9/CentOS Stream 9/Fedora 34 or above.
 
 Both `amd64` (aka `x86_64`) and `arm64` (aka `aarch64`) architectures are supported. 
 
@@ -160,7 +160,8 @@ To set the repo up:
   ```
 * Download the repository public key
   ```bash
-  wget -qO- https://www.gershnik.com/bsd-repo/rsa-key.pub | sudo tee /usr/local/etc/pkg/repos/www_gershnik_com.pub > /dev/null
+  wget -qO- https://www.gershnik.com/bsd-repo/rsa-key.pub \
+   | sudo tee /usr/local/etc/pkg/repos/www_gershnik_com.pub > /dev/null
   ```
 * Create a file named `/usr/local/etc/pkg/repos/www_gershnik_com.conf`
 * Put the following content in it:
