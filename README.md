@@ -130,7 +130,16 @@ sudo dnf install wsddn
 
 On first install firewall ports `5357/tcp` and `3702/udp` will be opened. 
 
-Daemon will be enabled and started automatically on first install but keep its existing state on updates. To start/stop/reload it use
+On RHEL/Centos daemon will be enabled and started automatically on first install but keep its existing state on updates. 
+
+On Fedora you need to manually enable and start the daemon:
+
+```bash
+sudo systemctl enable wsddn
+sudo systemctl start wsddn
+```
+
+To start/stop/reload it use
 
 ```bash
 sudo systemctl start wsddn
