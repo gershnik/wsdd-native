@@ -26,7 +26,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 
 - [Features](#features)
 - [Binary packages](#binary-packages)
-    - [Ubuntu/Debian](#ubuntudebian)
+    - [Ubuntu/Debian/Mint/Raspberry Pi](#ubuntudebianmintraspberry-pi)
     - [RedHat/CentOS/Fedora](#redhatcentosfedora)
     - [FreeBSD](#freebsd)
     - [macOS](#macos)
@@ -58,27 +58,34 @@ The biggest drawback of **wsdd-native** compared to these projects is that it re
 
 ## Binary packages
 
-### Ubuntu/Debian 
+### Ubuntu/Debian/Mint/Raspberry Pi 
 
-Pre-built packages are available in a custom apt repository for:
-* Ubuntu 23.04 (lunar)
-* Ubuntu 22.04 (jammy)
-* Ubuntu 20.04 (focal)
-* Debian 11 (bullseye)
+Pre-built packages are available in a custom apt repository for systems starting from Ubuntu 20.04 (focal) and
+Debian 11 (bullseye). Any Debian system based upon those or newer should work.
 
 Both `amd64` (aka `x86_64`) and `arm64` (aka `aarch64`) architectures are supported. 
 
 To set up the apt repository:
 
-* Configure it
+* Find best matching distribution
+```bash
+WSDDN_MATCHING_DIST=`(source /etc/os-release; \
+  mine=${UBUNTU_CODENAME:-${VERSION_CODENAME:-UNKNOWN}}; \
+  supported=($(wget -qO- https://www.gershnik.com/apt-repo/conf/supported-dists.txt)); \
+  if printf '%s\0' "${supported[@]}" | grep -Fxzq  -- "$mine"; then echo $mine; else echo ${supported[0]}; fi \
+)`
+```
+
+* Add new repo
   ```bash
   echo "deb" \
   "[arch=$(dpkg --print-architecture)]" \
   "https://www.gershnik.com/apt-repo/" \
-  "$(lsb_release -sc)" \
+  "$WSDDN_MATCHING_DIST" \
   "main" \
     | sudo tee /etc/apt/sources.list.d/wsddn.list >/dev/null
   ```
+
 * Import the repository public key
   ```bash
   wget -qO- https://www.gershnik.com/apt-repo/conf/pgp-key.public \
