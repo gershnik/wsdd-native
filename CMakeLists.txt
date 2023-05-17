@@ -216,6 +216,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     PRIVATE 
         LINKER:-sectcreate,__TEXT,__info_plist,${CMAKE_CURRENT_BINARY_DIR}/Info.plist
     )
+
+    set_target_properties(wsddn PROPERTIES LINK_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
     
     if (CMAKE_GENERATOR MATCHES "Xcode")
         set_target_properties(wsddn PROPERTIES

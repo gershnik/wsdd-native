@@ -10,12 +10,14 @@
 	<string>io.github.gershnik.wsdd-native</string>
 	<key>CFBundleName</key>
 	<string>wsddn</string>
+	<key>CFBundleDisplayName</key>
+	<string>WS-Discovery Host Daemon</string>
 	<key>CFBundleVersion</key>
 	<string>@WSDDN_VERSION@</string>
 	<key>CFBundleShortVersionString</key>
 	<string>@WSDDN_VERSION@</string>
 	<key>NSHumanReadableCopyright</key>
-	<string></string>
+	<string>Copyright (c) 2022, Eugene Gershnik</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 </dict>
