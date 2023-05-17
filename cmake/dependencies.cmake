@@ -53,7 +53,7 @@ if (NOT LibXml2_FOUND)
 
     FetchContent_Declare(libxml2
         GIT_REPOSITORY  https://gitlab.gnome.org/GNOME/libxml2.git
-        GIT_TAG         v2.9.14
+        GIT_TAG         v2.11.3
         GIT_SHALLOW     TRUE
         GIT_PROGRESS    TRUE
     )
@@ -63,7 +63,7 @@ endif()
 
 FetchContent_Declare(libuuid
     GIT_REPOSITORY  https://github.com/gershnik/libuuid-cmake.git
-    GIT_TAG         v2.38
+    GIT_TAG         v2.39
     GIT_SHALLOW     TRUE
     GIT_PROGRESS    TRUE
 )
@@ -74,7 +74,7 @@ set(SPDLOG_NO_TLS ON)
 
 FetchContent_Declare(spdlog
     GIT_REPOSITORY  https://github.com/gabime/spdlog
-    GIT_TAG         v1.10.0
+    GIT_TAG         v1.11.0
     GIT_SHALLOW     TRUE
     GIT_PROGRESS    TRUE
 )
@@ -82,7 +82,7 @@ list(APPEND DECLARED_DEPENDENCIES spdlog)
 
 FetchContent_Declare(tomlplusplus
     GIT_REPOSITORY  https://github.com/marzer/tomlplusplus.git
-    GIT_TAG         v3.1.0
+    GIT_TAG         v3.3.0
     GIT_SHALLOW     TRUE
     GIT_PROGRESS    TRUE
     GIT_SUBMODULES_RECURSE FALSE
@@ -96,14 +96,14 @@ list(APPEND DECLARED_DEPENDENCIES tomlplusplus)
 #     SOURCE_SUBDIR   include #we don't really want to build it
 # )
 FetchContent_Declare(outcome
-    URL             https://github.com/ned14/outcome/tarball/v2.2.3
+    URL             https://github.com/ned14/outcome/tarball/v2.2.4
     SOURCE_SUBDIR   include #we don't really want to build it
 )
 list(APPEND DECLARED_DEPENDENCIES outcome)
 
 FetchContent_Declare(asio
-    URL             https://sourceforge.net/projects/asio/files/asio/1.22.1%20%28Stable%29/asio-1.22.1.tar.gz/download
-    URL_HASH        MD5=dd2befc3950bea6e7e0d2898f88e46af
+    URL             https://sourceforge.net/projects/asio/files/asio/1.28.0%20%28Stable%29/asio-1.28.0.tar.gz/download
+    URL_HASH        MD5=0e653d933487d001022203a2ad144539
 )
 list(APPEND DECLARED_DEPENDENCIES asio)
 
