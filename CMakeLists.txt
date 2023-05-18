@@ -3,7 +3,9 @@
 
 cmake_minimum_required(VERSION 3.23)
 
-cmake_policy(SET CMP0135 NEW) #set the timestamps of all extracted contents to the time of the extraction
+if(POLICY CMP0135)
+    cmake_policy(SET CMP0135 NEW) #set the timestamps of all extracted contents to the time of the extraction
+endif()
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.15)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
@@ -86,6 +88,8 @@ PRIVATE
 
     "$<$<PLATFORM_ID:Darwin>:-framework SystemConfiguration>"
     "$<$<PLATFORM_ID:Darwin>:-framework OpenDirectory>"
+
+    "$<$<PLATFORM_ID:Linux>:dl>"
     
     "$<$<BOOL:${HAVE_EXECINFO_LIB}>:execinfo>"
 
