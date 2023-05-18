@@ -45,8 +45,8 @@ private:
     void setLogOutput(bool firstTime);
     void setPidFile();
 
-    static void setLogFile(const std::filesystem::path & filename);
-    static void redirectStdFile(const FileDescriptor & fd, FILE * fp);
+    static auto openLogFile(const std::filesystem::path & filename) -> FileDescriptor;
+    static void redirectStdFile(FILE * from, const FileDescriptor & to);
     static void closeAllExcept(const int * first, const int * last);
 private:
     std::set<int> m_untouchedSignals;
@@ -58,6 +58,9 @@ private:
     std::optional<spdlog::level::level_enum> m_logLevel;
     std::optional<std::filesystem::path> m_logFilePath;
     std::optional<std::filesystem::path> m_pidFilePath;
+#if HAVE_OS_LOG
+    std::optional<bool> m_logToOsLog;
+#endif
     PidFile m_pidFile;
     FileDescriptor m_savedStdOut;
     FileDescriptor m_savedStdErr;

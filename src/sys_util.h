@@ -298,6 +298,47 @@ public:
 
 #endif
 
+#if HAVE_OS_LOG
+
+    template<typename Mutex>
+    class OsLogSink : public spdlog::sinks::base_sink<Mutex>
+    {
+        using super = spdlog::sinks::base_sink<Mutex>;
+    public:
+        OsLogSink() noexcept : m_logger(os_log_create("io.github.gershnik.wsdd-native", "default")) {
+        }
+        ~OsLogSink() noexcept {
+            os_release(m_logger);
+        }
+        OsLogSink(const OsLogSink &) = delete;
+        auto operator=(const OsLogSink &) -> OsLogSink & = delete;
+    protected:
+        void sink_it_(const spdlog::details::log_msg& msg) override {
+
+            spdlog::memory_buf_t formatted;
+            super::formatter_->format(msg, formatted);
+            formatted.append(std::array{'\0'});
+
+            os_log_type_t type;
+            switch(msg.level) {
+                case SPDLOG_LEVEL_CRITICAL:   type = OS_LOG_TYPE_FAULT;     break;
+                case SPDLOG_LEVEL_ERROR:      type = OS_LOG_TYPE_ERROR;     break;
+                case SPDLOG_LEVEL_WARN:       type = OS_LOG_TYPE_DEFAULT;   break;
+                case SPDLOG_LEVEL_INFO:       type = OS_LOG_TYPE_INFO;      break;
+                default:                      type = OS_LOG_TYPE_DEBUG;     break;
+            }
+
+            os_log_with_type(m_logger, type, "%{public}s", formatted.data());
+        }
+
+        void flush_() override {
+        }
+    private:
+        os_log_t m_logger;
+    };
+
+#endif
+
 inline void changeOwner(const FileDescriptor & fd, const Identity & owner) {
     if (fchown(fd.get(), owner.uid(), owner.gid()) != 0)
         throwErrno("fchown()", errno);

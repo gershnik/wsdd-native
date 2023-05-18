@@ -25,6 +25,9 @@ struct CommandLine {
     
     std::optional<spdlog::level::level_enum> logLevel;
     std::optional<std::filesystem::path> logFile;
+#if HAVE_OS_LOG
+    std::optional<bool> logToOsLog;
+#endif
     std::optional<std::filesystem::path> pidFile;
     std::optional<Identity> runAs;
     std::optional<std::filesystem::path> chrootDir;

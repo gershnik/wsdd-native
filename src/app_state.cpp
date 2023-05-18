@@ -32,7 +32,7 @@ void AppState::init() {
     setLogLevel();
 
     FileDescriptor devNull("/dev/null", O_RDWR);
-    redirectStdFile(devNull, stdin);
+    redirectStdFile(stdin, devNull);
 
     if (m_currentCommandLine.daemonType && *m_currentCommandLine.daemonType == DaemonType::Unix) {
         m_savedStdOut = FileDescriptor(dup(devNull.get()));
@@ -87,7 +87,11 @@ void AppState::refresh() {
     if (m_currentCommandLine.logLevel != m_logLevel)
         setLogLevel();
     
-    if ( m_currentCommandLine.logFile != m_logFilePath)
+    if ( m_currentCommandLine.logFile != m_logFilePath 
+#if HAVE_OS_LOG
+        || m_logToOsLog != m_currentCommandLine.logToOsLog
+#endif
+    )
         setLogOutput(false);
 
     if ( m_currentCommandLine.pidFile != m_pidFilePath)
@@ -145,15 +149,28 @@ void AppState::setLogLevel() {
 
 void AppState::setLogOutput(bool firstTime) {
 
+#if HAVE_OS_LOG
+    if (m_currentCommandLine.logToOsLog && *m_currentCommandLine.logToOsLog) {
+        using Sink = OsLogSink<spdlog::details::null_mutex>;
+
+        auto sink = std::make_shared<Sink>();
+        auto logger = std::make_shared<spdlog::logger>("os_log", std::move(sink));
+        spdlog::set_default_logger(logger);
+        spdlog::set_pattern("%v");
+    } else 
+#endif
+
     if (m_currentCommandLine.logFile) {
-        setLogFile(*m_currentCommandLine.logFile);
+        auto fileFd = openLogFile(*m_currentCommandLine.logFile);
+        redirectStdFile(stdout, fileFd);
+        redirectStdFile(stderr, fileFd);
         auto logger = spdlog::stdout_logger_st("file");
         spdlog::set_default_logger(logger);
         spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%P] %L -- %v");
     } else {
         if (!firstTime) {
-            redirectStdFile(m_savedStdOut, stdout);
-            redirectStdFile(m_savedStdErr, stderr);
+            redirectStdFile(stdout, m_savedStdOut);
+            redirectStdFile(stderr, m_savedStdErr);
         }
         auto logger = isatty(fileno(stdout)) ? spdlog::stdout_color_st("console") : spdlog::stdout_logger_st("console");
         spdlog::set_default_logger(logger);
@@ -170,6 +187,7 @@ void AppState::setLogOutput(bool firstTime) {
     #endif
     }
     m_logFilePath = m_currentCommandLine.logFile;
+    m_logToOsLog = m_currentCommandLine.logToOsLog;
 }
 
 void AppState::setPidFile() {
@@ -184,7 +202,7 @@ void AppState::setPidFile() {
     m_pidFilePath = m_currentCommandLine.pidFile;
 }
 
-void AppState::setLogFile(const std::filesystem::path & filename) {
+auto AppState::openLogFile(const std::filesystem::path & filename) -> FileDescriptor {
         
     std::optional<Identity> owner;
     mode_t mode = S_IRUSR | S_IWUSR;
@@ -203,15 +221,14 @@ void AppState::setLogFile(const std::filesystem::path & filename) {
         changeOwner(fd, Identity::admin());
         changeMode(fd, S_IRUSR | S_IWUSR | S_IRGRP);
     }
-    redirectStdFile(fd, stdout);
-    redirectStdFile(fd, stderr);
+    return fd;
 }
 
 
-void AppState::redirectStdFile(const FileDescriptor & fd, FILE * fp) {
+void AppState::redirectStdFile(FILE * from, const FileDescriptor & to) {
 
-    fflush(fp);
-    if (dup2(fd.get(), fileno(fp)) < 0)
+    fflush(from);
+    if (dup2(to.get(), fileno(from)) < 0)
         throwErrno("dup2()", errno);
 }
 

@@ -144,8 +144,16 @@ static auto setLogLevel(CommandLine & cmdline, unsigned decrease) {
 static auto setLogFile(CommandLine & cmdline, std::string_view val) {
     if (val.empty())
         throw Parser::ValidationError("log file path cannot be empty");
+    if (cmdline.logToOsLog && *cmdline.logToOsLog)
+        throw Parser::ValidationError("logging to file and system log are mutually exclusive");
     auto value = absolute(std::filesystem::path(val));
     cmdline.logFile.emplace(std::move(value));
+}
+
+static auto setLogToOsLog(CommandLine & cmdline, bool val) {
+    if (val && cmdline.logFile)
+        throw Parser::ValidationError("logging to file and system log are mutually exclusive");
+    cmdline.logToOsLog = val;
 }
 
 static auto setPidFile(CommandLine & cmdline, std::string_view val) {
@@ -314,6 +322,15 @@ void CommandLine::parse(int argc, char * argv[]) {
                handler([this](std::string_view val){
         setLogFile(*this, val);
     }));
+#if HAVE_OS_LOG
+    parser.add(Option("--log-os-log").
+               help("log to system log.\n"
+                    "This option is mutually exclusive with --log-file").
+               occurs(Argum::neverOrOnce).
+               handler([this](){
+        setLogToOsLog(*this, true);
+    }));
+#endif
     parser.add(Option("--pid-file").
                argName("PATH").
                help("PID file to create.\n"
@@ -426,6 +443,12 @@ void CommandLine::parseConfigKey(std::string_view keyName, const toml::node & va
         
         setConfigValue<std::string>(bool(this->logFile), keyName, value, [this](const toml::value<std::string> & val) {
             setLogFile(*this, *val);
+        });
+        
+    } else if (keyName == "log-os-log"sv) {
+        
+        setConfigValue<bool>(bool(this->logToOsLog), keyName, value, [this](const toml::value<bool> & val) {
+            setLogToOsLog(*this, *val);
         });
         
     } else if (keyName == "pid-file"sv) {

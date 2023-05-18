@@ -8,7 +8,7 @@
 
 | `wsddn` `--help`
 | `wsddn` `--version`
-| `wsddn` [`--unixd`|`--systemd`|`--launchd`] [`-c` _path_] [[`-i` _name_]...] [`-4`|`-6`] [`--hoplimit` _number_] [`--uuid` _uuid_] [`-H` _name_] [`-D`|`-W` _name_] [`--log-level` _level_] [`--log-file` _path_] [`--pid-file` _path_] [`-U` _user_[:_group_]] [`-r` _dir_]
+| `wsddn` [`--unixd`|`--systemd`|`--launchd`] [`-c` _path_] [[`-i` _name_]...] [`-4`|`-6`] [`--hoplimit` _number_] [`--uuid` _uuid_] [`-H` _name_] [`-D`|`-W` _name_] [`--log-level` _level_] [`--log-file` _path_ | `--log-os-log`] [`--pid-file` _path_] [`-U` _user_[:_group_]] [`-r` _dir_]
 
 # DESCRIPTION
 
@@ -53,6 +53,9 @@ Unless otherwise specified options cannot be repeated. The options are as follow
 
     If --user option is used, the directory of the logfile must allow the specified user to create and delete files. 
     The equivalent config file option is `log-file`
+
+`--log-os-log`
+:   Available on macOS only. If specified log output is sent to system log visible via Console app or `log` command line tool. This option is mutually exclusive with `--log-file`.
 
 `--pid-file` _path_       
 :   Set the path to PID file. If not specified no PID file is written. Send SIGHUP signal to the process ID in the PID file to reload 
@@ -159,6 +162,9 @@ Any options specified on command line take precedence over options in the config
 
 `log-file` = "path"
 : Same as `--log-file` command line option
+
+`log-os-log` = true/false
+: This setting is only available on macOS. Setting it to `true` is the same as `--log-os-log` command line option
 
 `member-of` = "Workgroup/_name_" | "Domain/_name_"
 : Report whether the host is a member of a given workgroup or domain. To specify a workgroup use "Workgroup/name" syntax. To specify a domain use "Domain/name". The "workgroup/" and "domain/" prefixes are not case sensitive. If not specified workgroup/domain membership is detected from SMB configuration. If no SMB configuration is found it is set to a workgroup named WORKGROUP. The equivalent command line options are `--domain` and `--workgroup`.

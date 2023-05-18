@@ -35,7 +35,7 @@
 [\f[V]--uuid\f[R]\ \f[I]uuid\f[R]] [\f[V]-H\f[R]\ \f[I]name\f[R]]
 [\f[V]-D\f[R]|\f[V]-W\f[R]\ \f[I]name\f[R]]
 [\f[V]--log-level\f[R]\ \f[I]level\f[R]]
-[\f[V]--log-file\f[R]\ \f[I]path\f[R]]
+[\f[V]--log-file\f[R]\ \f[I]path\f[R] | \f[V]--log-os-log\f[R]]
 [\f[V]--pid-file\f[R]\ \f[I]path\f[R]]
 [\f[V]-U\f[R]\ \f[I]user\f[R][:\f[I]group\f[R]]]
 [\f[V]-r\f[R]\ \f[I]dir\f[R]]
@@ -107,6 +107,12 @@ If \[en]user option is used, the directory of the logfile must allow the
 specified user to create and delete files.
 The equivalent config file option is \f[V]log-file\f[R]
 .RE
+.TP
+\f[V]--log-os-log\f[R]
+Available on macOS only.
+If specified log output is sent to system log visible via Console app or
+\f[V]log\f[R] command line tool.
+This option is mutually exclusive with \f[V]--log-file\f[R].
 .TP
 \f[V]--pid-file\f[R] \f[I]path\f[R]
 Set the path to PID file.
@@ -301,6 +307,11 @@ Same as \f[V]--log-level\f[R] command line option
 .TP
 \f[V]log-file\f[R] = \[lq]path\[rq]
 Same as \f[V]--log-file\f[R] command line option
+.TP
+\f[V]log-os-log\f[R] = true/false
+This setting is only available on macOS.
+Setting it to \f[V]true\f[R] is the same as \f[V]--log-os-log\f[R]
+command line option
 .TP
 \f[V]member-of\f[R] = \[lq]Workgroup/\f[I]name\f[R]\[rq] | \[lq]Domain/\f[I]name\f[R]\[rq]
 Report whether the host is a member of a given workgroup or domain.

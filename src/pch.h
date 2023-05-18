@@ -28,6 +28,7 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/base_sink.h>
 #include <spdlog/pattern_formatter.h>
 
 #include <outcome.hpp>
@@ -66,11 +67,13 @@
 
 #include <stdio.h>
 
-#if (defined(__APPLE__) && defined(__MACH__))
+#if WSDDN_PLATFORM_APPLE
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <SystemConfiguration/SCNetworkConfiguration.h>
 #include <OpenDirectory/OpenDirectory.h>
+
+#include <os/log.h>
 
 #include <intrusive_shared_ptr/apple_cf_ptr.h>
 
