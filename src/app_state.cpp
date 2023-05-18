@@ -187,7 +187,9 @@ void AppState::setLogOutput(bool firstTime) {
     #endif
     }
     m_logFilePath = m_currentCommandLine.logFile;
+#if HAVE_OS_LOG
     m_logToOsLog = m_currentCommandLine.logToOsLog;
+#endif
 }
 
 void AppState::setPidFile() {
