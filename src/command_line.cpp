@@ -144,8 +144,10 @@ static auto setLogLevel(CommandLine & cmdline, unsigned decrease) {
 static auto setLogFile(CommandLine & cmdline, std::string_view val) {
     if (val.empty())
         throw Parser::ValidationError("log file path cannot be empty");
+#if HAVE_OS_LOG
     if (cmdline.logToOsLog && *cmdline.logToOsLog)
         throw Parser::ValidationError("logging to file and system log are mutually exclusive");
+#endif
     auto value = absolute(std::filesystem::path(val));
     cmdline.logFile.emplace(std::move(value));
 }
@@ -457,7 +459,7 @@ void CommandLine::parseConfigKey(std::string_view keyName, const toml::node & va
             setLogToOsLog(*this, *val);
         });
 #endif
-        
+
     } else if (keyName == "pid-file"sv) {
         
         setConfigValue<std::string>(bool(this->pidFile), keyName, value, [this](const toml::value<std::string> & val) {
