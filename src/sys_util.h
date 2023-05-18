@@ -305,7 +305,7 @@ public:
     {
         using super = spdlog::sinks::base_sink<Mutex>;
     public:
-        OsLogSink() noexcept : m_logger(os_log_create("io.github.gershnik.wsdd-native", "default")) {
+        OsLogSink() noexcept : m_logger(os_log_create("io.github.gershnik.wsddn", "default")) {
         }
         ~OsLogSink() noexcept {
             os_release(m_logger);

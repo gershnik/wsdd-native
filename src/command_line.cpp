@@ -150,11 +150,15 @@ static auto setLogFile(CommandLine & cmdline, std::string_view val) {
     cmdline.logFile.emplace(std::move(value));
 }
 
+#if HAVE_OS_LOG
+
 static auto setLogToOsLog(CommandLine & cmdline, bool val) {
     if (val && cmdline.logFile)
         throw Parser::ValidationError("logging to file and system log are mutually exclusive");
     cmdline.logToOsLog = val;
 }
+
+#endif
 
 static auto setPidFile(CommandLine & cmdline, std::string_view val) {
     if (val.empty())
@@ -445,11 +449,14 @@ void CommandLine::parseConfigKey(std::string_view keyName, const toml::node & va
             setLogFile(*this, *val);
         });
         
+#if HAVE_OS_LOG
+
     } else if (keyName == "log-os-log"sv) {
         
         setConfigValue<bool>(bool(this->logToOsLog), keyName, value, [this](const toml::value<bool> & val) {
             setLogToOsLog(*this, *val);
         });
+#endif
         
     } else if (keyName == "pid-file"sv) {
         
