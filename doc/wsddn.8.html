@@ -1,5 +1,5 @@
-<!-- Creator     : groff version 1.19.2 -->
-<!-- CreationDate: Thu Jul 21 12:30:50 2022 -->
+<!-- Creator     : groff version 1.22.4 -->
+<!-- CreationDate: Fri May 19 02:49:12 2023 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -8,16 +8,17 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <meta name="Content-Style" content="text/css">
 <style type="text/css">
-       p     { margin-top: 0; margin-bottom: 0; }
-       pre   { margin-top: 0; margin-bottom: 0; }
-       table { margin-top: 0; margin-bottom: 0; }
+       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       h1      { text-align: center }
 </style>
 <title>wsddn</title>
 
 </head>
 <body>
 
-<h1 align=center>wsddn</h1>
+<h1 align="center">wsddn</h1>
 
 <a href="#NAME">NAME</a><br>
 <a href="#SYNOPSIS">SYNOPSIS</a><br>
@@ -34,15 +35,17 @@
 <hr>
 
 
+<h2>NAME
 <a name="NAME"></a>
-<h2>NAME</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>wsddn</b>
 &mdash; WS-Discovery Host Daemon</p>
 
+<h2>SYNOPSIS
 <a name="SYNOPSIS"></a>
-<h2>SYNOPSIS</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em"><tt>wsddn
@@ -58,13 +61,15 @@ wsddn&nbsp;</tt>[<tt>--unixd</tt>|<tt>--systemd</tt>|<tt>--launchd</tt>]
 [<tt>-H&nbsp;</tt><i>name</i>]
 [<tt>-D</tt>|<tt>-W&nbsp;</tt><i>name</i>]
 [<tt>--log-level&nbsp;</tt><i>level</i>]
-[<tt>--log-file&nbsp;</tt><i>path</i>]
+[<tt>--log-file&nbsp;</tt><i>path</i> |
+<tt>--log-os-log</tt>]
 [<tt>--pid-file&nbsp;</tt><i>path</i>]
 [<tt>-U&nbsp;</tt><i>user</i>[:<i>group</i>]]
 [<tt>-r&nbsp;</tt><i>dir</i>]</p>
 
+<h2>DESCRIPTION
 <a name="DESCRIPTION"></a>
-<h2>DESCRIPTION</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em"><tt>wsddn</tt>
@@ -78,8 +83,9 @@ the configuration file. <tt>wsddn</tt> rereads its
 configuration file when it receives a hangup signal,
 SIGHUP.</p>
 
+<h2>OPTIONS
 <a name="OPTIONS"></a>
-<h2>OPTIONS</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em">Unless
@@ -142,51 +148,57 @@ is <tt>log-level</tt></p>
 the log output to. If not specified <tt>wsddn</tt> outputs
 the log messages as follows</p>
 
-<table width="100%" border=0 rules="none" frame="void"
+<table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="22%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&bull;</p></td>
+<p>&bull;</p></td>
 <td width="2%"></td>
 <td width="75%">
 
 
-<p style="margin-top: 1em" valign="top">If invoked without
-any daemon flags: to standard output</p></td>
+<p>If invoked without any daemon flags: to standard
+output</p> </td></tr>
 <tr valign="top" align="left">
 <td width="22%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&bull;</p></td>
+<p>&bull;</p></td>
 <td width="2%"></td>
 <td width="75%">
 
 
-<p style="margin-top: 1em" valign="top">If invoked with
-&ndash;systemd: to standard output, with systemd severity
-prefixes</p> </td>
+<p>If invoked with &ndash;systemd: to standard output, with
+systemd severity prefixes</p></td></tr>
 <tr valign="top" align="left">
 <td width="22%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&bull;</p></td>
+<p>&bull;</p></td>
 <td width="2%"></td>
 <td width="75%">
 
 
-<p style="margin-top: 1em" valign="top">If invoked with
-&ndash;unixd or &ndash;launchd: to /var/log/wsddn.log</p></td>
+<p>If invoked with &ndash;unixd or &ndash;launchd: to
+/var/log/wsddn.log</p> </td></tr>
 </table>
 
 <p style="margin-left:22%; margin-top: 1em">If &ndash;user
 option is used, the directory of the logfile must allow the
 specified user to create and delete files. The equivalent
 config file option is <tt>log-file</tt></p>
+
+<p style="margin-left:11%;"><tt>--log-os-log</tt></p>
+
+<p style="margin-left:22%;">Available on macOS only. If
+specified log output is sent to system log visible via
+Console app or <tt>log</tt> command line tool. This option
+is mutually exclusive with <tt>--log-file</tt>.</p>
 
 <p style="margin-left:11%;"><tt>--pid-file</tt>
 <i>path</i></p>
@@ -210,36 +222,35 @@ username is used.</p>
 <p style="margin-left:22%; margin-top: 1em">If this option
 is not specified then the behavior is as follows:</p>
 
-<table width="100%" border=0 rules="none" frame="void"
+<table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="22%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&bull;</p></td>
+<p>&bull;</p></td>
 <td width="2%"></td>
 <td width="75%">
 
 
-<p style="margin-top: 1em" valign="top">If wsddn process is
-run under the root account it tries to use a special
-unprivileged account name (<tt>_wsddn</tt>:<tt>_wsddn</tt>
-on macOS, <tt>wsddn</tt>:<tt>wsddn</tt> otherwise) The user
-and group are created if they do not exist. Any failures in
-these steps stop the process.</p></td>
+<p>If wsddn process is run under the root account it tries
+to use a special unprivileged account name
+(<tt>_wsddn</tt>:<tt>_wsddn</tt> on macOS,
+<tt>wsddn</tt>:<tt>wsddn</tt> otherwise) The user and group
+are created if they do not exist. Any failures in these
+steps stop the process.</p></td></tr>
 <tr valign="top" align="left">
 <td width="22%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&bull;</p></td>
+<p>&bull;</p></td>
 <td width="2%"></td>
 <td width="75%">
 
 
-<p style="margin-top: 1em" valign="top">Otherwise, wsddn
-uses the account it is run under.</p></td>
+<p>Otherwise, wsddn uses the account it is run under.</p></td></tr>
 </table>
 
 <p style="margin-left:22%; margin-top: 1em">The net effect
@@ -256,34 +267,33 @@ into. This further limits any impact of potential network
 exploits into wsddn. If not specified the behavior is as
 follows</p>
 
-<table width="100%" border=0 rules="none" frame="void"
+<table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="22%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&bull;</p></td>
+<p>&bull;</p></td>
 <td width="2%"></td>
 <td width="75%">
 
 
-<p style="margin-top: 1em" valign="top">If wsddn process is
-run under the root account: use <tt>/var/empty</tt> on macOS
-and <tt>/var/run/wsddn</tt> on other platforms. This
-directory will be created if it does not exist.</p></td>
+<p>If wsddn process is run under the root account: use
+<tt>/var/empty</tt> on macOS and <tt>/var/run/wsddn</tt> on
+other platforms. This directory will be created if it does
+not exist.</p></td></tr>
 <tr valign="top" align="left">
 <td width="22%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&bull;</p></td>
+<p>&bull;</p></td>
 <td width="2%"></td>
 <td width="75%">
 
 
-<p style="margin-top: 1em" valign="top">Otherwise: do not
-chroot</p> </td>
+<p>Otherwise: do not chroot</p></td></tr>
 </table>
 
 <p style="margin-left:22%; margin-top: 1em">Note: do not
@@ -388,29 +398,28 @@ locate this file on its own. Use this option if
 auto-detection fails or picks wrong samba instance. The
 equivalent config file option is <tt>smb-conf</tt>.</p>
 
+<h2>SIGNALS
 <a name="SIGNALS"></a>
-<h2>SIGNALS</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em"><tt>wsddn</tt>
 handles the following signals:</p>
 
-<table width="100%" border=0 rules="none" frame="void"
+<table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
 
 
-
-<p style="margin-top: 1em" valign="top"><tt>SIGHUP</tt></p> </td>
+<p><tt>SIGHUP</tt></p></td>
 <td width="2%"></td>
 <td width="78%">
 
 
-<p style="margin-top: 1em" valign="top">gracefully stop
-network communications, reload configuration and re-start
-communications.</p> </td>
+<p>gracefully stop network communications, reload
+configuration and re-start communications.</p></td></tr>
 </table>
 
 <p style="margin-left:11%;"><tt>SIGTERM</tt>,
@@ -419,61 +428,61 @@ communications.</p> </td>
 <p style="margin-left:22%;">gracefully stop network
 communications and exit.</p>
 
+<h2>EXIT STATUS
 <a name="EXIT STATUS"></a>
-<h2>EXIT STATUS</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em"><tt>wsddn</tt>
 exit code is 0 upon normal termination (via <tt>SIGINT</tt>
 or <tt>SIGTERM</tt>) or non-zero upon error.</p>
 
+<h2>FIREWALL SETUP
 <a name="FIREWALL SETUP"></a>
-<h2>FIREWALL SETUP</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em">Traffic for the
 following ports, directions and addresses must be
 allowed:</p>
 
-<table width="100%" border=0 rules="none" frame="void"
+<table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&bull;</p></td>
+<p>&bull;</p></td>
 <td width="2%"></td>
 <td width="86%">
 
 
-<p style="margin-top: 1em" valign="top">Incoming and
-outgoing traffic to udp/3702 with multicast destination:
-239.255.255.250 for IPv4 and ff02::c for IPv6</p></td>
+<p>Incoming and outgoing traffic to udp/3702 with multicast
+destination: 239.255.255.250 for IPv4 and ff02::c for
+IPv6</p> </td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&bull;</p></td>
+<p>&bull;</p></td>
 <td width="2%"></td>
 <td width="86%">
 
 
-<p style="margin-top: 1em" valign="top">Outgoing unicast
-traffic from udp/3702</p></td>
+<p>Outgoing unicast traffic from udp/3702</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="1%">
 
 
-<p style="margin-top: 1em" valign="top">&bull;</p></td>
+<p>&bull;</p></td>
 <td width="2%"></td>
 <td width="86%">
 
 
-<p style="margin-top: 1em" valign="top">Incoming traffic to
-tcp/5357</p> </td>
+<p>Incoming traffic to tcp/5357</p></td></tr>
 </table>
 
 <p style="margin-left:11%; margin-top: 1em">You should
@@ -482,8 +491,9 @@ e.g.&nbsp;by using the <tt>fe80::/10</tt> address space for
 IPv6. Please note that IGMP traffic must be enabled in order
 to get IPv4 multicast traffic working.</p>
 
+<h2>CONFIG FILE
 <a name="CONFIG FILE"></a>
-<h2>CONFIG FILE</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em">The syntax of
@@ -544,6 +554,13 @@ command line option</p>
 <p style="margin-left:22%;">Same as <tt>--log-file</tt>
 command line option</p>
 
+<p style="margin-left:11%;"><tt>log-os-log</tt> =
+true/false</p>
+
+<p style="margin-left:22%;">This setting is only available
+on macOS. Setting it to <tt>true</tt> is the same as
+<tt>--log-os-log</tt> command line option</p>
+
 <p style="margin-left:11%;"><tt>member-of</tt> =
 &ldquo;Workgroup/<i>name</i>&rdquo; |
 &ldquo;Domain/<i>name</i>&rdquo;</p>
@@ -583,8 +600,9 @@ line option</p>
 <p style="margin-left:22%;">Same as <tt>--uuid</tt> command
 line option</p>
 
+<h2>EXAMPLES
 <a name="EXAMPLES"></a>
-<h2>EXAMPLES</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>Run as a
@@ -606,15 +624,17 @@ addresses</b></p>
 <pre style="margin-left:22%;">wsddn -i eth0 -i eth2 -6</pre>
 
 
+<h2>AUTHOR
 <a name="AUTHOR"></a>
-<h2>AUTHOR</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em">Eugene Gershnik
 &lt;gershnik@hotmail.com&gt;</p>
 
+<h2>BUG REPORTS
 <a name="BUG REPORTS"></a>
-<h2>BUG REPORTS</h2>
+</h2>
 
 
 <p style="margin-left:11%; margin-top: 1em">Report bugs at
