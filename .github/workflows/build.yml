@@ -9,9 +9,13 @@ on:
       - 'README.md'
       - '.gitignore'
       - 'LICENSE'
+      - 'CHANGELOG.md'
+      - 'Acknowledgements.md'
+      - 'bom.json'
       - '.github/workflows/publish.yml'
       - 'installers/mac/notarize'
       - 'installers/mac/github-sign'
+      - 'tools/**'
 
 
 jobs:
