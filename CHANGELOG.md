@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 - All platforms: `wsddn --version` always reporting "0.1"
 - macOS: application info dictionary version always set to "0.1"
+- Fixed errors when compiling under GCC 13
 
 
 ## [1.0] - 2022-07-25
