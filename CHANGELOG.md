@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.1] - 2023-05-19
+
 ### Added
 - macOS: Allow logging to system log instead of log file. See `--log-os-log` command line option and `log-os-log` config file setting.
 
@@ -27,3 +29,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 [0.6]: https://github.com/gershnik/wsdd-native/releases/v0.6
 [1.0]: https://github.com/gershnik/wsdd-native/releases/v1.0
+[1.1]: https://github.com/gershnik/wsdd-native/releases/v1.1
