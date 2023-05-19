@@ -80,7 +80,7 @@ subprocess.run(['pkg', 'create', '--verbose', '-m', workdir, '-r',  stagedir, '-
 
 
 if args.uploadResults:
-    subprocess.run(['aws', 's3', 'cp', workdir / f'wsddn-{VERSION}.pkg', f's3://gershnik.com/bsd-repo/{ABI}/All'], check=True)
+    subprocess.run(['aws', 's3', 'cp', workdir / f'wsddn-{VERSION}.pkg', f's3://gershnik.com/bsd-repo/{ABI}/All/'], check=True)
     
     subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
     abiMarker = ABI.replace(':', '-')
