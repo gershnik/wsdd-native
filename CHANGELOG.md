@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.2] - 2023-05-21
+
 ### Fixed
 - APT installer no longer creates bogus `/debian` directory
 - Mac `.pkg` installer now correctly includes both x64 and arm64 architectures.
@@ -39,3 +41,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [0.6]: https://github.com/gershnik/wsdd-native/releases/v0.6
 [1.0]: https://github.com/gershnik/wsdd-native/releases/v1.0
 [1.1]: https://github.com/gershnik/wsdd-native/releases/v1.1
+[1.2]: https://github.com/gershnik/wsdd-native/releases/v1.2
