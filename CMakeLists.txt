@@ -66,6 +66,7 @@ if (TARGET uuid_static)
     set_target_properties(uuid_static PROPERTIES FOLDER "Dependencies")
 endif()
 set_target_properties(spdlog PROPERTIES FOLDER "Dependencies")
+set_target_properties(fmt PROPERTIES FOLDER "Dependencies")
 
 
 set_target_properties(wsddn PROPERTIES

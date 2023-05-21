@@ -63,7 +63,7 @@ endif()
 
 FetchContent_Declare(libuuid
     GIT_REPOSITORY  https://github.com/gershnik/libuuid-cmake.git
-    GIT_TAG         v2.39
+    GIT_TAG         v2.39.rev1
     GIT_SHALLOW     TRUE
     GIT_PROGRESS    TRUE
 )
