@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+- APT installer no longer creates bogus `/debian` directory
+- Mac `.pkg` installer now correctly includes both x64 and arm64 architectures.
+
+### Changed
+- Updated `{fmt}` library dependency 
+- It is now possible to specify version externally when building `wsddn` by setting `WSDDN_VERSION` CMake variable.
+
 ## [1.1] - 2023-05-19
 
 ### Added
