@@ -105,7 +105,7 @@ jobs:
     - name: Build
       run: |
           cmake -E make_directory out
-          cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF 
+          cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo "-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64" -DFETCHCONTENT_QUIET=OFF 
           installers/${{ matrix.installer }}/build.py . out
 
 

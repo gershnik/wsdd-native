@@ -63,14 +63,26 @@ endif()
 
 FetchContent_Declare(libuuid
     GIT_REPOSITORY  https://github.com/gershnik/libuuid-cmake.git
-    GIT_TAG         v2.39
+    GIT_TAG         v2.39.rev1
     GIT_SHALLOW     TRUE
     GIT_PROGRESS    TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES libuuid)
 
+set(FMT_INSTALL OFF)
+
+FetchContent_Declare(fmt
+    GIT_REPOSITORY  https://github.com/fmtlib/fmt
+    GIT_TAG         9.1.0
+    GIT_SHALLOW     TRUE
+    GIT_PROGRESS    TRUE
+    GIT_SUBMODULES_RECURSE FALSE
+)
+list(APPEND DECLARED_DEPENDENCIES fmt)
+
 set(SPDLOG_NO_ATOMIC_LEVELS ON)
 set(SPDLOG_NO_TLS ON)
+set(SPDLOG_FMT_EXTERNAL_HO ON)
 
 FetchContent_Declare(spdlog
     GIT_REPOSITORY  https://github.com/gabime/spdlog

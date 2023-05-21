@@ -82,6 +82,8 @@ deps = subprocess.run(['dpkg-shlibdeps', '-O', '-eusr/bin/wsddn'], check=True, c
 key, val = deps.split('=', 1)
 key = key.replace(':', "_")
 control.write_text(control.read_text().format_map({key: val}))
+
+(stagedir/ 'debian').unlink()
 subprocess.run(['dpkg-deb', '--build', '--root-owner-group', stagedir, workdir], check=True)
 
 subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
