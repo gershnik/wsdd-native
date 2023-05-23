@@ -7,7 +7,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>io.github.gershnik.wsdd-native</string>
+	<string>@WSDDN_BUNDLE_IDENTIFIER@</string>
 	<key>CFBundleName</key>
 	<string>wsddn</string>
 	<key>CFBundleDisplayName</key>
