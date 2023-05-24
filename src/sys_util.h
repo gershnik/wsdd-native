@@ -300,18 +300,29 @@ public:
 
 #if HAVE_OS_LOG
 
+    class OsLogHandle {
+    public:
+        static auto get() noexcept -> os_log_t { 
+            if (!s_handle)
+                s_handle = os_log_create(WSDDN_BUNDLE_IDENTIFIER, s_category);
+            return s_handle; 
+        }
+        static void resetInChild() noexcept {
+            if (s_handle) {
+                os_release(s_handle);
+                s_handle = nullptr;
+                s_category = "child";
+            }
+        }
+    private:
+        static os_log_t s_handle;
+        static const char * s_category;
+    };
+
     template<typename Mutex>
     class OsLogSink : public spdlog::sinks::base_sink<Mutex>
     {
         using super = spdlog::sinks::base_sink<Mutex>;
-    public:
-        OsLogSink() noexcept : m_logger(os_log_create(WSDDN_BUNDLE_IDENTIFIER, "default")) {
-        }
-        ~OsLogSink() noexcept {
-            os_release(m_logger);
-        }
-        OsLogSink(const OsLogSink &) = delete;
-        auto operator=(const OsLogSink &) -> OsLogSink & = delete;
     protected:
         void sink_it_(const spdlog::details::log_msg& msg) override {
 
@@ -328,13 +339,11 @@ public:
                 default:                      type = OS_LOG_TYPE_DEBUG;     break;
             }
 
-            os_log_with_type(m_logger, type, "%{public}s", formatted.data());
+            os_log_with_type(OsLogHandle::get(), type, "%{public}s", formatted.data());
         }
 
         void flush_() override {
         }
-    private:
-        os_log_t m_logger;
     };
 
 #endif

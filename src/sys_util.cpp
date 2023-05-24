@@ -3,6 +3,13 @@
 
 #include "sys_util.h"
 
+#if HAVE_OS_LOG
+
+os_log_t OsLogHandle::s_handle = nullptr;
+const char * OsLogHandle::s_category = "main";
+
+#endif
+
 #if HAVE_USERADD || HAVE_PW
 
 auto Identity::createDaemonUser(const sys_string & name) -> Identity {
