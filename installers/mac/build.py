@@ -43,9 +43,7 @@ shutil.copy(mydir / 'wsddn-uninstall', stagedir / 'usr/local/bin')
 copyTemplated(mydir.parent / 'wsddn.conf', stagedir / 'etc/wsddn.conf.sample', {
     'SAMPLE_IFACE_NAME': "en0",
     'RELOAD_INSTRUCTIONS': f"""
-# sudo launchctl kickstart -k system/{IDENTIFIER}
-# or
-# sudo kill -HUP $(</var/run/wsddn/wsddn.pid)  
+# sudo launchctl kill HUP system/{IDENTIFIER}
 """.lstrip()
 })
 
