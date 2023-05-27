@@ -32,7 +32,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
     - [FreeBSD](#freebsd)
     - [macOS](#macos)
         - [Standalone installer](#standalone-installer)
-        - [Using Macports](#using-macports)
+        - [Macports](#macports)
 - [Building from sources](#building-from-sources)
     - [Prerequisites](#prerequisites)
     - [Building and installing](#building-and-installing)
