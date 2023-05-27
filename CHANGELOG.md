@@ -5,6 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.3] - 2023-05-27
+
+### Added
+- macOS: Macports distribution is now available
+
+### Fixed
+- macOS: child process now logs with correct subsystem and category
+
+### Changed
+- macOS: logging to OS log is now the default behavior
+- macOS: bundle identifier is now configurable at build time
+
 ## [1.2] - 2023-05-21
 
 ### Fixed
@@ -42,3 +54,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.0]: https://github.com/gershnik/wsdd-native/releases/v1.0
 [1.1]: https://github.com/gershnik/wsdd-native/releases/v1.1
 [1.2]: https://github.com/gershnik/wsdd-native/releases/v1.2
+[1.3]: https://github.com/gershnik/wsdd-native/releases/v1.3
