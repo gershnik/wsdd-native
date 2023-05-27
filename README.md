@@ -19,6 +19,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 [wsdd]: https://github.com/christgau/wsdd
 [wsdd2]: https://github.com/Netgear/wsdd2
 [chroot_jail]: https://en.wikipedia.org/wiki/Chroot
+[macports]: https://www.macports.org
 
 <!-- End Links -->
 
@@ -30,6 +31,8 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
     - [RedHat/CentOS/Fedora](#redhatcentosfedora)
     - [FreeBSD](#freebsd)
     - [macOS](#macos)
+        - [Standalone installer](#standalone-installer)
+        - [Using Macports](#using-macports)
 - [Building from sources](#building-from-sources)
     - [Prerequisites](#prerequisites)
     - [Building and installing](#building-and-installing)
@@ -166,7 +169,8 @@ journalctl -u wsddn
 
 ### FreeBSD
 
-Pre-built packages are available in a custom binary package repository. Currently only amd64 (aka x86_64) and FreeBSD 13 are supported.
+Pre-built packages are available for FreeBSD 13 in a custom binary package repository. 
+Both `amd64` (aka `x86_64`) and `arm64` (aka `aarch64`) architectures are supported.
 
 To set the repo up:
 
@@ -218,7 +222,16 @@ Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via
 
 ### macOS
 
-Installer package is available for macOS Catalina (10.15) and above on both x86_64 and ARM. To install
+On macOS there are 2 ways to install `wsddn`: via a standalone installer package or [Macports][macports]. 
+Using a standalone installer is simpler but you will have to manually install any future updates as well.
+Macports is a bit more complicated to set up and requires Xcode to be present but it provides updatability 
+similar to Linux package managers. 
+Note that currently there is no support for Homebrew.
+
+#### Standalone installer
+
+Installer package is available for macOS Catalina (10.15) and above on both Intel and Apple Silicon. 
+To install `wsddn`
 
 * Navigate to [Releases][releases] page.
 * Expand the release you wish to install and download `wsddn-macos-x.x.pkg`
@@ -242,7 +255,60 @@ sudo launchctl kill HUP system/io.github.gershnik.wsddn
 Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
 You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
 
-Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsylogd`. To modify rotation settings edit `/etc/newsyslog.d/wsdd.conf`
+Daemon and related logs can be viewed in system log by searching for subsystem or
+process names containing string `wsddn`. For example:
+
+```bash
+log show --last 15m --debug --info --predicate 'subsystem CONTAINS \"wsddn\" OR process CONTAINS \"wsddn\"'
+```
+
+#### Macports
+
+Macports package is provided that can be installed on both Intel and Apple Silicon Macs. 
+macOS versions supported are macOS Catalina (10.15) and above.
+
+To set the repo up:
+
+```bash
+sudo bash <<'___'
+set -e
+pemurl=https://gershnik.com/macports-repo/macports.pem
+porturl=https://www.gershnik.com/macports-repo/ports.tar.bz2
+prefix=$(dirname $(dirname $(which port)))
+pemfile="$prefix/share/macports/gershnik.pem"
+pubkeysfile="$prefix/etc/macports/pubkeys.conf"
+sourcesfile="$prefix/etc/macports/sources.conf"
+curl -s $pemurl > "$pemfile"
+grep -qxF "$pemfile" "$pubkeysfile" || echo $pemfile >> "$pubkeysfile"
+grep -qxF "$porturl" "$sourcesfile" || echo $porturl >> "$sourcesfile"
+sudo port sync
+```
+
+Then you can install `wsddn` as usual via
+
+```bash
+sudo port install wsddn
+```
+
+Daemon will start automatically on install. 
+
+To start/stop/reload the daemon use:
+
+```bash
+sudo launchctl kickstart system/org.macports.wsddn
+sudo launchctl kill TERM system/org.macports.wsddn
+sudo launchctl kill HUP system/org.macports.wsddn
+```
+
+Configuration file will be at `/opt/local/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+
+Daemon and related logs can be viewed in system log by searching for subsystem or
+process names containing string `wsddn`. For example:
+
+```bash
+log show --last 15m --debug --info --predicate 'subsystem CONTAINS \"wsddn\" OR process CONTAINS \"wsddn\"'
+```
 
 ## Building from sources
 
@@ -251,7 +317,7 @@ Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via
 * Git
 * C++20 capable compiler. Compilers known to work are GCC 11.3, Clang 13, Xcode 13 or above.
 * CMake 3.23 or greater. If your distribution CMake is older than that you can download a newer version from https://cmake.org/download/
-* Optional: if you wish to enable systemd integration make sure you have libsystemd library and headers installed on your system. On APT systems use:
+* Optional: if you wish to enable `systemd` integration make sure you have `libsystemd` library and headers installed on your system. On APT systems use:
   ```bash
   sudo apt install libsystemd-dev
   ```
@@ -284,7 +350,7 @@ On Linux:
 
 `-DWSDDN_WITH_SYSTEMD="yes"|"no"|"auto"`. 
 
-This controls whether to enable systemd integration. Auto performs auto-detection (this is the default). 
+This controls whether to enable `systemd` integration. Auto performs auto-detection (this is the default). 
 
 ### Setting up daemon
 
@@ -319,7 +385,7 @@ There are two main security concerns with a daemon that delivers data about loca
 Currently the implementation ignores the second concern. The things **wsdd-native** discloses are the existence of the local host, its name, presence of Samba on it and domain/workgroup membership. All of these are generally disclosed by Samba itself via SMB broadcasts so, assuming the firewall is configured as described above, there is no net gain for an attacker. WS-Discovery protocol contains provisions for encrypting its HTTP traffic and potentially authenticating clients accessing your host via their client certificates. This limits exposure somewhat but at a significant configuration and maintenance cost. If there is interest in any of it it is possible to easily add this functionality in a future version. 
 
 The first concern is by far the most significant one. All software contains bugs and despite developer's best efforts there is always a risk that a bad actor can discover some kind of input that allows him to hijack the server process. To address this possibility **wsdd-native** takes the following measures (apart from general secure coding practices):
-* The process performing network communications never runs as root. If launched as root it will create an unpriviliged account (`_wsddn:_wsddn` on macOS and `wsddn:wsddn` on other platforms) and run network process under it.
+* The process performing network communications never runs as root. If launched as root it will create an unprivileged account (`_wsddn:_wsddn` on macOS and `wsddn:wsddn` on other platforms) and run network process under it.
 * Similarly when started as root the daemon will lock the network process in a [chroot jail][chroot_jail] (`/var/empty` on macOS and `/var/run/wsddn` on other platforms). 
 
 These measures are automatic and cannot be bypassed. Taken together they should limit the fallout of any vulnerability though, of course, nothing ever can be claimed to be 100% secure.

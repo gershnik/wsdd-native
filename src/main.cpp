@@ -164,6 +164,10 @@ auto runServer(AppState & appState) -> int {
                 }
                 
             } else if (g_childPid == 0) { //child
+
+            #if HAVE_OS_LOG
+                OsLogHandle::resetInChild();
+            #endif
                 
                 WSDLOG_INFO("Child started");
                 

@@ -20,9 +20,7 @@ fi
 rm -f /Library/LaunchDaemons/io.github.gershnik.wsddn.plist
 rm -f /usr/local/bin/wsddn
 rm -f /usr/local/share/man/man8/wsddn.8.gz
-rm -f /etc/newsyslog.d/wsddn.conf
-rm -rf /var/run/wsddn
-rm -f /var/log/wsddn.*
+rm -f /etc/wsddn.conf.sample
 
 if dscl . -read /Users/_wsddn > /dev/null 2>&1; then
     dscl . -delete /Users/_wsddn 

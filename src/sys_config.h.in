@@ -21,6 +21,7 @@
     #define ADMIN_GROUP_NAME "admin"
     #define WSDDN_DEFAULT_USER_NAME "_wsddn"
     #define WSDDN_DEFAULT_CHROOT_DIR "/var/empty"
+    #define WSDDN_BUNDLE_IDENTIFIER "@WSDDN_BUNDLE_IDENTIFIER@"
 #else
     #define WSDDN_PLATFORM_APPLE 0
     #define WSDDN_DEFAULT_USER_NAME "wsddn"

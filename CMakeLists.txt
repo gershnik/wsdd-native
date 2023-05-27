@@ -29,9 +29,11 @@ endif()
 option(WSDDN_PREFER_SYSTEM "whether to prefer system versions of dependencies (such as libxm2)" ${WSDDN_PREFER_SYSTEM_DEFAULT})
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-
     set(WSDDN_WITH_SYSTEMD "auto" CACHE STRING "enable systemd scripts and notification support")
+endif()
 
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    set(WSDDN_BUNDLE_IDENTIFIER "io.github.gershnik.wsddn" CACHE STRING "macOS bundle identifier")
 endif()
 
 

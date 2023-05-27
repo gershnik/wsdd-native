@@ -5,3 +5,6 @@ if /bin/launchctl list io.github.gershnik.wsddn &>/dev/null; then
     /bin/launchctl unload -w "/Library/LaunchDaemons/io.github.gershnik.wsddn.plist"
 fi
 
+rm -f /etc/newsyslog.d/wsddn.conf || true
+rm -rf /var/run/wsddn || true
+rm -f /var/log/wsddn.* || true

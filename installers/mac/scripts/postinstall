@@ -7,8 +7,6 @@ if [[ ! -f "$CONF" ]]; then
      cp $CONF.sample $CONF
 fi
 
-rm $CONF.sample
-
 /bin/launchctl load -w "/Library/LaunchDaemons/io.github.gershnik.wsddn.plist"
 
 

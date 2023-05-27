@@ -9,16 +9,10 @@
         <string>/usr/local/bin/wsddn</string>
         <string>--launchd</string>
         <string>--config=/etc/wsddn.conf</string>
-        <string>--pid-file=/var/run/wsddn/wsddn.pid</string>
-        <string>--log-file=/var/log/wsddn.log</string>
+        <string>--log-os-log</string>
     </array>
     <key>WorkingDirectory</key>
     <string>/var/empty</string>
-    <key>EnvironmentVariables</key>
-	<dict>
-	    <key>PATH</key>
-	    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/sbin</string>
-	</dict>
     <key>KeepAlive</key>
     <dict>
         <key>Crashed</key>
@@ -26,9 +20,5 @@
     </dict>
     <key>RunAtLoad</key>
     <true/>
-    <key>StandardOutPath</key>
-    <string>/var/log/wsddn.log</string>
-    <key>StandardErrorPath</key>
-    <string>/var/log/wsddn.log</string>
 </dict>
 </plist>
