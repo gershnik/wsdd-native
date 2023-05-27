@@ -8,6 +8,7 @@
     <organization>io.github.gershnik</organization>
     <domains enable_localSystem="true"/>
     <options customize="never" require-scripts="true" rootVolumeOnly="true" hostArchitectures="arm64,x86_64" />
+    <installation-check script="checkMacPorts()"/>
     <!-- Define documents displayed at various steps -->
     <welcome    file="welcome.html"    mime-type="text/html" />
     <license    file="license.html"    mime-type="text/html" />
@@ -29,4 +30,22 @@
         start_selected="true">
       <pkg-ref id="{IDENTIFIER}"/>
     </choice>
+    <script>
+    <![CDATA[
+    function checkMacPorts() {{
+        if (system.files.fileExistsAtPath('/Library/LaunchDaemons/org.macports.wsddn.plist')) {{
+            if (typeof(my.result) != 'undefined') {{
+                my.result.type = 'Fatal';
+                my.result.title = 'Incompatible Software Found';
+                my.result.message = 
+                    "It appears that Macports version of WS-Discovery Host Daemon is installed on your machine. "+
+                    "Having two versions of this software at the same time may result in an unpredicatble behavior. "+
+                    "You can uninstall the Macports version via\nsudo port uninstall wsddn";
+            }}
+            return false;
+        }}
+        return true;
+    }}
+    ]]>
+    </script>
 </installer-gui-script>
