@@ -259,7 +259,8 @@ Daemon and related logs can be viewed in system log by searching for subsystem o
 process names containing string `wsddn`. For example:
 
 ```bash
-log show --last 15m --debug --info --predicate 'subsystem CONTAINS \"wsddn\" OR process CONTAINS \"wsddn\"'
+log show --last 15m --debug --info \
+  --predicate 'subsystem CONTAINS "wsddn" OR process CONTAINS "wsddn"'
 ```
 
 #### Macports
@@ -307,7 +308,8 @@ Daemon and related logs can be viewed in system log by searching for subsystem o
 process names containing string `wsddn`. For example:
 
 ```bash
-log show --last 15m --debug --info --predicate 'subsystem CONTAINS \"wsddn\" OR process CONTAINS \"wsddn\"'
+log show --last 15m --debug --info \
+  --predicate 'subsystem CONTAINS "wsddn" OR process CONTAINS "wsddn"'
 ```
 
 ## Building from sources
