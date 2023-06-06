@@ -15,3 +15,10 @@ rm -f /var/log/wsddn.* || true
 #Let's delete them if they exist (unconditionally for good measure)
 dscl . -delete /Users/_wsddn || true
 dscl . -delete /Groups/_wsddn || true
+
+# Remove old conf if it is the same as sample
+if [[ -f /etc/wsddn.conf ]]; then
+    if [ ! diff /etc/wsddn.conf /etc/wsddn.conf.sample >/dev/null 2>&1 ]; then
+        rm -f /etc/wsddn.conf
+    fi
+fi

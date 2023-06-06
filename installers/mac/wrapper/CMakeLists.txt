@@ -6,11 +6,8 @@ configure_file(Info.template.plist Info.plist @ONLY)
 
 add_custom_target(populate_wrapper
     COMMENT "Populating wrapper bundle"
-    DEPENDS wsddn manpage
+    DEPENDS ${CMAKE_SOURCE_DIR}/config/mac/Library/LaunchDaemons/io.github.gershnik.wsddn.plist
     COMMAND ${CMAKE_CURRENT_LIST_DIR}/populate.py "$<TARGET_BUNDLE_DIR:wrapper>" 
-        --identifier ${WSDDN_BUNDLE_IDENTIFIER}
-        --wsddn-dir "$<TARGET_FILE_DIR:wsddn>"
-        --doc-dir "${CMAKE_BINARY_DIR}/doc"
 )
 
 add_executable(wrapper MACOSX_BUNDLE)
@@ -30,7 +27,6 @@ set_target_properties(wrapper PROPERTIES
 target_link_libraries(wrapper
 PRIVATE
     argum
-    sys_string
     "-framework Foundation"
     "-framework CoreServices"
 )

@@ -5,15 +5,11 @@
 
 #include <filesystem>
 
-#include <dlfcn.h>
-#include <mach-o/dyld.h>
 #include <sys/stat.h>
 
 #include <argum/parser.h>
-#include <sys_string/sys_string.h>
 
 using namespace Argum;
-using namespace sysstr;
 
 auto installLink(const std::filesystem::path & src, const std::filesystem::path & dst) -> bool {
     std::error_code ec;
@@ -31,64 +27,19 @@ auto installLink(const std::filesystem::path & src, const std::filesystem::path 
     return true;
 }
 
-auto installCopy(const std::filesystem::path & src, const std::filesystem::path & dst) -> bool {
-    std::error_code ec;
-    create_directories(dst.parent_path(), ec);
-    if (ec) {
-        fprintf(stderr, "Unable to create directories of %s: %s\n", dst.c_str(), ec.message().c_str());
-        return false;
-    }
-    (void)remove(dst, ec);
-    copy_file(src, dst, ec);
-    if (ec) {
-        fprintf(stderr, "Cannot copy %s to %s: %s\n", src.c_str(), dst.c_str(), ec.message().c_str());
-        return false;
-    }
-    return true;
-}
 
 auto install() -> bool {
     auto bundle = NSBundle.mainBundle;
-    fprintf(stderr, "Bundle url: %s\n", bundle.bundleURL.absoluteString.UTF8String);
     if (auto res = LSRegisterURL((__bridge CFURLRef)bundle.bundleURL, true); res != noErr) {
         fprintf(stderr, "LSRegisterURL failed: %d\n", res);
     }
 
     std::filesystem::path resourcePath = bundle.resourcePath.UTF8String;
-    std::filesystem::path root = "/";
+    std::filesystem::path daemonsPath = "/Library/LaunchDaemons";
 
-    std::filesystem::path items[] = {
-        "usr/local/bin/wsddn", 
-        "usr/local/share/man/man8/wsddn.8.gz",
-        "etc/wsddn.conf.sample",
-        "Library/LaunchDaemons/io.github.gershnik.wsddn.plist"
-    };
-    
-    for(auto & item: items) {
-        auto src = resourcePath / item;
-        auto dest = root / item;
-        if (!installLink(src, dest)) 
-            return false;
-    }
-
-    auto conf = root / "etc/wsddn.conf";
-    bool copySample = false;
-    std::error_code ec;
-    std::filesystem::file_status confStat = symlink_status(conf, ec);
-    if (confStat.type() != std::filesystem::file_type::regular) {
-        copySample = true;
-    }
-    
-    if (copySample) {
-        if (!installCopy(root / "etc/wsddn.conf.sample", conf))
-            return false;
-    }
-    
-    if (int res = system("/bin/launchctl load -w \"/Library/LaunchDaemons/io.github.gershnik.wsddn.plist\""); res != 0) {
-        fprintf(stderr, "loading daemon failed: %d\n", res);
+    if (!installLink(resourcePath / "io.github.gershnik.wsddn.plist", daemonsPath / "io.github.gershnik.wsddn.plist")) 
         return false;
-    }
-
+    
     return true;
 }
 

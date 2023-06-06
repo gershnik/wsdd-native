@@ -29,6 +29,8 @@ stagedir = workdir / f'root'
 shutil.rmtree(workdir, ignore_errors=True)
 stagedir.mkdir(parents=True)
 
+installCode(builddir, stagedir / 'usr/local')
+
 ignoreCrap = shutil.ignore_patterns('.DS_Store')
 
 supdir = stagedir / "Library/Application Support/wsddn"
@@ -37,9 +39,15 @@ supdir.mkdir(parents=True)
 appDir = supdir / "wsddn.app"
 shutil.copytree(builddir / "wrapper/wsddn.app", appDir, ignore=ignoreCrap)
 
-
-(stagedir / 'usr/local/bin').mkdir(parents=True)
+(stagedir / 'usr/local/bin').mkdir(parents=True, exist_ok=True)
 shutil.copy(mydir / 'wsddn-uninstall', stagedir / 'usr/local/bin')
+
+copyTemplated(mydir.parent / 'wsddn.conf', stagedir / 'etc/wsddn.conf.sample', {
+    'SAMPLE_IFACE_NAME': "en0",
+    'RELOAD_INSTRUCTIONS': f"""
+# sudo launchctl kill HUP system/{IDENTIFIER}
+""".lstrip()
+})
 
 copyTemplated(mydir / 'distribution.xml', workdir / 'distribution.xml', {
     'IDENTIFIER':IDENTIFIER, 
@@ -49,7 +57,7 @@ copyTemplated(mydir / 'distribution.xml', workdir / 'distribution.xml', {
 resdir = appDir / "Contents/Resources"
 if args.sign or True:
     subprocess.run(['codesign', '--force', '--sign', 'Developer ID Application', '-o', 'runtime', '--timestamp', 
-                        resdir / 'usr/local/bin/wsddn'], check=True)
+                        stagedir / 'usr/local/bin/wsddn'], check=True)
     subprocess.run(['codesign', '--force', '--sign', 'Developer ID Application', '-o', 'runtime', '--timestamp', 
                     '--preserve-metadata=entitlements', 
                         appDir], check=True)
