@@ -8,6 +8,7 @@ import os
 import subprocess
 import shutil
 import plistlib
+import re
 from pathlib import Path
 
 IDENTIFIER='io.github.gershnik.wsddn'
@@ -99,7 +100,18 @@ installer = workdir / f'wsddn-macos-{VERSION}.pkg'
 
 if args.sign:
     subprocess.run(['productsign', '--sign', 'Developer ID Installer', workdir / 'wsddn.pkg', installer], check=True)
-    subprocess.run([mydir / 'notarize', '--user', os.environ['NOTARIZE_USER'], '--password', '@env:NOTARIZE_PWD', installer], check=True)
+    pattern = re.compile(r'^\s*1. Developer ID Installer: .*\(([0-9A-Z]{10})\)$')
+    teamId = None
+    for line in subprocess.run(['pkgutil', '--check-signature', installer], check=True, stdout=subprocess.PIPE).stdout.decode('utf-8').splitlines():
+        m = pattern.match(line)
+        if m:
+            teamId = m.group(1)
+            break
+    if teamId is None:
+        print('Unable to find team ID from signature', file=sys.stderr)
+        sys.exit(1)
+    subprocess.run([mydir / 'notarize', '--user', os.environ['NOTARIZE_USER'], '--password', os.environ['NOTARIZE_PWD'], 
+                    '--team', teamId, installer], check=True)
     print('Signature Info')
     res1 = subprocess.run(['pkgutil', '--check-signature', installer])
     print('\nAssesment')
