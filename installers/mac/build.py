@@ -56,7 +56,7 @@ copyTemplated(mydir / 'distribution.xml', workdir / 'distribution.xml', {
 })
 
 resdir = appDir / "Contents/Resources"
-if args.sign or True:
+if args.sign:
     subprocess.run(['codesign', '--force', '--sign', 'Developer ID Application', '-o', 'runtime', '--timestamp', 
                         stagedir / 'usr/local/bin/wsddn'], check=True)
     subprocess.run(['codesign', '--force', '--sign', 'Developer ID Application', '-o', 'runtime', '--timestamp', 
