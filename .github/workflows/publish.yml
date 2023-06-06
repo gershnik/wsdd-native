@@ -110,8 +110,11 @@ jobs:
     - name: Configure
       run: |
           cmake -E make_directory out
-          cd out
-          cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo "-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64" -DFETCHCONTENT_QUIET=OFF ..
+          cmake -S . -B out \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            "-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64" \
+            -DWSDDN_MACOS_BUILD_WRAPPER=ON \
+            -DFETCHCONTENT_QUIET=OFF
           
 
     - name: Make Distribution
