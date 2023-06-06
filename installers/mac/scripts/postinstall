@@ -2,11 +2,8 @@
 
 set -e
 
-CONF=/etc/wsddn.conf
-if [[ ! -f "$CONF" ]]; then
-     cp $CONF.sample $CONF
-fi
+/Library/Application\ Support/wsddn/wsddn.app/Contents/MacOS/wsddn -i
 
-/bin/launchctl load -w "/Library/LaunchDaemons/io.github.gershnik.wsddn.plist"
+
 
 

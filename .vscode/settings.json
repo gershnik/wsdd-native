@@ -3,6 +3,7 @@
     "cmake.buildDirectory": "${workspaceFolder}/out/vscode/${buildKit}",
     "cmake.configureSettings": {
         "CMAKE_OSX_ARCHITECTURES": ["x86_64", "arm64"],
+        "WSDDN_MACOS_BUILD_WRAPPER": "ON",
         "FETCHCONTENT_QUIET": "OFF"
     },
     "cmake.configureOnOpen": true,

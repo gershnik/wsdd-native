@@ -36,7 +36,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     set(WSDDN_BUNDLE_IDENTIFIER "io.github.gershnik.wsddn" CACHE STRING "macOS bundle identifier")
 endif()
 
-
+option(WSDDN_MACOS_BUILD_WRAPPER "whether to build a macos wrapper bundle" OFF)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -282,5 +282,10 @@ if (GROFF_PATH)
     )
 endif()
 
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND WSDDN_MACOS_BUILD_WRAPPER)
+
+    add_subdirectory(installers/mac/wrapper wrapper)
+
+endif()
 
 include(cmake/install.cmake)
