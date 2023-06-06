@@ -274,7 +274,7 @@ void CommandLine::parse(int argc, char * argv[]) {
                help("override hostname to be reported to Windows machines. "
                     "If you set the value to \":NETBIOS:\" then Netbios hostname will be used. "
                     "The Netbios hostname is either detected from SMB configuration, if found, or produced "
-                    "by capitalizing normal machine nostname.").
+                    "by capitalizing normal machine hostname.").
                occurs(Argum::neverOrOnce).
                handler([this](std::string_view val) {
         setHostname(*this, sys_string(val).trim());

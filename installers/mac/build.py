@@ -102,7 +102,8 @@ if args.sign:
     subprocess.run(['productsign', '--sign', 'Developer ID Installer', workdir / 'wsddn.pkg', installer], check=True)
     pattern = re.compile(r'^\s*1. Developer ID Installer: .*\(([0-9A-Z]{10})\)$')
     teamId = None
-    for line in subprocess.run(['pkgutil', '--check-signature', installer], check=True, stdout=subprocess.PIPE).stdout.decode('utf-8').splitlines():
+    for line in subprocess.run(['pkgutil', '--check-signature', installer], 
+                               check=True, stdout=subprocess.PIPE).stdout.decode('utf-8').splitlines():
         m = pattern.match(line)
         if m:
             teamId = m.group(1)
