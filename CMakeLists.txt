@@ -101,7 +101,6 @@ PRIVATE
 
 target_compile_options(wsddn 
 PRIVATE
-    $<$<CXX_COMPILER_ID:MSVC>:/utf-8;/W4;/WX>
     $<$<CXX_COMPILER_ID:Clang>:-Wall;-Wextra;-pedantic;-ftemplate-backtrace-limit=0>
     $<$<CXX_COMPILER_ID:AppleClang>:-Wall;-Wextra;-pedantic;-fpch-instantiate-templates;-ftemplate-backtrace-limit=0>
     $<$<CXX_COMPILER_ID:GNU>:-Wall;-Wextra;-pedantic>   
@@ -110,6 +109,8 @@ PRIVATE
 target_link_options(wsddn 
 PRIVATE
     "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-object_path_lto,${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lto.o>"
+    "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-cache_path_lto,${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/LTOCache>"
+    "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-no_adhoc_codesign;-Wl,-reproducible>"
 )
 
 target_compile_definitions(wsddn

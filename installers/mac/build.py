@@ -40,6 +40,8 @@ supdir.mkdir(parents=True)
 appDir = supdir / "wsddn.app"
 shutil.copytree(builddir / "wrapper/wsddn.app", appDir, ignore=ignoreCrap)
 
+subprocess.run(['/usr/bin/strip', '-u', '-r', appDir/ 'Contents/MacOS/wsddn'], check=True)
+
 (stagedir / 'usr/local/bin').mkdir(parents=True, exist_ok=True)
 shutil.copy(mydir / 'wsddn-uninstall', stagedir / 'usr/local/bin')
 

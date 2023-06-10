@@ -44,6 +44,8 @@ PRIVATE
 target_link_options(wrapper 
 PRIVATE
     "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-object_path_lto,${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lto.o>"
+    "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-cache_path_lto,${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/LTOCache>"
+    "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-no_adhoc_codesign;-Wl,-reproducible>"
 )
 
 if (CMAKE_GENERATOR MATCHES "Xcode")
