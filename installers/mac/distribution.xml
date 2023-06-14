@@ -6,7 +6,7 @@
 <installer-gui-script minSpecVersion="2">
     <title>WS-Discovery Host Daemon</title>
     <organization>io.github.gershnik</organization>
-    <domains enable_localSystem="true" enable_anywhere="false" enable_currentUserHome="false"/>
+    <domains enable_localSystem="true"/>
     <options customize="never" require-scripts="true" rootVolumeOnly="true" hostArchitectures="arm64,x86_64" />
     <installation-check script="checkMacPorts()"/>
     <!-- Define documents displayed at various steps -->
