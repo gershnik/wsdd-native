@@ -101,6 +101,7 @@ jobs:
     - name: Setup Linux
       if: runner.os == 'Linux'
       run: |
+        sudo apt-get update
         sudo apt-get install -y libsystemd-dev
         if [[ '${{ matrix.os }}' == 'ubuntu-20.04' ]]; then
           echo "CC=gcc-10"  >> $GITHUB_ENV
