@@ -7,6 +7,8 @@ import sys
 import os
 import subprocess
 import shutil
+import plistlib
+import re
 from pathlib import Path
 
 IDENTIFIER='io.github.gershnik.wsddn'
@@ -18,8 +20,8 @@ sys.path.append(str(mydir.absolute().parent))
 from common import VERSION, parseCommandLine, buildCode, installCode, copyTemplated, uploadResults
 
 args = parseCommandLine()
-srcdir = args.srcdir
-builddir = args.builddir
+srcdir: Path = args.srcdir
+builddir: Path = args.builddir
 
 buildCode(builddir)
 
@@ -30,14 +32,17 @@ stagedir.mkdir(parents=True)
 
 installCode(builddir, stagedir / 'usr/local')
 
-if args.sign:
-    subprocess.run(['codesign', '--force', '--sign', 'Developer ID Application', '-o', 'runtime', '--timestamp', 
-                     stagedir / 'usr/local/bin/wsddn'], check=True)
-
 ignoreCrap = shutil.ignore_patterns('.DS_Store')
 
-shutil.copytree(srcdir / 'config/mac', stagedir, dirs_exist_ok=True, ignore=ignoreCrap)
+supdir = stagedir / "Library/Application Support/wsddn"
+supdir.mkdir(parents=True)
 
+appDir = supdir / "wsddn.app"
+shutil.copytree(builddir / "wrapper/wsddn.app", appDir, ignore=ignoreCrap)
+
+subprocess.run(['/usr/bin/strip', '-u', '-r', appDir/ 'Contents/MacOS/wsddn'], check=True)
+
+(stagedir / 'usr/local/bin').mkdir(parents=True, exist_ok=True)
 shutil.copy(mydir / 'wsddn-uninstall', stagedir / 'usr/local/bin')
 
 copyTemplated(mydir.parent / 'wsddn.conf', stagedir / 'etc/wsddn.conf.sample', {
@@ -52,11 +57,38 @@ copyTemplated(mydir / 'distribution.xml', workdir / 'distribution.xml', {
     'VERSION': VERSION
 })
 
+resdir = appDir / "Contents/Resources"
+if args.sign:
+    subprocess.run(['codesign', '--force', '--sign', 'Developer ID Application', '-o', 'runtime', '--timestamp', 
+                        stagedir / 'usr/local/bin/wsddn'], check=True)
+    subprocess.run(['codesign', '--force', '--sign', 'Developer ID Application', '-o', 'runtime', '--timestamp', 
+                    '--preserve-metadata=entitlements', 
+                        appDir], check=True)
+else:
+    subprocess.run(['codesign', '--force', '--sign', '-', '-o', 'runtime', '--timestamp=none', 
+                        stagedir / 'usr/local/bin/wsddn'], check=True)
+    subprocess.run(['codesign', '--force', '--sign', '-', '-o', 'runtime', '--timestamp=none', 
+                    '--preserve-metadata=entitlements', 
+                        appDir], check=True)
+
 
 packagesdir = workdir / 'packages'
 packagesdir.mkdir()
+
+subprocess.run(['pkgbuild', 
+                '--analyze', 
+                '--root', str(stagedir),
+                str(packagesdir/'component.plist')
+            ], check=True)
+with open(packagesdir/'component.plist', "rb") as src:
+    components = plistlib.load(src, fmt=plistlib.FMT_XML)
+for component in components:
+    component['BundleIsRelocatable'] = False
+with open(packagesdir/'component.plist', "wb") as dest:
+    plistlib.dump(components, dest, fmt=plistlib.FMT_XML)
 subprocess.run(['pkgbuild', 
                 '--root',       str(stagedir), 
+                '--component-plist', str(packagesdir/'component.plist'),
                 '--scripts',    str(mydir / 'scripts'),
                 '--identifier', IDENTIFIER, 
                 '--version',    VERSION,
@@ -76,7 +108,19 @@ installer = workdir / f'wsddn-macos-{VERSION}.pkg'
 
 if args.sign:
     subprocess.run(['productsign', '--sign', 'Developer ID Installer', workdir / 'wsddn.pkg', installer], check=True)
-    subprocess.run([mydir / 'notarize', '--user', os.environ['NOTARIZE_USER'], '--password', '@env:NOTARIZE_PWD', installer], check=True)
+    pattern = re.compile(r'^\s*1. Developer ID Installer: .*\(([0-9A-Z]{10})\)$')
+    teamId = None
+    for line in subprocess.run(['pkgutil', '--check-signature', installer], 
+                               check=True, stdout=subprocess.PIPE).stdout.decode('utf-8').splitlines():
+        m = pattern.match(line)
+        if m:
+            teamId = m.group(1)
+            break
+    if teamId is None:
+        print('Unable to find team ID from signature', file=sys.stderr)
+        sys.exit(1)
+    subprocess.run([mydir / 'notarize', '--user', os.environ['NOTARIZE_USER'], '--password', os.environ['NOTARIZE_PWD'], 
+                    '--team', teamId, installer], check=True)
     print('Signature Info')
     res1 = subprocess.run(['pkgutil', '--check-signature', installer])
     print('\nAssesment')

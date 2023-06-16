@@ -1,95 +1,35 @@
 #!/usr/bin/env -S python3 -u
 
 import sys
-
-MIN_PYTHON = (3, 7)
-if sys.version_info < MIN_PYTHON:
-    print("This script requires Python version " + {'.'.join([str(n) for n in MIN_PYTHON])} + " or greater")
-    sys.exit(1)
-
-
 import argparse
 import subprocess
-import time
+import json
 from pathlib import Path
-from uuid import uuid4 as uuid
-import plistlib
 
 
-
-def callAlTool(cmd, outPlistPath):
-    fullCmd = ['xcrun', 'altool'] + cmd + ['--output-format', 'xml']
-    with open(outPlistPath, 'wt') as outPlist:
-        callRes = subprocess.call(fullCmd, stdout=outPlist)
-    with open(outPlistPath, 'rb') as outPlist: 
-        try:
-            resp = plistlib.load(outPlist)
-        except plistlib.InvalidFileException:
-            if callRes:
-                print(f"Command '{fullCmd}' returned non-zero exit status {callRes}", file = sys.stderr)
-            else:
-                print(f"output file {outPlistPath} is invalid", file = sys.stderr)
-            sys.exit(1)
-    return resp
-
-def getAlToolErrors(resp):
-    errors = resp.get('product-errors', [])
-    if len(errors) == 0:
-        return None
-    return errors
-
-def abortOnAlTooolErrors(errors):
-    if not errors:
-        return
-    for err in errors:
-        print(f"{err['code']}: {err['message']}", file = sys.stderr)
-        sys.exit(1)
+def callNotaryTool(cmd):
+    fullCmd = ['xcrun', 'notarytool'] + cmd + ['-f', 'json']
+    output = subprocess.run(fullCmd, check=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+    print(output)
+    return json.loads(output)
 
 
-def notarize(package, username, password):
+def notarize(package, username, team, password):
     print("Starting...")
     workDir = package.parent
-    uploadId = str(uuid())
-    print(f"Uploading to Apple to notarize with Bundle ID {uploadId}")
-    uploadPlistPath = workDir/'upload-info.plist'
-    uploadResponse = callAlTool([ '--notarize-app', 
-                                  '--primary-bundle-id', uploadId, '--username', username, '--password', password, 
-                                  '--file', str(package)
-                                ],
-                                uploadPlistPath)
-    errors = getAlToolErrors(uploadResponse)
-    abortOnAlTooolErrors(errors)
-    requestId = uploadResponse['notarization-upload']['RequestUUID']
-    print(f"Uploading succeeded, Request ID: {requestId}")
-
-    success = False
-    startTime = time.time()
-    while True:
-        time.sleep(30)
-        print("Checking progress...")
-        statusPath = workDir/'upload-status.plist'
-        infoResponse = callAlTool(['--notarization-info', requestId, '-u', username, '-p', password],
-                                  statusPath)
-        errors = getAlToolErrors(infoResponse)
-        if errors and errors[0]['code'] == 1519: #Could not find the RequestUUID
-            elapsedTime = time.time() - startTime
-            if elapsedTime > 60 * 10:
-                print('Timeout waiting for request ID to become valid')
-                sys.exit(1)
-            continue
-        abortOnAlTooolErrors(errors)
-        status = infoResponse['notarization-info']['Status']
-        print(f"Status: {status}")
-        if status == 'in progress':
-            continue
-        if status == 'success':
-            success = True
-        break
+    print(f"Uploading to Apple to notarize")
+    submission = callNotaryTool(['submit', str(package),
+                                 '--apple-id', username, '--team-id', team, '--password', password, 
+                                 '--wait'])
+    success = (submission['status'] == 'Accepted')
+    submissionId = submission['id']
     print("Downloading log file")
-    subprocess.check_call(['curl', '-s', '-L', infoResponse['notarization-info']['LogFileURL'], '-o', workDir/'notarization-log.json'])
-    if not success:
-        log = (workDir/'notarization-log.json').read_text()
-        print(f"Notarization log:\n{log}")
+    callNotaryTool(['log', submissionId, 
+                    '--apple-id', username, '--team-id', team, '--password', password, 
+                    workDir/'notarization-log.json'])
+    log = (workDir/'notarization-log.json').read_text()
+    print(f"Notarization log:\n{log}")
+    if not success:    
         sys.exit(1) 
     print("Stapling")
     subprocess.check_call(['xcrun', 'stapler', 'staple', f"{package}"])
@@ -97,22 +37,18 @@ def notarize(package, username, password):
 
 def main(): 
     parser = argparse.ArgumentParser(description='''
-Notarize Mac app
+Notarize Mac software
 ''')
     parser.add_argument(dest='package', 
                         help=f'Package to notarize')
     parser.add_argument('--user', dest='username', type=str, required = True,
                         help='Username')
     parser.add_argument('--password', dest='password', type=str, required = True,
-                        help='''
-Application password configured for your Apple ID (not your Apple ID password)
-Alternatively to entering <password> in plaintext, it may also be specified using a '@keychain:'
-or '@env:' prefix followed by a keychain password item name or environment variable name.
-Example: '-p @keychain:<name>' uses the password stored in the keychain password item named <name>.
-Example: '-p @env:<variable>'  uses the value in the environment variable named <variable>
-''')
+                        help='Application password configured for your Apple ID (not your Apple ID password)')
+    parser.add_argument('--team', dest='team', type=str, required = True,
+                        help='Team ID')
     args = parser.parse_args()
-    notarize(Path(args.package), args.username, args.password)
+    notarize(Path(args.package), args.username, args.team, args.password)
 
 if __name__ == "__main__":
     main()

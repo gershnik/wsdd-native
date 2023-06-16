@@ -5,6 +5,20 @@ if /bin/launchctl list io.github.gershnik.wsddn &>/dev/null; then
     /bin/launchctl unload -w "/Library/LaunchDaemons/io.github.gershnik.wsddn.plist"
 fi
 
+# Remove pre 1.3 logging and pidfile if present
 rm -f /etc/newsyslog.d/wsddn.conf || true
 rm -rf /var/run/wsddn || true
 rm -f /var/log/wsddn.* || true
+
+
+#User and group were broken before 1.4 
+#Let's delete them if they exist (unconditionally for good measure)
+dscl . -delete /Users/_wsddn || true
+dscl . -delete /Groups/_wsddn || true
+
+# Remove old conf if it is the same as sample
+if [[ -f /etc/wsddn.conf ]]; then
+    if [ ! diff /etc/wsddn.conf /etc/wsddn.conf.sample >/dev/null 2>&1 ]; then
+        rm -f /etc/wsddn.conf
+    fi
+fi

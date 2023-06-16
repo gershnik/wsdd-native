@@ -36,7 +36,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     set(WSDDN_BUNDLE_IDENTIFIER "io.github.gershnik.wsddn" CACHE STRING "macOS bundle identifier")
 endif()
 
-
+option(WSDDN_MACOS_BUILD_WRAPPER "whether to build a macos wrapper bundle" OFF)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -101,7 +101,6 @@ PRIVATE
 
 target_compile_options(wsddn 
 PRIVATE
-    $<$<CXX_COMPILER_ID:MSVC>:/utf-8;/W4;/WX>
     $<$<CXX_COMPILER_ID:Clang>:-Wall;-Wextra;-pedantic;-ftemplate-backtrace-limit=0>
     $<$<CXX_COMPILER_ID:AppleClang>:-Wall;-Wextra;-pedantic;-fpch-instantiate-templates;-ftemplate-backtrace-limit=0>
     $<$<CXX_COMPILER_ID:GNU>:-Wall;-Wextra;-pedantic>   
@@ -110,6 +109,8 @@ PRIVATE
 target_link_options(wsddn 
 PRIVATE
     "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-object_path_lto,${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lto.o>"
+    "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-cache_path_lto,${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/LTOCache>"
+    "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-no_adhoc_codesign;-Wl,-reproducible>"
 )
 
 target_compile_definitions(wsddn
@@ -282,5 +283,10 @@ if (GROFF_PATH)
     )
 endif()
 
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND WSDDN_MACOS_BUILD_WRAPPER)
+
+    add_subdirectory(installers/mac/wrapper wrapper)
+
+endif()
 
 include(cmake/install.cmake)

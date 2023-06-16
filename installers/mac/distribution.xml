@@ -3,7 +3,7 @@
     Copyright (c) 2022, Eugene Gershnik
     SPDX-License-Identifier: BSD-3-Clause
 -->
-<installer-gui-script minSpecVersion="1">
+<installer-gui-script minSpecVersion="2">
     <title>WS-Discovery Host Daemon</title>
     <organization>io.github.gershnik</organization>
     <domains enable_localSystem="true"/>

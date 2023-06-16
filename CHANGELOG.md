@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed:
+- macOS: Corrected `_wsddn` group definition so it is no longer removed from `_wsddn` user on macOS upgrade and no longer shown as available user group in Settings.
+- macOS: Made the macOS warning about startup software say "wsddn.app" rather than "Eugene Gershnik" (my developer account name).
+
 ## [1.3] - 2023-05-27
 
 ### Added
