@@ -64,6 +64,12 @@ if args.sign:
     subprocess.run(['codesign', '--force', '--sign', 'Developer ID Application', '-o', 'runtime', '--timestamp', 
                     '--preserve-metadata=entitlements', 
                         appDir], check=True)
+else:
+    subprocess.run(['codesign', '--force', '--sign', '-', '-o', 'runtime', '--timestamp=none', 
+                        stagedir / 'usr/local/bin/wsddn'], check=True)
+    subprocess.run(['codesign', '--force', '--sign', '-', '-o', 'runtime', '--timestamp=none', 
+                    '--preserve-metadata=entitlements', 
+                        appDir], check=True)
 
 
 packagesdir = workdir / 'packages'

@@ -6,4 +6,5 @@ __pycache__/
 
 LLDBInitFile
 .DS_Store
+env.cmake
 

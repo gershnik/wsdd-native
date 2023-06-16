@@ -4,9 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import sys
-import os
 import argparse
-import subprocess
 import shutil
 import plistlib
 from pathlib import Path
