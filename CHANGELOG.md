@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.4] - 2023-06-16
+
 ### Fixed:
 - macOS: Corrected `_wsddn` group definition so it is no longer removed from `_wsddn` user on macOS upgrade and no longer shown as available user group in Settings.
 - macOS: Made the macOS warning about startup software say "wsddn.app" rather than "Eugene Gershnik" (my developer account name).
@@ -59,3 +61,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.1]: https://github.com/gershnik/wsdd-native/releases/v1.1
 [1.2]: https://github.com/gershnik/wsdd-native/releases/v1.2
 [1.3]: https://github.com/gershnik/wsdd-native/releases/v1.3
+[1.4]: https://github.com/gershnik/wsdd-native/releases/v1.4
