@@ -67,7 +67,7 @@ jobs:
           export CXX=g++-10
         fi
         cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo  
-        if [[ '${{ matrix.installer }}' == 'deb-systemd' || '${{ matrix.installer }}' == 'rpm-systemd' ]]; then
+        if [[ '${{ matrix.installer }}' == 'rpm-systemd' ]]; then
             export PGP_KEY_NAME='${{ secrets.PGP_KEY_NAME }}'
             export PGP_KEY_PASSWD='${{ secrets.PGP_KEY_PASSWD }}'
         fi

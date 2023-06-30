@@ -61,8 +61,12 @@ jobs:
           export CC=gcc-10
           export CXX=g++-10
         fi
+        if [[ '${{ matrix.installer }}' == 'rpm-systemd' ]]; then
+            export PGP_KEY_NAME='${{ secrets.PGP_KEY_NAME }}'
+            export PGP_KEY_PASSWD='${{ secrets.PGP_KEY_PASSWD }}'
+        fi
         cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
-        installers/${{ matrix.installer }}/build.py . out
+        installers/${{ matrix.installer }}/build.py --sign . out
         EOF
 
   local:
@@ -115,7 +119,7 @@ jobs:
       run: |
           if [[ '${{ runner.os }}' == 'Linux' ]]; then
 
-            installers/${{ matrix.installer }}/build.py . out
+            installers/${{ matrix.installer }}/build.py --sign . out
 
           elif [[ '${{ runner.os }}' == 'macOS' ]]; then
             

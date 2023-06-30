@@ -16,13 +16,15 @@ mydir = Path(sys.argv[0]).parent
 
 sys.path.append(str(mydir.absolute().parent))
 
-from common import VERSION, parseCommandLine, buildCode, installCode, copyTemplated, uploadResults
+from common import parseCommandLine, getVersion, buildCode, installCode, copyTemplated, uploadResults
 
 args = parseCommandLine()
 srcdir: Path = args.srcdir
 builddir: Path = args.builddir
 
 buildCode(builddir)
+
+VERSION = getVersion(builddir)
 
 workdir = builddir / 'stage/rpm-systemd'
 stagedir = workdir / 'stage'

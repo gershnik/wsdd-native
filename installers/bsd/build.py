@@ -26,13 +26,15 @@ mydir = Path(sys.argv[0]).parent
 
 sys.path.append(str(mydir.absolute().parent))
 
-from common import VERSION, parseCommandLine, buildCode, installCode, copyTemplated, uploadResults
+from common import parseCommandLine, getVersion, buildCode, installCode, copyTemplated, uploadResults
 
 args = parseCommandLine()
 srcdir = args.srcdir
 builddir = args.builddir
 
 buildCode(builddir)
+
+VERSION = getVersion(builddir)
 
 workdir = builddir / 'stage/bsd'
 stagedir = workdir / 'root'
