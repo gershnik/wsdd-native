@@ -17,6 +17,18 @@ set(BUILD_SHARED_LIBS OFF)
 
 set(CMAKE_XCODE_GENERATE_TOP_LEVEL_PROJECT_ONLY ON)
 
+if (NOT WSDDN_VERSION)
+
+    file(READ VERSION WSDDN_VERSION)
+    if (NOT WSDDN_VERSION)
+        message(FATAL_ERROR "WSDDN_VERSION not set and VERSION file not present. Cannot determine version")
+    endif()
+    string(STRIP ${WSDDN_VERSION} WSDDN_VERSION)
+
+endif()
+
+message(NOTICE WSDDN_VERSION: ${WSDDN_VERSION})
+
 project(wsddn)
 
 #By default prefer system libraries on Mac and source compiled on other platforms
@@ -195,26 +207,6 @@ PRIVATE
     ${MAIN_SOURCES}
     ${CMAKE_SOURCES}
 )
-
-if (NOT WSDDN_VERSION)
-
-    execute_process(
-        COMMAND git describe --tags --match "v*" --abbrev=0
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-        RESULT_VARIABLE GIT_DESCRIBE_RESULT
-        OUTPUT_VARIABLE GIT_DESCRIBE_OUTPUT
-    )
-
-    if ("${GIT_DESCRIBE_RESULT}" STREQUAL "0")
-        string(STRIP "${GIT_DESCRIBE_OUTPUT}" GIT_DESCRIBE_OUTPUT)
-        string(SUBSTRING "${GIT_DESCRIBE_OUTPUT}" 1 -1 WSDDN_VERSION)
-    else()
-        set(WSDDN_VERSION "0.1")
-    endif()
-
-endif()
-
-message(NOTICE WSDDN_VERSION: ${WSDDN_VERSION})
 
 configure_file(src/sys_config.h.in sys_config.h.in)
 

@@ -61,7 +61,7 @@ jobs:
           export CC=gcc-10
           export CXX=g++-10
         fi
-        cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF 
+        cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
         installers/${{ matrix.installer }}/build.py . out
         EOF
 
@@ -103,15 +103,32 @@ jobs:
           echo "CXX=g++-10" >> $GITHUB_ENV
         fi
 
-    - name: Build
+    - name: Configure
       run: |
           cmake -E make_directory out
           cmake -S . -B out \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             "-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64" \
-            -DWSDDN_MACOS_BUILD_WRAPPER=ON \
-            -DFETCHCONTENT_QUIET=OFF 
-          installers/${{ matrix.installer }}/build.py . out
+            -DWSDDN_MACOS_BUILD_WRAPPER=ON 
+
+    - name: Build
+      run: |
+          if [[ '${{ runner.os }}' == 'Linux' ]]; then
+
+            installers/${{ matrix.installer }}/build.py . out
+
+          elif [[ '${{ runner.os }}' == 'macOS' ]]; then
+            
+            export SIGN_CERTIFICATE='${{ secrets.SIGN_CERTIFICATE }}'
+            export SIGN_CERTIFICATE_PWD='${{ secrets.SIGN_CERTIFICATE_PWD }}'
+            export KEYCHAIN_PWD='${{ secrets.KEYCHAIN_PWD }}'
+            export NOTARIZE_USER='${{ secrets.NOTARIZE_USER }}'
+            export NOTARIZE_PWD='${{ secrets.NOTARIZE_PWD }}'
+            installers/mac/set-github-keychain
+
+            installers/${{ matrix.installer }}/build.py --sign . out
+
+          fi
 
 
 
