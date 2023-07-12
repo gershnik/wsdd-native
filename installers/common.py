@@ -16,12 +16,6 @@ def parseCommandLine() -> argparse.Namespace :
     if args.uploadResults:
         args.sign = True
 
-    verRes = subprocess.run([Path(args.builddir)/'wsddn', '--version'], capture_output=True, encoding='utf-8')
-    if verRes.returncode != 0:
-        sys.exit(1)
-    VERSION = verRes.stdout.strip()
-    print(f'VERSION={VERSION}')
-    
     return args
 
 def getVersion(builddir: Path):
