@@ -25,20 +25,6 @@ if (NOT HAVE_NETLINK)
 
 endif()
 
-check_cxx_source_compiles("
-    #include <string.h>
-    int main() { 
-        const char * x = sigabbrev_np(1); 
-    }" 
-HAVE_SIGABBREV_NP)
-
-check_cxx_source_compiles("
-    #include <signal.h>
-    int main() { 
-        const char * x = sys_signame[1]; 
-    }" 
-HAVE_SYS_SIGNAME)
-
 check_include_files(execinfo.h HAVE_EXECINFO_H)
 check_library_exists(execinfo backtrace "" HAVE_EXECINFO_LIB)
 

@@ -4,74 +4,6 @@
 #ifndef HEADER_SYS_UTIL_H_INCLUDED
 #define HEADER_SYS_UTIL_H_INCLUDED
 
-[[noreturn]] inline void throwErrno(int err) {
-    throw std::system_error(std::make_error_code(static_cast<std::errc>(err)));
-}
-
-[[noreturn]] inline void throwErrno(const char * what, int err) {
-    throw std::system_error(std::make_error_code(static_cast<std::errc>(err)), what);
-}
-
-class FileDescriptor {
-public:
-    FileDescriptor() noexcept = default;
-    explicit FileDescriptor(int fd) noexcept : m_fd(fd) {
-    }
-    FileDescriptor(const char *path, int oflag, mode_t mode = 0):
-        m_fd(::open(path, oflag, mode)){
-        
-        if (m_fd < 0)
-            throwErrno("open()", errno);
-    }
-    ~FileDescriptor() noexcept {
-        if (m_fd >= 0)
-            close(m_fd);
-    }
-    FileDescriptor(FileDescriptor && src) noexcept : m_fd(src.m_fd) {
-        src.m_fd = -1;
-    }
-    FileDescriptor(const FileDescriptor &) = delete;
-    FileDescriptor & operator=(FileDescriptor src) noexcept {
-        swap(src, *this);
-        return *this;
-    }
-
-    static auto open(const char *path, int oflag, mode_t mode = 0) noexcept -> outcome::result<FileDescriptor> {
-
-        auto fd = ::open(path, oflag, mode);
-        if (fd < 0)
-            return std::make_error_code(static_cast<std::errc>(errno));
-        return FileDescriptor(fd);
-    }
-    
-    static auto pipe() -> outcome::result<std::pair<FileDescriptor, FileDescriptor>> {
-        int fds[2];
-        if (::pipe(fds) != 0)
-            return std::make_error_code(static_cast<std::errc>(errno));
-        return std::make_pair(FileDescriptor(fds[0]), FileDescriptor(fds[1]));
-    }
-    
-    friend void swap(FileDescriptor & lhs, FileDescriptor & rhs) noexcept {
-        std::swap(lhs.m_fd, rhs.m_fd);
-    }
-    
-    auto get() const noexcept -> int {
-        return m_fd;
-    }
-    
-    auto detach() noexcept -> int {
-        int ret = m_fd;
-        m_fd = -1;
-        return ret;
-    }
-    
-    explicit operator bool() const noexcept {
-        return m_fd != -1;
-    }
-private:
-    int m_fd = -1;
-};
-
 class Uuid {
 private:
     struct IntStorage {
@@ -157,74 +89,6 @@ private:
     ValueType m_value;
 };
 
-class Group : public group {
-public:
-    Group() {
-        memset(static_cast<group *>(this), 0, sizeof(group));
-    }
-    Group(const Group &) = delete;
-    Group(Group &&) = default;
-    Group & operator=(const Group &) = delete;
-    Group & operator=(Group &&) = default;
-    
-    static auto getByName(const sys_string & name) -> std::optional<Group> {
-        struct group * result = nullptr;
-        auto bufSize = std::min(size_t(sysconf(_SC_GETGR_R_SIZE_MAX)), size_t(4096)); 
-        Group ret(bufSize);
-        for ( ; ; ) {
-            int res = getgrnam_r(name.c_str(), &ret, ret.m_buf.data(), ret.m_buf.size(), &result);
-            if (res == 0) {
-                if (!result)
-                    return std::nullopt;
-                return ret;
-            }
-            
-            if (auto err = errno; err != ERANGE)
-                throwErrno("getgrnam_r()", err);
-            ret.m_buf.resize(ret.m_buf.size() + 4096);
-        }
-    }
-    
-private:
-    Group(size_t buflen): m_buf(buflen) {}
-private:
-    std::vector<char> m_buf;
-};
-
-class Passwd : public passwd {
-public:
-    Passwd() {
-        memset(static_cast<passwd *>(this), 0, sizeof(passwd));
-    }
-    Passwd(const Passwd &) = delete;
-    Passwd(Passwd &&) = default;
-    Passwd & operator=(const Passwd &) = delete;
-    Passwd & operator=(Passwd &&) = default;
-    
-    static auto getByName(const sys_string & name) -> std::optional<Passwd> {
-        struct passwd * result = nullptr;
-        auto bufSize = std::min(size_t(sysconf(_SC_GETPW_R_SIZE_MAX)), size_t(4096));
-        Passwd ret(bufSize);
-        for ( ; ; ) {
-            int res = getpwnam_r(name.c_str(), &ret, ret.m_buf.data(), ret.m_buf.size(), &result);
-            if (res == 0) {
-                if (!result)
-                    return std::nullopt;
-                return ret;
-            }
-            
-            if (auto err = errno; err != ERANGE)
-                throwErrno("getpwnam_r()", err);
-            ret.m_buf.resize(ret.m_buf.size() + 4096);
-        }
-    }
-    
-private:
-    Passwd(size_t buflen): m_buf(buflen) {}
-private:
-    std::vector<char> m_buf;
-};
-
 class Identity {
 public:
     Identity(uid_t uid, gid_t gid) : m_data(uid, gid) {
@@ -238,7 +102,7 @@ public:
     }
     static auto admin() -> Identity {
 #ifdef ADMIN_GROUP_NAME
-        auto adminGroup = Group::getByName(ADMIN_GROUP_NAME);
+        auto adminGroup = ptl::Group::getByName(ADMIN_GROUP_NAME);
         return Identity(0, adminGroup ? adminGroup->gr_gid: 0);
 #else
         return Identity(0, 0);
@@ -252,17 +116,13 @@ public:
 #endif
     
     void setMyIdentity() const {
-        if (setgid(gid()) != 0)
-            throwErrno("setgid()", errno);
-        if (setuid(uid()) != 0)
-            throwErrno("setuid()", errno);
+        ptl::setGid(gid());
+        ptl::setUid(uid());
     }
 
     void setMyEffectiveIdentity() const {
-        if (setegid(gid()) != 0)
-            throwErrno("setegid()", errno);
-        if (seteuid(uid()) != 0)
-            throwErrno("seteuid()", errno);
+        ptl::setEffectiveGid(gid());
+        ptl::setEffectiveUid(uid());
     }
     
     auto uid() const -> uid_t { return m_data.first; }
@@ -348,33 +208,6 @@ public:
 
 #endif
 
-inline void changeOwner(const FileDescriptor & fd, const Identity & owner) {
-    if (fchown(fd.get(), owner.uid(), owner.gid()) != 0)
-        throwErrno("fchown()", errno);
-}
-
-inline void changeOwner(const std::filesystem::path & path, const Identity & owner) {
-    if (chown(path.c_str(), owner.uid(), owner.gid()) != 0)
-        throwErrno("chown()", errno);
-}
-
-inline void changeMode(const FileDescriptor & fd, mode_t mode) {
-    if (fchmod(fd.get(), mode) != 0)
-        throwErrno("fchmod()", errno);
-}
-
-inline void changeMode(const std::filesystem::path & path, mode_t mode) {
-    if (chmod(path.c_str(), mode) != 0)
-        throwErrno("chmod()", errno);
-}
-
-
-inline auto setSignalHandler(int signo, void (* handler)(int)) -> void (*)(int) {
-    auto ret = signal(signo, handler);
-    if (ret == SIG_ERR)
-        throwErrno("signal()", errno);
-    return ret;
-}
 
 inline void createMissingDirs(const std::filesystem::path & path, mode_t mode,
                               std::optional<Identity> owner) {
@@ -389,34 +222,15 @@ inline void createMissingDirs(const std::filesystem::path & path, mode_t mode,
         start /= *it;
         if (exists(start))
             continue;
-        if (mkdir(start.c_str(), mode) != 0) {
-            auto err = errno;
-            if (err != EEXIST)
-                throwErrno("mkdir()", err);
+        std::error_code ec;
+        ptl::makeDirectory(start, mode, ec);
+        if (ec && ec.value() != EEXIST) {
+            throw std::system_error(ec, fmt::format("ptl::makeDirectory({}, 0{:o})", start.c_str(), mode));
         }
-        changeMode(start, mode);
+        ptl::changeMode(start, mode);
         if (owner)
-            changeOwner(start, *owner);
+            ptl::changeOwner(start, owner->uid(), owner->gid());
     }
-}
-
-inline auto signalName(int sig) -> sys_string {
-#if HAVE_SIGABBREV_NP
-    if (auto str = sigabbrev_np(sig))
-        return S("SIG") + sys_string(str);
-#elif HAVE_SYS_SIGNAME
-    if (sig > 0 && sig < NSIG)
-        return S("SIG") + sys_string(sys_signame[sig]).to_upper();
-#endif
-    
-    return std::to_string(sig);
-}
-
-inline auto forkProcess() -> pid_t {
-    auto ret = fork();
-    if (ret < 0)
-        throwErrno("fork()", errno);
-    return ret;
 }
 
 

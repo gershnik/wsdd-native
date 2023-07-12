@@ -53,7 +53,7 @@ public:
             int res = sysctl(mib, std::size(mib), buf.data(), &tableSize, nullptr, 0);
             if (res != 0) {
                 if (int err = errno; err != ENOMEM)
-                    throwErrno("sysctl(CTL_NET, PF_ROUTE)", err);
+                    ptl::throwErrorCode(err, "sysctl(CTL_NET, PF_ROUTE)");
             } else {
                 if (buf.size() >= tableSize)
                     break;

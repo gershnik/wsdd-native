@@ -223,7 +223,7 @@ auto Identity::createDaemonUser(const sys_string & name) -> Identity {
     setAttribute(user, kODAttributeTypeNFSHomeDirectory,   makeArray(CFSTR("/var/empty")));
     setAttribute(user, kODAttributeTypeFullName,           makeArray(CFSTR("WS-Discovery Daemon")));
     
-    setAttribute(group, kODAttributeTypePassword,          makeArray(CFSTR("*")));
+    //setAttribute(group, kODAttributeTypePassword,          makeArray(CFSTR("*")));
     setAttribute(group, kODAttributeTypeFullName,          makeArray(CFSTR("WS-Discovery Daemon")));
 
     return Identity(uid, gid);

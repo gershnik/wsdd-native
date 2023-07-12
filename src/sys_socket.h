@@ -11,7 +11,7 @@ template<class Protocol, class Executor, class T>
 void setSocketOption(asio::basic_socket<Protocol, Executor> & socket, const T & option) {
     int res = setsockopt(socket.native_handle(), T::level, T::name, option.addr(), option.size());
     if (res != 0)
-        throwErrno("setsockopt()", errno);
+        ptl::throwErrorCode(errno, "setsockopt({}, {}, {}) failed", socket.native_handle(), T::level, T::name);
 }
 
 template<int Level, int Name, class T, bool IsPrimitive = !std::is_class_v<T> && !std::is_union_v<T>>

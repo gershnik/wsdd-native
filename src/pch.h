@@ -20,6 +20,13 @@
 #include <intrusive_shared_ptr/ref_counted.h>
 #include <intrusive_shared_ptr/refcnt_ptr.h>
 
+#include <ptl/file.h>
+#include <ptl/signal.h>
+#include <ptl/identity.h>
+#include <ptl/spawn.h>
+#include <ptl/users.h>
+#include <ptl/system.h>
+
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
@@ -42,10 +49,6 @@
 #else
     #error No uuid.h header available
 #endif
-#include <pwd.h>
-#include <grp.h>
-#include <sys/wait.h>
-#include <sys/file.h>
 
 #if HAVE_SYSTEMD
     #include <systemd/sd-daemon.h>

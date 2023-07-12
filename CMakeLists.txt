@@ -96,6 +96,7 @@ PRIVATE
     argum
     sys_string
     intrusive-shared-ptr
+    ptl::ptl
     LibXml2::LibXml2
     uuid::uuid_static
     spdlog::spdlog

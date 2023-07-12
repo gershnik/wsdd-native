@@ -31,19 +31,19 @@ void AppState::init() {
 
     setLogLevel();
 
-    FileDescriptor devNull("/dev/null", O_RDWR);
+    auto devNull = ptl::FileDescriptor::open("/dev/null", O_RDWR);
     redirectStdFile(stdin, devNull);
 
     if (m_currentCommandLine.daemonType && *m_currentCommandLine.daemonType == DaemonType::Unix) {
-        m_savedStdOut = FileDescriptor(dup(devNull.get()));
-        m_savedStdErr = FileDescriptor(dup(devNull.get()));
+        m_savedStdOut = ptl::duplicate(devNull);
+        m_savedStdErr = ptl::duplicate(devNull);
         setLogOutput(false); //false to make it replace stdxxx if log file isn't set
-        devNull = FileDescriptor();
+        devNull.close();
         daemonize();
     } else {
 
-        m_savedStdOut = FileDescriptor(dup(fileno(stdout)));
-        m_savedStdErr = FileDescriptor(dup(fileno(stderr)));
+        m_savedStdOut = ptl::duplicate(stdout);
+        m_savedStdErr = ptl::duplicate(stderr);
         setLogOutput(true);
     }
 
@@ -55,7 +55,7 @@ void AppState::init() {
         if (!m_currentCommandLine.runAs) {
 #if CAN_CREATE_USERS
             WSDLOG_DEBUG("Running as root but no account to run under is specified in configuration. Using {}", WSDDN_DEFAULT_USER_NAME);
-            auto pwd = Passwd::getByName(WSDDN_DEFAULT_USER_NAME);
+            auto pwd = ptl::Passwd::getByName(WSDDN_DEFAULT_USER_NAME);
             if (pwd) {
                 m_currentCommandLine.runAs = Identity(pwd->pw_uid, pwd->pw_gid);
             } else  {
@@ -105,16 +105,14 @@ void AppState::preFork() {
 }
 
 void AppState::postForkInServerProcess() noexcept {
-    m_savedStdOut = FileDescriptor();
-    m_savedStdErr = FileDescriptor();
+    m_savedStdOut.close();
+    m_savedStdErr.close();
     m_pidFile = PidFile();
     
     if (m_currentCommandLine.chrootDir) {
         WSDLOG_DEBUG("Changing root directory");
-        if (chroot(m_currentCommandLine.chrootDir->c_str()) != 0)
-            throwErrno("chroot()", errno);
-        if (chdir("/") != 0)
-            throwErrno("chdir(\"/\")", errno);
+        ptl::changeRoot(*m_currentCommandLine.chrootDir);
+        ptl::changeDirectory("/");
     }
     if (m_currentCommandLine.runAs) {
         WSDLOG_DEBUG("Changing identity");
@@ -204,7 +202,7 @@ void AppState::setPidFile() {
     m_pidFilePath = m_currentCommandLine.pidFile;
 }
 
-auto AppState::openLogFile(const std::filesystem::path & filename) -> FileDescriptor {
+auto AppState::openLogFile(const std::filesystem::path & filename) -> ptl::FileDescriptor {
         
     std::optional<Identity> owner;
     mode_t mode = S_IRUSR | S_IWUSR;
@@ -218,20 +216,20 @@ auto AppState::openLogFile(const std::filesystem::path & filename) -> FileDescri
     
     createMissingDirs(filename.parent_path(), dirMode, owner);
 
-    FileDescriptor fd(filename.c_str(), O_WRONLY | O_CREAT | O_APPEND, mode);
+    auto fd = ptl::FileDescriptor::open(filename, O_WRONLY | O_CREAT | O_APPEND, mode);
     if (owner) {
-        changeOwner(fd, Identity::admin());
-        changeMode(fd, S_IRUSR | S_IWUSR | S_IRGRP);
+        auto admin = Identity::admin();
+        ptl::changeOwner(fd, admin.uid(), admin.gid());
+        ptl::changeMode(fd, S_IRUSR | S_IWUSR | S_IRGRP);
     }
     return fd;
 }
 
 
-void AppState::redirectStdFile(FILE * from, const FileDescriptor & to) {
+void AppState::redirectStdFile(FILE * from, const ptl::FileDescriptor & to) {
 
     fflush(from);
-    if (dup2(to.get(), fileno(from)) < 0)
-        throwErrno("dup2()", errno);
+    duplicateTo(to, from); //yes, reversed! we make the descriptor "get into" FILE
 }
 
 //void AppState::closeAllExcept(const int * first, const int * last) {
@@ -264,7 +262,7 @@ void AppState::redirectStdFile(FILE * from, const FileDescriptor & to) {
 
 void AppState::daemonize() {
 
-    auto reportPipe = FileDescriptor::pipe().value();
+    auto [reportPipeRead, reportPipeWrite] = ptl::Pipe::create();
     char reportBuf[1];
     
 //    auto preserve = std::array{
@@ -291,24 +289,24 @@ void AppState::daemonize() {
     }
 
     // 3. Reset the signal mask
-    sigset_t allSigs;
-    sigfillset(&allSigs);
+    auto allSigs = ptl::SignalSet::all();
     for(auto sig: m_untouchedSignals)
-        sigdelset(&allSigs, sig);
-    (void)sigprocmask(SIG_UNBLOCK, &allSigs, nullptr);
-
+        allSigs.del(sig);
+    std::error_code ec;
+    ptl::setSignalProcessMask(SIG_UNBLOCK, allSigs.get());
+    
     // 4. Sanitize the environment block. Eh...
 
     // 5. Call fork(), to create a background process.
 
     preFork();
-    auto childPid = forkProcess();
+    auto childProcess = ptl::forkProcess();
 
-    if (childPid != 0) {
-        reportPipe.second  = FileDescriptor();
+    if (childProcess) {
+        reportPipeWrite.close();
         int ret = EXIT_FAILURE;
 
-        ssize_t res = read(reportPipe.first.get(), reportBuf, 1);
+        ssize_t res = readFile(reportPipeRead, reportBuf, 1, ec);
         if (res == 1) {
             WSDLOG_INFO("Daemon successfully started");
             ret = EXIT_SUCCESS;
@@ -320,38 +318,35 @@ void AppState::daemonize() {
         exit(ret);
     }
 
-    reportPipe.first  = FileDescriptor();
+    reportPipeRead.close();
 
     // 6. In the child, call setsid() to detach from any terminal and create an independent session.
 
-    if (setsid() == -1)
-        throwErrno("setsid()", errno);
-
+    ptl::setSessionId();
+    
     // 7. Call fork() again, to ensure that the daemon can never re-acquire a terminal again.
 
     preFork();
-    childPid = forkProcess();
+    childProcess = ptl::forkProcess();
 
     // 8. Call exit() in the first child, so that only the second child
     //    (the actual daemon process) stays around. This ensures that
     //    the daemon process is re-parented to init/PID 1, as all daemons should be.
 
-    if (childPid != 0) 
+    if (childProcess) 
         exit(EXIT_SUCCESS);
     
     // 8a. Start a new process group. This prevents the initial invoker from killing
     //     the daemon if it (or somebody) kills the process group 
-    if (setpgid(0, 0) != 0)
-	throwErrno("setpgid(0, 0)", errno);
-
+    ptl::setProcessGroupId(0, 0);
+    
     // 9. Connect /dev/null to standard input, output, and error. ... We are handling output outside of this
     // 10. Reset the umask to 0... We handle it differently
 
     // 11. Change the current directory to the root directory (/), in order to 
     //     avoid that the daemon involuntarily blocks mount points from being unmounted.
 
-    if (chdir("/") != 0) 
-        throwErrno("chdir(\"/\")", errno);
+    ptl::changeDirectory("/");
     
     // 12. Write the daemon PID to a PID file... We handle it later
     // 13. Drop privileges, if possible and applicable... We handle it later
@@ -359,6 +354,5 @@ void AppState::daemonize() {
     // 14. From the daemon process, notify the original process started that initialization is complete.
 
     reportBuf[0] = 0;
-    if (write(reportPipe.second.get(), reportBuf, 1) < 0)
-        throwErrno("write()", errno);
+    writeFile(reportPipeWrite, reportBuf, 1);
 }

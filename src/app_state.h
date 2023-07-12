@@ -45,8 +45,8 @@ private:
     void setLogOutput(bool firstTime);
     void setPidFile();
 
-    static auto openLogFile(const std::filesystem::path & filename) -> FileDescriptor;
-    static void redirectStdFile(FILE * from, const FileDescriptor & to);
+    static auto openLogFile(const std::filesystem::path & filename) -> ptl::FileDescriptor;
+    static void redirectStdFile(FILE * from, const ptl::FileDescriptor & to);
     static void closeAllExcept(const int * first, const int * last);
 private:
     std::set<int> m_untouchedSignals;
@@ -62,8 +62,8 @@ private:
     std::optional<bool> m_logToOsLog;
 #endif
     PidFile m_pidFile;
-    FileDescriptor m_savedStdOut;
-    FileDescriptor m_savedStdErr;
+    ptl::FileDescriptor m_savedStdOut;
+    ptl::FileDescriptor m_savedStdErr;
     refcnt_ptr<Config> m_config;
 };
 

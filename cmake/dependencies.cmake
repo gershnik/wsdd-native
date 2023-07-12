@@ -10,7 +10,6 @@ FetchContent_Declare(argum
     GIT_REPOSITORY  https://github.com/gershnik/argum.git
     GIT_TAG         v2.4
     GIT_SHALLOW     TRUE
-    GIT_PROGRESS    TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES argum)
 
@@ -18,7 +17,6 @@ FetchContent_Declare(sys_string
     GIT_REPOSITORY  https://github.com/gershnik/sys_string.git
     GIT_TAG         v2.10
     GIT_SHALLOW     TRUE
-    GIT_PROGRESS    TRUE
     SOURCE_SUBDIR   lib
 )
 list(APPEND DECLARED_DEPENDENCIES sys_string)
@@ -26,10 +24,16 @@ list(APPEND DECLARED_DEPENDENCIES sys_string)
 FetchContent_Declare(isptr
     GIT_REPOSITORY  https://github.com/gershnik/intrusive_shared_ptr.git
     GIT_TAG         v1.3
-    GIT_PROGRESS    TRUE
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES isptr)
+
+FetchContent_Declare(ptl
+    GIT_REPOSITORY  https://github.com/gershnik/ptl.git
+    GIT_TAG         v0.2
+    GIT_SHALLOW     TRUE
+)
+list(APPEND DECLARED_DEPENDENCIES ptl)
 
 if (WSDDN_PREFER_SYSTEM)
     find_package(LibXml2)

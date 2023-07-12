@@ -23,23 +23,18 @@ public:
         
         createMissingDirs(filename.parent_path(), mode | S_IXUSR | S_IXGRP | S_IXOTH, owner);
         
-        FileDescriptor fd(filename.c_str(), O_WRONLY | O_CREAT, mode);
-        if (flock(fd.get(), LOCK_EX | LOCK_NB) != 0) {
-            auto err = errno;
-            if (err == EWOULDBLOCK)
-                return std::nullopt;
-            throwErrno("flock()", err);
-        }
-        changeMode(fd, mode);
+        auto fd = ptl::FileDescriptor::open(filename, O_WRONLY | O_CREAT, mode);
+        if (!ptl::tryLockFile(fd, ptl::FileLock::Exclusive))
+            return std::nullopt;
+        ptl::changeMode(fd, mode);
         if (owner)
-            changeOwner(fd, *owner);
-        if (ftruncate(fd.get(), 0) != 0)
-            throwErrno("ftruncate()", errno);
+            ptl::changeOwner(fd, owner->uid(), owner->gid());
+        ptl::truncateFile(fd, 0);
         auto pid = getpid();
         auto strPid = std::to_string(pid);
         strPid += '\n';
-        if (write(fd.get(), strPid.data(), strPid.size()) != ssize_t(strPid.size()))
-            throwErrno("write()", errno);
+        if ((size_t)writeFile(fd, strPid.data(), strPid.size()) != strPid.size())
+            throw std::runtime_error("partial write to pid file!");
         return PidFile(std::move(fd), std::move(filename), pid);
     }
     
@@ -56,11 +51,11 @@ public:
             WSDLOG_ERROR("unable to remove pidfile {}, error: {}\n", m_path.c_str(), ec.message().c_str());
     }
 private:
-    PidFile(FileDescriptor && fd, std::filesystem::path && path, pid_t proc) noexcept:
+    PidFile(ptl::FileDescriptor && fd, std::filesystem::path && path, pid_t proc) noexcept:
         m_fd(std::move(fd)), m_path(std::move(path)), m_lockingProcess(proc) {
     }
 private:
-    FileDescriptor m_fd;
+    ptl::FileDescriptor m_fd;
 	std::filesystem::path m_path;
     pid_t m_lockingProcess = -1;
 };
