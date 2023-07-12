@@ -20,7 +20,7 @@ auto Identity::createDaemonUser(const sys_string & name) -> Identity {
     sys_string command = S("pw adduser '") + name + S("' -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false -c \"WS-Discovery Daemon User\"");
 #endif
     (void)!system(command.c_str());
-    auto pwd = Passwd::getByName(name);
+    auto pwd = ptl::Passwd::getByName(name);
     if (!pwd)
         throw std::runtime_error(fmt::format("unable to create user {}", name));
     return Identity(pwd->pw_uid, pwd->pw_gid);
