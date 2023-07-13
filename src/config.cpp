@@ -91,7 +91,7 @@ auto Config::getHostName() const -> sys_string {
     sys_string_builder builder;
     auto & buf = builder.chars();
     buf.resize(size + 1);
-    ptl::getHostName(buf);
+    ptl::getHostName({buf.begin(), buf.end()});
     builder.resize_storage(strlen(buf.begin()));
     return builder.build();
 }
