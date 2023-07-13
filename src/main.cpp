@@ -47,14 +47,12 @@ static auto waitForChild() -> std::optional<int> {
     
     int status = 0;
     for ( ; ; ) {
-        std::error_code ec;
+        ErrorWhitelist ec(EINTR);
         auto maybeStatus = g_maybeChildProcess->wait(ec);
         if (maybeStatus) {
             status = *maybeStatus;
             break;
         }
-        if (ec.value() != EINTR)
-            throw std::system_error(ec, fmt::format("wait() for child process {} failed", g_maybeChildProcess->get()));
     }
     ptl::setSignalHandler(SIGINT, oldSigInt);
     ptl::setSignalHandler(SIGINT, oldSigTerm);
