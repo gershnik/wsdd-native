@@ -91,14 +91,22 @@ static void setAttribute(const cf_ptr<ODRecordRef> & record,
                          ODAttributeType attributeType, const cf_ptr<CFArrayRef> & value) {
     
     cf_ptr<CFErrorRef> err;
-//    auto existing = cf_attach(ODRecordCopyValues(record.get(), attributeType, err.get_output_param()));
-//    if (existing)
-//        return false;
     if (!ODRecordSetValue(record.get(), attributeType, value.get(), err.get_output_param()))
         throwCFError(err);
+}
+
+static void setAttribute(const cf_ptr<ODRecordRef> & record,
+                         ODAttributeType attributeType, const sys_string_cfstr & value) {
+    
+    cf_ptr<CFErrorRef> err;
+    if (!ODRecordSetValue(record.get(), attributeType, value.cf_str(), err.get_output_param()))
+        throwCFError(err);
+}
+
+static void synchronize(const cf_ptr<ODRecordRef> & record) {
+    cf_ptr<CFErrorRef> err;
     if (!ODRecordSynchronize(record.get(), err.get_output_param()))
         throwCFError(err);
-//    return true;
 }
 
 template<class T>
@@ -194,10 +202,8 @@ static auto createRecordWithUniqueId(const cf_ptr<ODNodeRef> & localNode,
             }
             idValue = getAvailableIdGreaterThan(localNode, recordType, uniqueIdAttribute, startId - 1);
             auto strId = sys_string_cfstr(std::to_string(idValue));
-            if (!ODRecordSetValue(record.get(), uniqueIdAttribute, strId.cf_str(), err.get_output_param()))
-                throwCFError(err);
-            if (!ODRecordSynchronize(record.get(), err.get_output_param()))
-                throwCFError(err);
+            setAttribute(record, uniqueIdAttribute, strId);
+            synchronize(record);
         }
         break;
     }
@@ -222,9 +228,11 @@ auto Identity::createDaemonUser(const sys_string & name) -> Identity {
     setAttribute(user, kODAttributeTypePassword,           makeArray(CFSTR("*")));
     setAttribute(user, kODAttributeTypeNFSHomeDirectory,   makeArray(CFSTR("/var/empty")));
     setAttribute(user, kODAttributeTypeFullName,           makeArray(CFSTR("WS-Discovery Daemon")));
+    synchronize(user);
     
-    //setAttribute(group, kODAttributeTypePassword,          makeArray(CFSTR("*")));
+    setAttribute(group, CFSTR("dsAttrTypeNative:IsHidden"),makeArray(CFSTR("1")));
     setAttribute(group, kODAttributeTypeFullName,          makeArray(CFSTR("WS-Discovery Daemon")));
+    synchronize(group);
 
     return Identity(uid, gid);
 }
