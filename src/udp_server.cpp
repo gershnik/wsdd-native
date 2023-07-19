@@ -70,16 +70,16 @@ private:
         multicastGroupRequest.imr_address.s_addr = htonl(addr.to_uint());
         multicastGroupRequest.imr_ifindex = iface.index;
 
-        setSocketOption(m_recvSocket, SockOptIpAddMembershipRef{&multicastGroupRequest});
+        setSocketOption(m_recvSocket, ptl::SockOptIPv4AddMembership, multicastGroupRequest);
 
         #ifdef __linux__
-            setSocketOption(m_recvSocket, SockOptIpMulticastAll{false});
+            setSocketOption(m_recvSocket, ptl::SockOptIPv4MulticastAll, false);
         #endif
 
         m_recvSocket.bind(ip::udp::endpoint(multicastGroupAddress, g_WsdUdpPort));
         m_unicastSendSocket.bind(ip::udp::endpoint(addr, g_WsdUdpPort));
 
-        setSocketOption(m_multicastSendSocket, SockOptIpMulticastInterfaceRef{&multicastGroupRequest});
+        setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastIface, multicastGroupRequest);
         m_multicastSendSocket.set_option(ip::multicast::enable_loopback(false));
         m_multicastSendSocket.set_option(ip::multicast::hops(m_config->hopLimit()));
 
@@ -97,7 +97,7 @@ private:
         m_recvSocket.set_option(ip::v6_only(true));
 
         #ifdef __linux__
-            setSocketOption(m_recvSocket, SockOptIpv6MulticastAll{false});
+            setSocketOption(m_recvSocket, ptl::SockOptIPv6MulticastAll, false);
         #endif
 
         m_recvSocket.bind(ip::udp::endpoint(ip::address_v6(multicastGroupAddress.to_bytes(), iface.index), g_WsdUdpPort));
@@ -105,7 +105,7 @@ private:
 
         m_multicastSendSocket.set_option(ip::multicast::enable_loopback(false));
         m_multicastSendSocket.set_option(ip::multicast::hops(m_config->hopLimit()));
-        setSocketOption(m_multicastSendSocket, SockOptIpv6MulticastInterface{iface.index});
+        setSocketOption(m_multicastSendSocket, ptl::SockOptIPv6MulticastIface, iface.index);
     }
 
     void read() {

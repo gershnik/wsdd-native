@@ -25,6 +25,7 @@
 #include <ptl/identity.h>
 #include <ptl/spawn.h>
 #include <ptl/users.h>
+#include <ptl/socket.h>
 #include <ptl/system.h>
 
 #include <libxml/parser.h>

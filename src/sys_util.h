@@ -40,7 +40,7 @@ namespace ptl {
 
     template<size_t N> struct ErrorTraits<ErrorWhitelist<N>> {
         template<class... T>
-        [[gnu::always_inline]] static inline void handleError(ErrorWhitelist<N> & err, int code, const char * format, T && ...args) noexcept {
+        [[gnu::always_inline]] static inline void assignError(ErrorWhitelist<N> & err, int code, const char * format, T && ...args) noexcept {
             for(auto allowed: err.m_allowed) {
                 if (code == allowed) {
                     err.m_code = ptl::makeErrorCode(code);
@@ -52,6 +52,10 @@ namespace ptl {
 
         [[gnu::always_inline]] static inline void clearError(ErrorWhitelist<N> & err) noexcept {
             err.m_code.clear();
+        }
+
+        [[gnu::always_inline]] static inline auto failed(const ErrorWhitelist<N> & err) noexcept -> bool {
+            return bool(err.m_code);
         }
     };
 }
