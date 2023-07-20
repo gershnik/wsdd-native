@@ -27,6 +27,7 @@
 #include <ptl/users.h>
 #include <ptl/socket.h>
 #include <ptl/system.h>
+#include <ptl/errors.h>
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>

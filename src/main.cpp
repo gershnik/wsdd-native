@@ -47,7 +47,7 @@ static auto waitForChild() -> std::optional<int> {
     
     int status = 0;
     for ( ; ; ) {
-        ErrorWhitelist ec(EINTR);
+        ptl::AllowedErrors<EINTR> ec;
         auto maybeStatus = g_maybeChildProcess->wait(ec);
         if (maybeStatus) {
             status = *maybeStatus;

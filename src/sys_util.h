@@ -4,62 +4,6 @@
 #ifndef HEADER_SYS_UTIL_H_INCLUDED
 #define HEADER_SYS_UTIL_H_INCLUDED
 
-template<size_t N>
-class ErrorWhitelist {
-    friend ptl::ErrorTraits<ErrorWhitelist<N>>;
-public:
-    ErrorWhitelist(std::array<int, N> allowed):
-        m_allowed(allowed) 
-    {}
-
-    ErrorWhitelist(int (& allowed)[N]):
-        m_allowed(std::to_array(allowed))
-    {}
-
-    ErrorWhitelist(int (&& allowed)[N]):
-        m_allowed(std::to_array(allowed))
-    {}
-
-    template <class T, class... U>
-    ErrorWhitelist(T first, U ...rest) 
-    requires(std::is_same_v<T, int> && (std::is_same_v<U, int> && ...) && sizeof...(U) == N - 1):
-        m_allowed({first, rest...})
-    {}
-
-    auto code() const noexcept -> const std::error_code & 
-        { return m_code; }
-
-private:
-    std::error_code m_code;
-    std::array<int, N> m_allowed;
-};
-
-template <class T, class... U> ErrorWhitelist(T, U...) -> ErrorWhitelist<1 + sizeof...(U)>;
-
-namespace ptl {
-
-    template<size_t N> struct ErrorTraits<ErrorWhitelist<N>> {
-        template<class... T>
-        [[gnu::always_inline]] static inline void assignError(ErrorWhitelist<N> & err, int code, const char * format, T && ...args) noexcept {
-            for(auto allowed: err.m_allowed) {
-                if (code == allowed) {
-                    err.m_code = ptl::makeErrorCode(code);
-                    return;
-                }
-            }
-            ptl::throwErrorCode(code, format, std::forward<T>(args)...);
-        }
-
-        [[gnu::always_inline]] static inline void clearError(ErrorWhitelist<N> & err) noexcept {
-            err.m_code.clear();
-        }
-
-        [[gnu::always_inline]] static inline auto failed(const ErrorWhitelist<N> & err) noexcept -> bool {
-            return bool(err.m_code);
-        }
-    };
-}
-
 class Uuid {
 private:
     struct IntStorage {
@@ -280,7 +224,7 @@ inline void createMissingDirs(const std::filesystem::path & path, mode_t mode,
         //other than EEXIST like permissions
         if (exists(start))
             continue;
-        ErrorWhitelist ec(EEXIST); //but we also need this exception to avoid TOCTOU, sigh
+        ptl::AllowedErrors<EEXIST> ec; //but we also need this exception to avoid TOCTOU, sigh
         ptl::makeDirectory(start, mode, ec);
         ptl::changeMode(start, mode);
         if (owner)
