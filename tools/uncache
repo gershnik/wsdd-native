@@ -1,0 +1,24 @@
+#! /usr/bin/env -S python3 -u
+
+import sys
+import argparse
+import shutil
+from pathlib import Path
+
+parser = argparse.ArgumentParser()
+parser.add_argument('builddir', type=Path)
+parser.add_argument('--dry-run', required=False, action='store_true', default=False, dest='dryRun')
+args = parser.parse_args()
+
+
+MYPATH = Path(__file__).parent
+ROOT = MYPATH.parent
+
+builddir: Path = args.builddir
+dryRun: bool = args.dryRun
+
+for cache in builddir.glob('**/CMakeCache.txt'):
+    if not dryRun:
+        cache.unlink()
+    else:
+        print(str(cache))
