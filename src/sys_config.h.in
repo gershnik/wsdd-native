@@ -6,8 +6,6 @@
 
 #cmakedefine01 HAVE_NETLINK
 #cmakedefine01 HAVE_PF_ROUTE
-#cmakedefine01 HAVE_SIGABBREV_NP
-#cmakedefine01 HAVE_SYS_SIGNAME
 #cmakedefine01 HAVE_EXECINFO_H
 #cmakedefine01 HAVE_CXXABI_H
 #cmakedefine01 HAVE_ABI_CXA_THROW

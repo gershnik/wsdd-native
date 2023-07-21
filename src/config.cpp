@@ -6,7 +6,7 @@
 
 Config::Config(const CommandLine & cmdline):
     m_instanceIdentifier(time(nullptr)),
-    m_pageSize((size_t)sysconf(_SC_PAGESIZE)) {
+    m_pageSize(size_t(ptl::systemConfig(_SC_PAGESIZE).value_or(4096))) {
         
     m_hopLimit = cmdline.hoplimit.value_or(1);
     m_allowedAddressFamily = cmdline.allowedAddressFamily.value_or(BothIPv4AndIPv6);
@@ -87,12 +87,11 @@ Config::Config(const CommandLine & cmdline):
 }
 
 auto Config::getHostName() const -> sys_string {
-    auto size = size_t(sysconf(_SC_HOST_NAME_MAX));
+    auto size = size_t(ptl::systemConfig(_SC_HOST_NAME_MAX).value_or(_POSIX_HOST_NAME_MAX));
     sys_string_builder builder;
     auto & buf = builder.chars();
     buf.resize(size + 1);
-    gethostname(buf.begin(), buf.size());
-    buf.begin()[size + 1] = 0;
+    ptl::getHostName({buf.begin(), buf.end()});
     builder.resize_storage(strlen(buf.begin()));
     return builder.build();
 }

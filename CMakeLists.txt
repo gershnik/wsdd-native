@@ -96,6 +96,7 @@ PRIVATE
     argum
     sys_string
     intrusive-shared-ptr
+    ptl::ptl
     LibXml2::LibXml2
     uuid::uuid_static
     spdlog::spdlog
@@ -208,13 +209,10 @@ PRIVATE
     ${CMAKE_SOURCES}
 )
 
-configure_file(src/sys_config.h.in sys_config.h.in)
+file(READ src/sys_config.h.in CONFIG_CONTENT)
+string(CONFIGURE ${CONFIG_CONTENT} CONFIG_CONTENT)
+file(GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sys_config.h CONTENT ${CONFIG_CONTENT})
 
-file(
-  GENERATE
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sys_config.h
-  INPUT ${CMAKE_CURRENT_BINARY_DIR}/sys_config.h.in
-)
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     configure_file(src/Info.template.plist Info.plist @ONLY)

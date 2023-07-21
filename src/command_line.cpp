@@ -38,14 +38,14 @@ static auto parseUser(const sys_string & str) -> Identity {
     gid_t gid;
     uid_t uid;
     
-    auto pwd = Passwd::getByName(username);
+    auto pwd = ptl::Passwd::getByName(username);
     if (!pwd)
         throw Parser::ValidationError(fmt::format("non-existent user {}", username));
     uid = pwd->pw_uid;
     if (!groupname) {
         gid = pwd->pw_gid;
     } else {
-        auto grp = Group::getByName(*groupname);
+        auto grp = ptl::Group::getByName(*groupname);
         if (!grp)
             throw Parser::ValidationError(fmt::format("non-existent group {}", *groupname));
         gid = grp->gr_gid;

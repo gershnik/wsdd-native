@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed:
+- macOS: Hopefully final fix for #4: `_wsddn` user is reassigned to staff group on OS update 
+
+### Changed:
+- Replaced ad-hoc calls to various Posix-y APIs with [ptl](https://github.com/gershnik/ptl)
+
 ## [1.4] - 2023-06-16
 
 ### Fixed:

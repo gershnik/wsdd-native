@@ -19,7 +19,7 @@ auto ServerManager::createServer(const NetworkInterface & interface, const ip::a
 
 void ServerManager::onFatalInterfaceMonitorError(asio::error_code ec) {
     //nothing left to do if the monitor died
-    throw std::system_error(ec);
+    throw std::system_error(ec, "fatal interface monitor error");
 }
 
 void ServerManager::addAddress(const NetworkInterface & interface, const ip::address & addr) {
