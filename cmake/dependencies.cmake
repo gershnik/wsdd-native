@@ -30,7 +30,7 @@ list(APPEND DECLARED_DEPENDENCIES isptr)
 
 FetchContent_Declare(ptl
     GIT_REPOSITORY  https://github.com/gershnik/ptl.git
-    GIT_TAG         14bf3e52
+    GIT_TAG         v0.3
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES ptl)
