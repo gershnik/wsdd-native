@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.5] - 2023-07-21
+
 ### Fixed:
 - macOS: Hopefully final fix for #4: `_wsddn` user is reassigned to staff group on OS update 
 
@@ -68,3 +70,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.2]: https://github.com/gershnik/wsdd-native/releases/v1.2
 [1.3]: https://github.com/gershnik/wsdd-native/releases/v1.3
 [1.4]: https://github.com/gershnik/wsdd-native/releases/v1.4
+[1.5]: https://github.com/gershnik/wsdd-native/releases/v1.5
