@@ -57,11 +57,11 @@ jobs:
         git fetch --all
         git fetch -f --prune --tags
         git reset --hard ${{ github.sha }}
-        [ -d "out" ] || mkdir out
         if [[ '${{ matrix.remote_host }}' == 'ubuntu-20.04-arm' ]]; then
           export CC=gcc-10
           export CXX=g++-10
         fi
+        [ -d "out" ] && tools/uncache out
         cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo  
         if [[ '${{ matrix.installer }}' == 'rpm-systemd' ]]; then
             export PGP_KEY_NAME='${{ secrets.PGP_KEY_NAME }}'
@@ -106,7 +106,7 @@ jobs:
 
     - name: Configure
       run: |
-          cmake -E make_directory out
+          [ -d "out" ] && tools/uncache out
           cmake -S . -B out \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             "-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64" \
