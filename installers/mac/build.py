@@ -132,4 +132,4 @@ if args.sign:
 
 if args.uploadResults:
     subprocess.run(['tar', '-C', builddir, '-czf', workdir.absolute() / f'wsddn-macos-{VERSION}.dSYM.tgz', 'wsddn.dSYM'], check=True)
-    uploadResults(installer, workdir / f'wsddn-macos-{VERSION}.dSYM.tgz')
+    uploadResults(installer, workdir / f'wsddn-macos-{VERSION}.dSYM.tgz', VERSION)

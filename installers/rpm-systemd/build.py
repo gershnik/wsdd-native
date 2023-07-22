@@ -131,4 +131,4 @@ if args.sign:
 
 if args.uploadResults:
     subprocess.run(['aws', 's3', 'cp', rpm, 's3://gershnik.com/rpm-repo/'], check=True)
-    uploadResults(rpm, workdir / f'wsddn-rpm-systemd-{VERSION}-{ARCH}.gz')
+    uploadResults(rpm, workdir / f'wsddn-rpm-systemd-{VERSION}-{ARCH}.gz', VERSION)

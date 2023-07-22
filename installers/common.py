@@ -39,6 +39,6 @@ def copyTemplated(src, dst, map):
     dstdir.mkdir(parents=True, exist_ok=True)
     dst.write_text(src.read_text().format_map(map))
 
-def uploadResults(installer, symfile):
+def uploadResults(installer, symfile, version):
     subprocess.run(['aws', 's3', 'cp', symfile, f's3://wsddn-symbols/{symfile.name}'], check=True)
-    subprocess.run(['gh', 'release', 'upload', f'v{VERSION}', installer], check=True)
+    subprocess.run(['gh', 'release', 'upload', f'v{version}', installer], check=True)

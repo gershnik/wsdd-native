@@ -88,4 +88,4 @@ if args.uploadResults:
     abiMarker = ABI.replace(':', '-')
     shutil.move(builddir / 'wsddn.gz', workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.gz')
     shutil.move(workdir / f'wsddn-{VERSION}.pkg', workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.pkg')
-    uploadResults(workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.pkg', workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.gz')
+    uploadResults(workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.pkg', workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.gz', VERSION)

@@ -98,4 +98,4 @@ if args.uploadResults:
     debForRelease = workdir / f'{CODENAME}-{deb.name}'
     shutil.copy(deb, debForRelease)
     subprocess.run(['aws', 's3', 'cp', debForRelease, 's3://gershnik.com/apt-repo/pool/main/'], check=True)
-    uploadResults(debForRelease, workdir / f'wsddn-deb-systemd-{VERSION}-{ARCH}-{CODENAME}.gz')
+    uploadResults(debForRelease, workdir / f'wsddn-deb-systemd-{VERSION}-{ARCH}-{CODENAME}.gz', VERSION)
