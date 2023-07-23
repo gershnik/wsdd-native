@@ -65,9 +65,8 @@ auto Config::findSmbConf() -> std::optional<std::filesystem::path> {
     WSDLOG_DEBUG("trying to locate samba");
     std::error_code ec;
     const char command[] = "whereis -b samba";
-    StdIoPipe pipe("whereis -b samba", "r", ec);
+    StdIoPipe pipe(command, "r", ec);
     if (!pipe) {
-    const char command[] = "whereis -b samba";
         WSDLOG_ERROR("'{}' cannot be run, error {}", command, strerror(errno));
         return std::nullopt;
     }
