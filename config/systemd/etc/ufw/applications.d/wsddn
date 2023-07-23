@@ -1,0 +1,4 @@
+[wsddn]
+title=WS-Discovery Host Daemon
+description=Allows your Linux machine to be discovered by Windows 10 and above systems and displayed by their Explorer "Network" views. 
+ports=3702/udp|5357/tcp
