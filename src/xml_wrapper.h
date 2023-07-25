@@ -93,7 +93,7 @@ public:
 
     }
     XmlException(xmlParserErrors err): 
-        std::runtime_error(fmt::format("XML parser error: {0}", err)),
+        std::runtime_error(fmt::format("XML parser error: {0}", int(err))),
         m_domain(XML_FROM_PARSER),
         m_code(err){
 
