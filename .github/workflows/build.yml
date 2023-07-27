@@ -34,18 +34,18 @@ jobs:
           installer: deb-systemd
         # - remote_host: ubuntu-22.04-arm
         #   installer: deb-systemd
-        - remote_host: ubuntu-23.04
-          installer: deb-systemd
-        - remote_host: ubuntu-23.04-arm
-          installer: deb-systemd
+        # - remote_host: ubuntu-23.04
+        #   installer: deb-systemd
+        # - remote_host: ubuntu-23.04-arm
+        #   installer: deb-systemd
         - remote_host: freebsd-13.1
           installer: bsd
         - remote_host: freebsd-13.1-arm
           installer: bsd
-        - remote_host: centos-9
-          installer: rpm-systemd
-        - remote_host: centos-9-arm
-          installer: rpm-systemd
+        # - remote_host: centos-9
+        #   installer: rpm-systemd
+        # - remote_host: centos-9-arm
+        #   installer: rpm-systemd
 
     steps:
     - name: Run remote build

@@ -112,21 +112,31 @@ journalctl -u wsddn
 
 ### RedHat/CentOS/Fedora
 
-Pre-built packages are available in a custom rpm repository. 
-It provides "el9" packages that should work for RHEL9/CentOS Stream 9/Fedora 34 or above.
+Pre-built packages are available [Fedora Copr](https://copr.fedorainfracloud.org/coprs/gershnik/wsddn/) repository.
+Visit that link to see currently supported distributions and architectures. 
 
-Both `amd64` (aka `x86_64`) and `arm64` (aka `aarch64`) architectures are supported. 
-
-To set the repo up:
+To set the repo up you need to install `copr` plugin if you haven't already done so:
 
 ```bash
-sudo dnf config-manager --add-repo https://www.gershnik.com/rpm-repo/gershnik.repo
+sudo dnf install dnf-plugins-core
+#or with yum
+#sudo yum install yum-plugin-copr
+```
+
+Then
+
+```bash
+sudo dnf copr enable gershnik/wsddn
+#or with yum
+#sudo yum copr enable gershnik/wsddn
 ```
 
 Once the repository is set up you can install `wsddn` as usual via
 
 ```bash
 sudo dnf install wsddn
+#or with yum
+#sudo yum install wsddn
 ```
 
 On first install firewall ports `5357/tcp` and `3702/udp` will be opened. 
