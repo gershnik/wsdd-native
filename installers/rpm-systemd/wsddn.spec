@@ -1,13 +1,13 @@
 Name:           wsddn
 Version:        1.5
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        WS-Discovery Host Daemon
 
 License:        BSD-3-Clause
 URL:            https://github.com/gershnik/wsdd-native
 Source0:        https://github.com/gershnik/wsdd-native/archive/refs/tags/v%{version}.zip
 
-BuildRequires:  g++ git make systemd-rpm-macros
+BuildRequires:  g++ git make systemd-devel systemd-rpm-macros
 Requires:       systemd
 
 Obsoletes:      wsdd
@@ -88,3 +88,5 @@ fi
 - Now providing separate debuginfo and debugsource packages
 - Added LICENSE
 
+* Thu Jul 27 2023 gershnik - 1.5-3
+- Fixing broken daemon startup
