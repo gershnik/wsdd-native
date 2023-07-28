@@ -41,8 +41,8 @@ jobs:
           installer: deb-systemd
         - remote_host: freebsd-13.1
           installer: bsd
-        - remote_host: freebsd-13.1-arm
-          installer: bsd
+        # - remote_host: freebsd-13.1-arm
+        #   installer: bsd
         # - remote_host: centos-9
         #   installer: rpm-systemd
         # - remote_host: centos-9-arm
@@ -61,14 +61,30 @@ jobs:
           export CC=gcc-10
           export CXX=g++-10
         fi
-        [ -d "out" ] && tools/uncache out
-        cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo  
         if [[ '${{ matrix.installer }}' == 'rpm-systemd' ]]; then
             export PGP_KEY_NAME='${{ secrets.PGP_KEY_NAME }}'
             export PGP_KEY_PASSWD='${{ secrets.PGP_KEY_PASSWD }}'
         fi
         export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
-        installers/${{ matrix.installer }}/build.py --upload-results . out
+        if [[ '${{ matrix.remote_host }}' == 'freebsd-13.1' ]]; then
+          mkdir -p out
+          echo "::group::AMD64"
+          [ -d "out/amd64" ] && tools/uncache out/amd64
+          cmake -S . -B out/amd64 -DCMAKE_BUILD_TYPE=RelWithDebInfo 
+          installers/${{ matrix.installer }}/build.py --upload-results . out/amd64
+          echo "::endgroup::"
+
+          echo "::group::ARM64"
+          installers/bsd/make-toolchain.py arm64 out/toolchain-arm64
+          [ -d "out/arm64" ] && tools/uncache out/arm64
+          cmake -S . -B out/arm64 -DCMAKE_TOOLCHAIN_FILE=out/toolchain-arm64/toolchain.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          installers/${{ matrix.installer }}/build.py --arch=aarch64 --upload-results . out/arm64
+          echo "::endgroup::"
+        else
+          [ -d "out" ] && tools/uncache out
+          cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo  
+          installers/${{ matrix.installer }}/build.py --upload-results . out
+        fi
         EOF
 
   local:

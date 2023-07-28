@@ -65,6 +65,7 @@ jobs:
             export PGP_KEY_PASSWD='${{ secrets.PGP_KEY_PASSWD }}'
         fi
         if [[ '${{ matrix.remote_host }}' == 'freebsd-13.1' ]]; then
+          mkdir -p out
           echo "::group::AMD64"
           [ -d "out/amd64" ] && tools/uncache out/amd64
           cmake -S . -B out/amd64 -DCMAKE_BUILD_TYPE=RelWithDebInfo 
@@ -75,7 +76,7 @@ jobs:
           installers/bsd/make-toolchain.py arm64 out/toolchain-arm64
           [ -d "out/arm64" ] && tools/uncache out/arm64
           cmake -S . -B out/arm64 -DCMAKE_TOOLCHAIN_FILE=out/toolchain-arm64/toolchain.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo
-          installers/${{ matrix.installer }}/build.py --arch=aarch64 . out/amd64
+          installers/${{ matrix.installer }}/build.py --arch=aarch64 . out/arm64
           echo "::endgroup::"
         else
           [ -d "out" ] && tools/uncache out
