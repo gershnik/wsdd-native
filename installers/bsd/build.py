@@ -41,14 +41,14 @@ args = parser.parse_args()
 srcdir: Path = args.srcdir
 builddir: Path = args.builddir
 
+buildCode(builddir)
+
 if not args.arch is None:
     ABI = ABI[:ABI.rfind(':') + 1] + args.arch
     ARCH = args.arch
     VERSION = getSrcVersion(srcdir)
 else:
     VERSION = getVersion(builddir)
-
-buildCode(builddir)
 
 workdir = builddir / 'stage/bsd'
 stagedir = workdir / 'root'
