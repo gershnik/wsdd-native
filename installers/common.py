@@ -26,6 +26,8 @@ def getVersion(builddir: Path):
     print(f'VERSION={version}')
     return version
 
+def getSrcVersion(srcdir: Path):
+    return (srcdir / 'VERSION').read_text().strip()
 
 def buildCode(builddir):
     subprocess.run(['cmake', '--build', builddir], check=True)

@@ -7,6 +7,7 @@ import sys
 import subprocess
 import shutil
 import re
+import argparse
 from pathlib import Path
 
 ARCH = subprocess.run(['uname', '-m'], check=True, capture_output=True, encoding="utf-8").stdout.strip()
@@ -26,15 +27,28 @@ mydir = Path(sys.argv[0]).parent
 
 sys.path.append(str(mydir.absolute().parent))
 
-from common import parseCommandLine, getVersion, buildCode, installCode, copyTemplated, uploadResults
+from common import getVersion, getSrcVersion, buildCode, installCode, copyTemplated, uploadResults
 
-args = parseCommandLine()
-srcdir = args.srcdir
-builddir = args.builddir
+parser = argparse.ArgumentParser()
+
+parser.add_argument('srcdir', type=Path)
+parser.add_argument('builddir', type=Path)
+parser.add_argument('--upload-results', dest='uploadResults', action='store_true', required=False)
+parser.add_argument('--arch', required=False)
+
+args = parser.parse_args()
+
+srcdir: Path = args.srcdir
+builddir: Path = args.builddir
+
+if not args.arch is None:
+    ABI = ABI[:ABI.rfind(':') + 1] + args.arch
+    ARCH = args.arch
+    VERSION = getSrcVersion(srcdir)
+else:
+    VERSION = getVersion(builddir)
 
 buildCode(builddir)
-
-VERSION = getVersion(builddir)
 
 workdir = builddir / 'stage/bsd'
 stagedir = workdir / 'root'
