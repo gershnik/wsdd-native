@@ -26,12 +26,14 @@ jobs:
       fail-fast: false
       matrix:
         include: 
-        # - remote_host: debian-11
-        #   installer: deb-systemd
-        # - remote_host: debian-11-arm
-        #   installer: deb-systemd
-        - remote_host: ubuntu-20.04-arm
+        - remote_host: debian-11
           installer: deb-systemd
+        - remote_host: debian-11-arm
+          installer: deb-systemd
+        - remote_host: debian-11-armhf
+          installer: deb-systemd
+        # - remote_host: ubuntu-20.04-arm
+        #   installer: deb-systemd
         # - remote_host: ubuntu-22.04-arm
         #   installer: deb-systemd
         # - remote_host: ubuntu-23.04
@@ -93,8 +95,8 @@ jobs:
         include: 
         # - os: ubuntu-22.04
         #   installer: deb-systemd
-        - os: ubuntu-20.04
-          installer: deb-systemd
+        # - os: ubuntu-20.04
+        #   installer: deb-systemd
         - os: macos-latest
           installer: mac
     
