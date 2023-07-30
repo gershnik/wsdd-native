@@ -25,20 +25,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        remote_host: [debian-11, debian-11-arm, ubuntu-20.04-arm, ubuntu-23.04, freebsd-13.1, centos-9, centos-9-arm]
         include: 
         - remote_host: debian-11
           installer: deb-systemd
         - remote_host: debian-11-arm
           installer: deb-systemd
-        - remote_host: ubuntu-20.04-arm
+        - remote_host: debian-11-armhf
           installer: deb-systemd
-        - remote_host: ubuntu-22.04-arm
-          installer: deb-systemd
-        - remote_host: ubuntu-23.04
-          installer: deb-systemd
-        - remote_host: ubuntu-23.04-arm
-          installer: deb-systemd
+        # - remote_host: ubuntu-20.04-arm
+        #   installer: deb-systemd
+        # - remote_host: ubuntu-22.04-arm
+        #   installer: deb-systemd
+        # - remote_host: ubuntu-23.04
+        #   installer: deb-systemd
+        # - remote_host: ubuntu-23.04-arm
+        #   installer: deb-systemd
         - remote_host: freebsd-13.1
           installer: bsd
         # - remote_host: freebsd-13.1-arm
@@ -93,7 +94,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-20.04, macos-latest]
+        os: [
+          # ubuntu-22.04, 
+          # ubuntu-20.04, 
+          macos-latest
+        ]
 
     steps:
     - name: Checkout
