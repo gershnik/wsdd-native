@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Added
+- Added application profile for UFW on Debian/Ubuntu distribution
+- Added `armhf` distribution for Debian/Ubuntu
+
+### Changed
+- Updated 3rd party dependencies
+
 ## [1.5] - 2023-07-21
 
 ### Fixed:
