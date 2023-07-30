@@ -66,24 +66,25 @@ The biggest drawback of **wsdd-native** compared to these projects is that it re
 Pre-built packages are available in a custom apt repository for systems newer than Ubuntu 20.04 (focal) or
 Debian 11 (bullseye). Any Debian system based upon those or newer should work.
 
-Both `amd64` (aka `x86_64`) and `arm64` (aka `aarch64`) architectures are supported. 
+Architectures supported: `amd64` (aka `x86_64`), `arm64` (aka `aarch64`) and `armhf` 
 
 To set up the apt repository:
-
-* Add new repo
-  ```bash
-  echo "deb" \
-  "[arch=$(dpkg --print-architecture)]" \
-  "https://www.gershnik.com/apt-repo/" \
-  "base" \
-  "main" \
-    | sudo tee /etc/apt/sources.list.d/wsddn.list >/dev/null
-  ```
 
 * Import the repository public key
   ```bash
   wget -qO- https://www.gershnik.com/apt-repo/conf/pgp-key.public \
-    | sudo tee /etc/apt/trusted.gpg.d/gershnik.asc >/dev/null
+    | gpg --dearmor \
+    | sudo tee /usr/share/keyrings/gershnik.gpg >/dev/null
+  ```
+
+* Add new repo
+  ```bash
+  echo "deb" \
+  "[arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/gershnik.gpg]" \
+  "https://www.gershnik.com/apt-repo/" \
+  "base" \
+  "main" \
+    | sudo tee /etc/apt/sources.list.d/wsddn.list >/dev/null
   ```
 
 Once the repository is set up you can install `wsddn` as usual via:
@@ -91,6 +92,12 @@ Once the repository is set up you can install `wsddn` as usual via:
 ```bash
 sudo apt update
 sudo apt install wsddn
+```
+
+If you have UFW firewall running do
+
+```bash
+sudo ufw allow wsddn
 ```
 
 Daemon will be enabled and started automatically on first install but keep its existing state on updates. To start/stop/reload it use
