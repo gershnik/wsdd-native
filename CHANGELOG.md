@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.6] - 2023-07-29
+
 ### Added
 - Added application profile for UFW on Debian/Ubuntu distribution
 - Added `armhf` distribution for Debian/Ubuntu
@@ -78,3 +80,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.3]: https://github.com/gershnik/wsdd-native/releases/v1.3
 [1.4]: https://github.com/gershnik/wsdd-native/releases/v1.4
 [1.5]: https://github.com/gershnik/wsdd-native/releases/v1.5
+[1.6]: https://github.com/gershnik/wsdd-native/releases/v1.6
