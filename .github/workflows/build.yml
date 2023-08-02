@@ -10,6 +10,7 @@ on:
       - '.gitignore'
       - 'LICENSE'
       - 'CHANGELOG.md'
+      - 'SECURITY.md'
       - 'Acknowledgements.md'
       - 'bom.json'
       - '.github/workflows/publish.yml'
