@@ -116,15 +116,11 @@ public:
 #endif
     
     void setMyIdentity() const {
+        ptl::setGroups({});
         ptl::setGid(gid());
         ptl::setUid(uid());
     }
 
-    void setMyEffectiveIdentity() const {
-        ptl::setEffectiveGid(gid());
-        ptl::setEffectiveUid(uid());
-    }
-    
     auto uid() const -> uid_t { return m_data.first; }
     auto gid() const -> gid_t { return m_data.second; }
     
