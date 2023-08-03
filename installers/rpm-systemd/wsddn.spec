@@ -7,7 +7,7 @@ License:        BSD-3-Clause
 URL:            https://github.com/gershnik/wsdd-native
 Source0:        https://github.com/gershnik/wsdd-native/archive/refs/tags/v%{version}.zip
 
-BuildRequires:  g++ git make systemd-devel systemd-rpm-macros
+BuildRequires:  gcc-c++ git make systemd-devel systemd-rpm-macros
 Requires:       systemd
 
 Conflicts:      wsdd
@@ -54,6 +54,7 @@ install -m 0644 LICENSE %{buildroot}/usr/share/licenses/wsddn/LICENSE
 %doc /usr/share/man/man8/wsddn.8.gz
 /usr/lib/systemd/system/wsddn.service
 %config(noreplace) /etc/wsddn.conf
+%dir /usr/share/licenses/wsddn
 %license /usr/share/licenses/wsddn/LICENSE
 
 %post
