@@ -10,11 +10,11 @@ Source0:        https://github.com/gershnik/wsdd-native/archive/refs/tags/v%{ver
 BuildRequires:  g++ git make systemd-devel systemd-rpm-macros
 Requires:       systemd
 
-Obsoletes:      wsdd
 Conflicts:      wsdd
 
 %description
-Allows your Linux machine to be discovered by Windows 10 and above systems and displayed by their Explorer "Network" views. 
+Allows your Linux machine to be discovered by Windows 10 and above systems
+and displayed by their Explorer "Network" views. 
 
 %debug_package
 
@@ -48,9 +48,6 @@ mkdir -p %{buildroot}/%{_sysconfdir}
 install -m 0644 out/wsddn.conf %{buildroot}/%{_sysconfdir}/wsddn.conf
 mkdir -p %{buildroot}/usr/share/licenses/wsddn
 install -m 0644 LICENSE %{buildroot}/usr/share/licenses/wsddn/LICENSE
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files
 /usr/bin/wsddn
