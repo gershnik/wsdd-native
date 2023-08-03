@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 - Better isolation for child process when started as root
-  (See [SEI CERT C Coding Standard](https://wiki.sei.cmu.edu/confluence/display/c/POS36-C.+Observe+correct+revocation+order+while+relinquishing+privileges) section "Supplementary Group IDs")
+  (See section "Supplementary Group IDs" in [SEI CERT C Coding Standard](https://wiki.sei.cmu.edu/confluence/display/c/POS36-C.+Observe+correct+revocation+order+while+relinquishing+privileges))
 
 ## [1.6] - 2023-07-29
 
