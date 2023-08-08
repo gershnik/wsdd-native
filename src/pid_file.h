@@ -23,19 +23,30 @@ public:
         
         createMissingDirs(filename.parent_path(), mode | S_IXUSR | S_IXGRP | S_IXOTH, owner);
         
-        auto fd = ptl::FileDescriptor::open(filename, O_WRONLY | O_CREAT, mode);
-        if (!ptl::tryLockFile(fd, ptl::FileLock::Exclusive))
-            return std::nullopt;
-        ptl::changeMode(fd, mode);
-        if (owner)
-            ptl::changeOwner(fd, owner->uid(), owner->gid());
-        ptl::truncateFile(fd, 0);
-        auto pid = getpid();
-        auto strPid = std::to_string(pid);
-        strPid += '\n';
-        if ((size_t)writeFile(fd, strPid.data(), strPid.size()) != strPid.size())
-            throw std::runtime_error("partial write to pid file!");
-        return PidFile(std::move(fd), std::move(filename), pid);
+        for ( ; ; ) {
+            auto fd = ptl::FileDescriptor::open(filename, O_WRONLY | O_CREAT, mode);
+            if (!ptl::tryLockFile(fd, ptl::FileLock::Exclusive))
+                return std::nullopt;
+            struct stat openFileStatus;
+            ptl::getStatus(fd, openFileStatus);
+            struct stat fileSystemFileStatus;
+            std::error_code ec;
+            ptl::getStatus(filename, fileSystemFileStatus, ec);
+            //if we cannot get the status from filesystem or it is a different file,
+            //it means some other process got there before us and created a new pid file
+            //and so we need to retry.
+            if (ec ||
+                openFileStatus.st_dev != fileSystemFileStatus.st_dev ||
+                openFileStatus.st_ino != fileSystemFileStatus.st_ino) {
+
+                continue;
+            }
+            
+            auto pid = getpid();
+            initFile(fd, mode, owner, pid);
+            return PidFile(std::move(fd), std::move(filename), pid);
+        }
+        
     }
     
     ~PidFile() noexcept {
@@ -53,6 +64,17 @@ public:
 private:
     PidFile(ptl::FileDescriptor && fd, std::filesystem::path && path, pid_t proc) noexcept:
         m_fd(std::move(fd)), m_path(std::move(path)), m_lockingProcess(proc) {
+    }
+
+    static void initFile(const ptl::FileDescriptor & fd, mode_t mode, const std::optional<Identity> & owner, pid_t pid) {
+        ptl::changeMode(fd, mode);
+        if (owner)
+            ptl::changeOwner(fd, owner->uid(), owner->gid());
+        ptl::truncateFile(fd, 0);
+        auto strPid = std::to_string(pid);
+        strPid += '\n';
+        if ((size_t)writeFile(fd, strPid.data(), strPid.size()) != strPid.size())
+            throw std::runtime_error("partial write to pid file!");
     }
 private:
     ptl::FileDescriptor m_fd;
