@@ -318,7 +318,8 @@ auto HttpConnection::parseBody(const std::byte * first, const std::byte * last) 
     WSDLOG_TRACE("HTTP from {}, received {}", m_callerDesc, std::string_view((const char *)first, chunkSize));
     
     try {
-        m_contentParser->parseChunk((const uint8_t *)first, chunkSize, m_contentRemaining == 0);
+        //int cast is safe because our buffer is much much smaller than max int (8192 currently)
+        m_contentParser->parseChunk((const uint8_t *)first, int(chunkSize), m_contentRemaining == 0);
     } catch(std::exception & ex) {
         WSDLOG_INFO("HTTP from {}: error parsing XML {}", m_callerDesc, ex.what());
         WSDLOG_TRACE("{}", formatCaughtExceptionBacktrace());
