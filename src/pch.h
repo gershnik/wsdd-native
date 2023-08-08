@@ -13,7 +13,14 @@
 #include <spdlog/fmt/fmt.h>
 
 //must come before sys_string due to S macro collision
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#endif
 #include <asio.hpp>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #include <sys_string/sys_string.h>
 
