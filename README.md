@@ -430,4 +430,5 @@ See [Acknowledgements.md](Acknowledgements.md) for information about open source
 ## Reporting Bugs
 
 Please use the GitHub [issue tracker][issues] to report any bugs or suggestions.
+For vulnerability disclosures or other security concerns see [Security Policy](SECURITY.md)
 
