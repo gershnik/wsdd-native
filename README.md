@@ -346,9 +346,9 @@ log show --last 15m --debug --info \
 ### Prerequisites
 
 * Git
-* C++20 capable compiler. Compilers known to work are GCC 11.3, Clang 13, Xcode 13 or above.
-* CMake 3.23 or greater. If your distribution CMake is older than that you can download a newer version from https://cmake.org/download/
-* Optional: if you wish to enable `systemd` integration make sure you have `libsystemd` library and headers installed on your system. On APT systems use:
+* C++20 capable compiler. Minimal compilers known to work are GCC 10.2, Clang 13 and Xcode 13.
+* CMake 3.25 or greater. If your distribution CMake is older than that you can download a newer version from https://cmake.org/download/
+* Optional: On Linux if you wish to enable `systemd` integration make sure you have `libsystemd` library and headers installed on your system. On APT systems use:
   ```bash
   sudo apt install libsystemd-dev
   ```
@@ -362,11 +362,9 @@ log show --last 15m --debug --info \
 ```bash
 git clone https://github.com/gershnik/wsdd-native.git
 cd wsdd-native
-mkdir -p out
-cd out
-cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF ..
-cmake --build  .
-sudo cmake --install . --strip
+cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF ..
+cmake --build  out
+sudo cmake --install out --strip
 ```
 
 The `wsddn` executable will be installed into `/usr/local/bin` and manpage added to section 8 of the manual.
