@@ -20,6 +20,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 [wsdd2]: https://github.com/Netgear/wsdd2
 [chroot_jail]: https://en.wikipedia.org/wiki/Chroot
 [macports]: https://www.macports.org
+[homebrew]: https://brew.sh
 
 <!-- End Links -->
 
@@ -32,6 +33,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
     - [FreeBSD](#freebsd)
     - [macOS](#macos)
         - [Standalone installer](#standalone-installer)
+        - [Homebrew](#homebrew)
         - [Macports](#macports)
 - [Building from sources](#building-from-sources)
     - [Prerequisites](#prerequisites)
@@ -228,16 +230,18 @@ Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via
 
 ### macOS
 
-On macOS there are 2 ways to install `wsddn`: via a standalone installer package or [Macports][macports]. 
+On macOS there are 3 ways to install `wsddn`: via a standalone installer package, [Homebrew][homebrew] or [Macports][macports]. 
 Using a standalone installer is simpler but you will have to manually install any future updates as well.
-Macports is a bit more complicated to set up and requires Xcode to be present but it provides updatability 
+Homebrew/Macports are a bit more complicated to set up (and Macports also requires Xcode to be present) but it provides updatability 
 similar to Linux package managers. 
-Note that currently there is no support for Homebrew.
+
+For all 3 methods the supported platforms are:
+- macOS Catalina (10.15) and above
+- Both Intel and Apple Silicon
 
 #### Standalone installer
 
-Installer package is available for macOS Catalina (10.15) and above on both Intel and Apple Silicon. 
-To install `wsddn`
+To install via standalone `.pkg` installer:
 
 * Navigate to [Releases][releases] page.
 * Expand the release you wish to install and download `wsddn-macos-x.x.pkg`
@@ -269,10 +273,28 @@ log show --last 15m --debug --info \
   --predicate 'subsystem CONTAINS "wsddn" OR process CONTAINS "wsddn"'
 ```
 
+#### Homebrew
+
+Homebrew package ('cask') can be installed via a custom tap. 
+
+To set it up
+
+```bash
+brew tap gershnik/repo
+```
+
+Then
+
+```bash
+brew install wsddn
+```
+
+This installs exactly the same thing as standalone installer would so all the usage instructions [above](#standalone-installer) apply as well.
+
+
 #### Macports
 
-Macports package is provided that can be installed on both Intel and Apple Silicon Macs. 
-macOS versions supported are macOS Catalina (10.15) and above.
+Macports package can be installed via a custom repository.
 
 To set the repo up:
 
