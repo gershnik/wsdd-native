@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.7] - 2023-09-22
+
 ### Added
 - Better isolation for child process when started as root
   (See section "Supplementary Group IDs" in [SEI CERT C Coding Standard](https://wiki.sei.cmu.edu/confluence/display/c/POS36-C.+Observe+correct+revocation+order+while+relinquishing+privileges))
@@ -88,3 +90,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.4]: https://github.com/gershnik/wsdd-native/releases/v1.4
 [1.5]: https://github.com/gershnik/wsdd-native/releases/v1.5
 [1.6]: https://github.com/gershnik/wsdd-native/releases/v1.6
+[1.7]: https://github.com/gershnik/wsdd-native/releases/v1.7
