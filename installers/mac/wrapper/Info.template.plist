@@ -22,6 +22,8 @@
 	<array>
 		<string>MacOSX</string>
 	</array>
+  <key>LSUIElement</key>
+  <true/>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 </dict>
