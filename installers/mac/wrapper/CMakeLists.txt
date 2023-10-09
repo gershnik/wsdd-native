@@ -26,7 +26,7 @@ set_target_properties(wrapper PROPERTIES
 
 target_link_libraries(wrapper
 PRIVATE
-    argum
+    argum::argum
     "-framework Foundation"
     "-framework CoreServices"
 )
@@ -54,7 +54,7 @@ if (CMAKE_GENERATOR MATCHES "Xcode")
         XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME YES
         XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS YES
         XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf-with-dsym
-        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER io.github.gershnik.wsddn.wrapper
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER ${WSDDN_BUNDLE_IDENTIFIER}.wrapper
     )
 else()
     add_custom_command(TARGET wrapper POST_BUILD
