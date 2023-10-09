@@ -5,8 +5,6 @@
 
 #include "sys_util.h"
 
-using namespace std::chrono_literals;
-
 static const CFArrayCallBacks g_arrayCallbacks = {
     .version = 0,
     .retain = [](CFAllocatorRef, const void * value) { return CFRetain(value); },
@@ -46,8 +44,12 @@ static auto makeArray(CFTypeRef (&values)[N]) -> cf_ptr<CFArrayRef> {
 
 template<class... Args>
 static auto makeArray(Args ...args) -> cf_ptr<CFArrayRef> {
-    CFTypeRef values[] = {args...}; 
-    return cf_attach(CFArrayCreate(nullptr, values, sizeof...(args), &g_arrayCallbacks));
+    if constexpr(sizeof...(Args) > 0) {
+        CFTypeRef values[] = {args...};
+        return cf_attach(CFArrayCreate(nullptr, values, sizeof...(args), &g_arrayCallbacks));
+    } else {
+        return cf_attach(CFArrayCreate(nullptr, nullptr, 0, &g_arrayCallbacks));
+    }
 }
 
 template<size_t N>
@@ -128,48 +130,29 @@ static auto getAvailableId(const cf_ptr<ODNodeRef> & localNode,
 
     cf_ptr<CFErrorRef> err;
 
-    auto attrNames = makeArray(attributeType);
+    auto attrNames = makeArray();
     
-    sys_string_cfstr strId = std::to_string(range.first - 1);
-    auto query = cf_attach(ODQueryCreateWithNode(nullptr, localNode.get(), recordType,
-                                                 attributeType, kODMatchGreaterThan, strId.cf_str(),
-                                                 attrNames.get(), std::numeric_limits<CFIndex>::max(), err.get_output_param()));
-    if (!query)
-        throwCFError(err);
-    
-    std::vector<bool> takenIds(range.second - range.first + 1, false);
-    
-    for ( ; ; ) {
-        auto results = cf_attach(ODQueryCopyResults(query.get(), true, err.get_output_param()));
-        if (!results) {
-            if (!err)
-                break;
+    for(unsigned idValue = range.first; idValue <= range.second; ++idValue) {
+        sys_string_cfstr strId = std::to_string(idValue);
+        auto query = cf_attach(ODQueryCreateWithNode(nullptr, localNode.get(), recordType,
+                                                     attributeType, kODMatchEqualTo, strId.cf_str(),
+                                                     attrNames.get(), std::numeric_limits<CFIndex>::max(), err.get_output_param()));
+        if (!query)
             throwCFError(err);
-        }
+        
+        auto results = cf_attach(ODQueryCopyResults(query.get(), false, err.get_output_param()));
+        if (!results)
+            throwCFError(err);
+        
         auto count = CFArrayGetCount(results.get());
         if (count == 0)
-            std::this_thread::sleep_for(100ms);
-        for (CFIndex i = 0, count = CFArrayGetCount(results.get()); i < count; ++i) {
-            auto record = cf_retain((ODRecordRef)CFArrayGetValueAtIndex(results.get(), i));
-
-            auto idValue = getStringAttribute(record, attributeType);
-            if (!idValue)
-                continue;
-            
-            unsigned val;
-            if (parseId(*idValue, val) && val >= range.first && val <= range.second)
-                takenIds[val - range.first] = true;
-        }
+            return idValue;
+        
+        if (count > 1)
+            WSDLOG_WARN("array of length {0} returned from ODQueryCopyResults for ID {1}", count, idValue);
     }
     
-    auto begin = takenIds.cbegin();
-    auto end = takenIds.cend();
-    auto notTaken = std::find(begin, end, false);
-    if (notTaken == end)
-        throw std::runtime_error("Unable to find available ID");
-    
-    return unsigned(notTaken - begin) + range.first;
-    
+    throw std::runtime_error(fmt::format("Unable to find available {} ID", sys_string_cfstr::char_access(sys_string_cfstr(recordType)).c_str()));
 }
 
 static auto createRecordWithUniqueId(const cf_ptr<ODNodeRef> & localNode, 
