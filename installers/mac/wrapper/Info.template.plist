@@ -5,7 +5,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>@WSDDN_BUNDLE_IDENTIFIER@.wrapper</string>
 	<key>CFBundleName</key>
-	<string>WS-Discovery Host Daemon Helper</string>
+	<string>wsddn.app</string>
 	<key>CFBundleDisplayName</key>
 	<string>WS-Discovery Host Daemon Helper</string>
 	<key>CFBundleExecutable</key>
