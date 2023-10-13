@@ -36,13 +36,7 @@ installCode(builddir, stagedir / 'usr/local')
 
 ignoreCrap = shutil.ignore_patterns('.DS_Store')
 
-supdir = stagedir / "Library/Application Support/wsddn"
-supdir.mkdir(parents=True)
-
-appDir = supdir / "wsddn.app"
-shutil.copytree(builddir / "wrapper/wsddn.app", appDir, ignore=ignoreCrap)
-
-subprocess.run(['/usr/bin/strip', '-u', '-r', appDir/ 'Contents/MacOS/wsddn'], check=True)
+shutil.copytree(srcdir / 'config/mac', stagedir, dirs_exist_ok=True, ignore=ignoreCrap)
 
 (stagedir / 'usr/local/bin').mkdir(parents=True, exist_ok=True)
 shutil.copy(mydir / 'wsddn-uninstall', stagedir / 'usr/local/bin')
@@ -59,19 +53,20 @@ copyTemplated(mydir / 'distribution.xml', workdir / 'distribution.xml', {
     'VERSION': VERSION
 })
 
-resdir = appDir / "Contents/Resources"
+with open(stagedir / 'Library/LaunchDaemons/io.github.gershnik.wsddn.plist', "rb") as src:
+    daemonPlist = plistlib.load(src, fmt=plistlib.FMT_XML)
+daemonPlist['ProgramArguments'][0] = 'wsddn'
+daemonPlist['Program'] = '/usr/local/bin/wsddn'
+with open(stagedir / 'Library/LaunchDaemons/io.github.gershnik.wsddn.plist', "wb") as dst:
+    plistlib.dump(daemonPlist, dst, fmt=plistlib.FMT_XML)
+
+
 if args.sign:
     subprocess.run(['codesign', '--force', '--sign', 'Developer ID Application', '-o', 'runtime', '--timestamp', 
                         stagedir / 'usr/local/bin/wsddn'], check=True)
-    subprocess.run(['codesign', '--force', '--sign', 'Developer ID Application', '-o', 'runtime', '--timestamp', 
-                    '--preserve-metadata=entitlements', 
-                        appDir], check=True)
 else:
     subprocess.run(['codesign', '--force', '--sign', '-', '-o', 'runtime', '--timestamp=none', 
                         stagedir / 'usr/local/bin/wsddn'], check=True)
-    subprocess.run(['codesign', '--force', '--sign', '-', '-o', 'runtime', '--timestamp=none', 
-                    '--preserve-metadata=entitlements', 
-                        appDir], check=True)
 
 
 packagesdir = workdir / 'packages'
