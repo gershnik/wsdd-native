@@ -257,7 +257,7 @@ if (PANDOC_PATH)
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8
         MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.md
-        COMMAND pandoc --standalone --to man ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.md -o ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8
+        COMMAND ${PANDOC_PATH} --standalone --to man ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.md -o ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8
         VERBATIM
     )
 
@@ -267,7 +267,7 @@ if (GROFF_PATH)
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.html
         MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8
-        COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8 | groff -mandoc -Thtml > ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.html
+        COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8 | ${GROFF_PATH} -mandoc -Thtml > ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.html
         VERBATIM
     )
 endif()

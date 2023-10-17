@@ -109,7 +109,7 @@ exploits into wsddn. If not specified the behavior is as follows
 :   Report this computer as a member of Windows workgroup _name_. Options `--domain` and `--workgroup` are mutually exclusive. If neither is specified domain/workgroup membership is auto-detected from SMB configuration. If no SMB configuration is found it is set to a workgroup named `WORKGROUP`. The equivalent config file option is `member-of`. 
 
 `--smb-conf` _path_
-:   Path to smb.conf file to extract the SMB configuration from. This option is not available on macOS. By default `wsddn` tries to locate this file on its own. Use this option if auto-detection fails or picks wrong samba instance. The equivalent config file option is `smb-conf`. 
+:   Path to `smb.conf`, `samba.conf`, or `ksmbd.conf` file to extract the SMB configuration from. This option is not available on macOS. By default `wsddn` tries to locate this file on its own by querying your local Samba installation. Use this option if auto-detection fails, picks wrong Samba instance or if you are using KSMBD on Linux. The equivalent config file option is `smb-conf`. 
 
 
 # SIGNALS

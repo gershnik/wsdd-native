@@ -1,5 +1,5 @@
 <!-- Creator     : groff version 1.22.4 -->
-<!-- CreationDate: Fri May 19 02:49:12 2023 -->
+<!-- CreationDate: Tue Oct 17 14:11:11 2023 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -391,12 +391,14 @@ SMB configuration is found it is set to a workgroup named
 <p style="margin-left:11%;"><tt>--smb-conf</tt>
 <i>path</i></p>
 
-<p style="margin-left:22%;">Path to smb.conf file to
-extract the SMB configuration from. This option is not
-available on macOS. By default <tt>wsddn</tt> tries to
-locate this file on its own. Use this option if
-auto-detection fails or picks wrong samba instance. The
-equivalent config file option is <tt>smb-conf</tt>.</p>
+<p style="margin-left:22%;">Path to <tt>smb.conf</tt>,
+<tt>samba.conf</tt>, or <tt>ksmbd.conf</tt> file to extract
+the SMB configuration from. This option is not available on
+macOS. By default <tt>wsddn</tt> tries to locate this file
+on its own by querying your local Samba installation. Use
+this option if auto-detection fails, picks wrong Samba
+instance or if you are using KSMBD on Linux. The equivalent
+config file option is <tt>smb-conf</tt>.</p>
 
 <h2>SIGNALS
 <a name="SIGNALS"></a>
