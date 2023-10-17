@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.8] - 2023-10-17
+
 ### Changed
 - Updated 3rd party dependencies
 - macOS: removed "wrapper" app since Apple appears to have broken "associated bundles" functionality.
@@ -96,3 +98,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.5]: https://github.com/gershnik/wsdd-native/releases/v1.5
 [1.6]: https://github.com/gershnik/wsdd-native/releases/v1.6
 [1.7]: https://github.com/gershnik/wsdd-native/releases/v1.7
+[1.8]: https://github.com/gershnik/wsdd-native/releases/v1.8
