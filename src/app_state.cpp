@@ -57,20 +57,7 @@ void AppState::init() {
             WSDLOG_DEBUG("Running as root but no account to run under is specified in configuration. Using {}", WSDDN_DEFAULT_USER_NAME);
             auto pwd = ptl::Passwd::getByName(WSDDN_DEFAULT_USER_NAME);
             if (pwd) {
-                #if (defined(__APPLE__) && defined(__MACH__))
-                    //see https://github.com/gershnik/wsdd-native/issues/4
-                    //let's fixup the group if it is broken. 
-                    auto grp = ptl::Group::getByName(WSDDN_DEFAULT_USER_NAME);
-                    if (grp && pwd->pw_gid == grp->gr_gid) { 
-                        m_currentCommandLine.runAs = Identity(pwd->pw_uid, pwd->pw_gid);
-                    } else {
-                        WSDLOG_INFO("Group {} does not exist or user {} does not belong to it (instead: {}), updating", 
-                                    WSDDN_DEFAULT_USER_NAME, WSDDN_DEFAULT_USER_NAME, pwd->pw_gid);
-                        m_currentCommandLine.runAs = Identity::createDaemonUser(WSDDN_DEFAULT_USER_NAME);
-                    }
-                #else
-                    m_currentCommandLine.runAs = Identity(pwd->pw_uid, pwd->pw_gid);
-                #endif
+                m_currentCommandLine.runAs = Identity(pwd->pw_uid, pwd->pw_gid);
             } else  {
                 WSDLOG_INFO("User {} does not exist, creating", WSDDN_DEFAULT_USER_NAME);
                 m_currentCommandLine.runAs = Identity::createDaemonUser(WSDDN_DEFAULT_USER_NAME);

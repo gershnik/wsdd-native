@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Changed
+- Updated 3rd party dependencies
+- macOS: removed "wrapper" app since Apple appears to have broken "associated bundles" functionality.
+- macOS: moved `_wsddn` role account to 501-699 ID range per conversation with Apple technical support. It appears that only this range ensures smooth account behavior during OS upgrade.
+
 ## [1.7] - 2023-09-22
 
 ### Added

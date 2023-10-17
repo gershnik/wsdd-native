@@ -44,8 +44,12 @@ static auto makeArray(CFTypeRef (&values)[N]) -> cf_ptr<CFArrayRef> {
 
 template<class... Args>
 static auto makeArray(Args ...args) -> cf_ptr<CFArrayRef> {
-    CFTypeRef values[] = {args...}; 
-    return cf_attach(CFArrayCreate(nullptr, values, sizeof...(args), &g_arrayCallbacks));
+    if constexpr(sizeof...(Args) > 0) {
+        CFTypeRef values[] = {args...};
+        return cf_attach(CFArrayCreate(nullptr, values, sizeof...(args), &g_arrayCallbacks));
+    } else {
+        return cf_attach(CFArrayCreate(nullptr, nullptr, 0, &g_arrayCallbacks));
+    }
 }
 
 template<size_t N>
@@ -117,58 +121,45 @@ static auto parseId(const sys_string_cfstr & str, T & val) -> bool {
     return res.ec == std::errc() && res.ptr == last;
 }
 
-template<class T>
-static auto getFirstFreeIdGreaterThan(const std::set<T> & ids, T start) -> T {
-
-    T next = start + 1;
-    for (T val: ids) {
-        if (val > next)
-            break;
-        next = val + 1;
-    }
-    return next;
-} 
-
-static auto getAvailableIdGreaterThan(const cf_ptr<ODNodeRef> & localNode, 
-                                      ODRecordType recordType,
-                                      ODAttributeType attributeType,
-                                      unsigned startId) -> unsigned {
+static auto getAvailableId(const cf_ptr<ODNodeRef> & localNode,
+                           ODRecordType recordType,
+                           ODAttributeType attributeType,
+                           std::pair<unsigned, unsigned> range) -> unsigned {
+    
+    assert(range.second >= range.first);
 
     cf_ptr<CFErrorRef> err;
 
-    auto attrNames = makeArray(attributeType);
-    sys_string_cfstr strId = std::to_string(startId);
-    auto query = cf_attach(ODQueryCreateWithNode(nullptr, localNode.get(), recordType,
-                                                 attributeType, kODMatchGreaterThan, strId.cf_str(),
-                                                 attrNames.get(), std::numeric_limits<CFIndex>::max(), err.get_output_param()));
-    if (!query)
-        throwCFError(err);
-
-    auto results = cf_attach(ODQueryCopyResults(query.get(), false, err.get_output_param()));
-    if (!results)
-        throwCFError(err);
-
-    std::set<unsigned> ids;
-    for (CFIndex i = 0, count = CFArrayGetCount(results.get()); i < count; ++i) {
-        auto record = cf_retain((ODRecordRef)CFArrayGetValueAtIndex(results.get(), i));
-
-        auto idValue = getStringAttribute(record, attributeType);
-        if (!idValue)
-            continue;
+    auto attrNames = makeArray();
+    
+    for(unsigned idValue = range.first; idValue <= range.second; ++idValue) {
+        sys_string_cfstr strId = std::to_string(idValue);
+        auto query = cf_attach(ODQueryCreateWithNode(nullptr, localNode.get(), recordType,
+                                                     attributeType, kODMatchEqualTo, strId.cf_str(),
+                                                     attrNames.get(), std::numeric_limits<CFIndex>::max(), err.get_output_param()));
+        if (!query)
+            throwCFError(err);
         
-        unsigned val;
-        if (!parseId(*idValue, val))
-            continue;
-        ids.insert(val);
+        auto results = cf_attach(ODQueryCopyResults(query.get(), false, err.get_output_param()));
+        if (!results)
+            throwCFError(err);
+        
+        auto count = CFArrayGetCount(results.get());
+        if (count == 0)
+            return idValue;
+        
+        if (count > 1)
+            WSDLOG_WARN("array of length {0} returned from ODQueryCopyResults for ID {1}", count, idValue);
     }
-    return getFirstFreeIdGreaterThan(ids, startId);
+    
+    throw std::runtime_error(fmt::format("Unable to find available {} ID", sys_string_cfstr::char_access(sys_string_cfstr(recordType)).c_str()));
 }
 
 static auto createRecordWithUniqueId(const cf_ptr<ODNodeRef> & localNode, 
                                      const sys_string_cfstr & name,
                                      ODRecordType recordType,
                                      ODAttributeType uniqueIdAttribute,
-                                     unsigned startId) -> std::pair<cf_ptr<ODRecordRef>, unsigned> {
+                                     std::pair<unsigned, unsigned> idRange) -> std::pair<cf_ptr<ODRecordRef>, unsigned> {
 
     cf_ptr<CFErrorRef> err;
     cf_ptr<ODRecordRef> record;
@@ -182,7 +173,7 @@ static auto createRecordWithUniqueId(const cf_ptr<ODNodeRef> & localNode,
 
         if (!record) {
             
-            idValue = getAvailableIdGreaterThan(localNode, recordType, uniqueIdAttribute, startId - 1);
+            idValue = getAvailableId(localNode, recordType, uniqueIdAttribute, idRange);
             auto strId = sys_string_cfstr(std::to_string(idValue));
             auto attrs = makeDictionary({{uniqueIdAttribute, makeArray(strId.cf_str()).get()}});
             record = cf_attach(ODNodeCreateRecord(localNode.get(), recordType,
@@ -200,7 +191,7 @@ static auto createRecordWithUniqueId(const cf_ptr<ODNodeRef> & localNode,
                     throw std::runtime_error("Invalid identifier attribute value");
                 break;
             }
-            idValue = getAvailableIdGreaterThan(localNode, recordType, uniqueIdAttribute, startId - 1);
+            idValue = getAvailableId(localNode, recordType, uniqueIdAttribute, idRange);
             auto strId = sys_string_cfstr(std::to_string(idValue));
             setAttribute(record, uniqueIdAttribute, strId);
             synchronize(record);
@@ -220,13 +211,14 @@ auto Identity::createDaemonUser(const sys_string & name) -> Identity {
         throwCFError(err);
 
     sys_string_cfstr cfName(name.c_str());
-    auto [group, gid] = createRecordWithUniqueId(localNode, cfName, kODRecordTypeGroups, kODAttributeTypePrimaryGroupID, 700);
-    auto [user,  uid] = createRecordWithUniqueId(localNode, cfName, kODRecordTypeUsers,  kODAttributeTypeUniqueID,       700);
+    auto [group, gid] = createRecordWithUniqueId(localNode, cfName, kODRecordTypeGroups, kODAttributeTypePrimaryGroupID, {501, 699});
+    auto [user,  uid] = createRecordWithUniqueId(localNode, cfName, kODRecordTypeUsers,  kODAttributeTypeUniqueID,       {501, 699});
     
     setAttribute(user, kODAttributeTypePrimaryGroupID,     makeArray(sys_string_cfstr(std::to_string(gid)).cf_str()));
     setAttribute(user, kODAttributeTypeUserShell,          makeArray(CFSTR("/usr/bin/false")));
     setAttribute(user, kODAttributeTypePassword,           makeArray(CFSTR("*")));
     setAttribute(user, kODAttributeTypeNFSHomeDirectory,   makeArray(CFSTR("/var/empty")));
+    setAttribute(user, CFSTR("dsAttrTypeNative:IsHidden"),makeArray(CFSTR("1")));
     setAttribute(user, kODAttributeTypeFullName,           makeArray(CFSTR("WS-Discovery Daemon")));
     synchronize(user);
     
