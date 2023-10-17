@@ -15,7 +15,7 @@ list(APPEND DECLARED_DEPENDENCIES argum)
 
 FetchContent_Declare(sys_string
     GIT_REPOSITORY  https://github.com/gershnik/sys_string.git
-    GIT_TAG         v2.11
+    GIT_TAG         v2.12
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES sys_string)
@@ -29,7 +29,7 @@ list(APPEND DECLARED_DEPENDENCIES isptr)
 
 FetchContent_Declare(ptl
     GIT_REPOSITORY  https://github.com/gershnik/ptl.git
-    GIT_TAG         v0.5
+    GIT_TAG         v0.6
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES ptl)
@@ -56,7 +56,7 @@ if (NOT LibXml2_FOUND)
 
     FetchContent_Declare(libxml2
         GIT_REPOSITORY  https://gitlab.gnome.org/GNOME/libxml2.git
-        GIT_TAG         v2.11.4
+        GIT_TAG         v2.11.5
         GIT_SHALLOW     TRUE
     )
     list(APPEND DECLARED_DEPENDENCIES libxml2)
@@ -65,7 +65,7 @@ endif()
 
 FetchContent_Declare(libuuid
     GIT_REPOSITORY  https://github.com/gershnik/libuuid-cmake.git
-    GIT_TAG         v2.39.1.rev2
+    GIT_TAG         v2.39.2
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES libuuid)
@@ -74,7 +74,7 @@ set(FMT_INSTALL OFF)
 
 FetchContent_Declare(fmt
     GIT_REPOSITORY  https://github.com/fmtlib/fmt
-    GIT_TAG         9.1.0
+    GIT_TAG         10.1.1
     GIT_SHALLOW     TRUE
     GIT_SUBMODULES_RECURSE FALSE
 )
@@ -93,24 +93,23 @@ list(APPEND DECLARED_DEPENDENCIES spdlog)
 
 # FetchContent_Declare(tomlplusplus
 #     GIT_REPOSITORY  https://github.com/marzer/tomlplusplus.git
-#     GIT_TAG         v3.3.0
+#     GIT_TAG         v3.4.0
 #     GIT_SHALLOW     TRUE
-#     GIT_PROGRESS    TRUE
 #     GIT_SUBMODULES_RECURSE FALSE
 # )
 FetchContent_Declare(tomlplusplus
-    URL             https://github.com/marzer/tomlplusplus/tarball/v3.3.0
+    URL             https://github.com/marzer/tomlplusplus/tarball/v3.4.0
 )
 list(APPEND DECLARED_DEPENDENCIES tomlplusplus)
 
 # FetchContent_Declare(outcome
 #     GIT_REPOSITORY  https://github.com/ned14/outcome
-#     GIT_TAG         v2.2.4
+#     GIT_TAG         v2.2.7
 #     GIT_SHALLOW     TRUE
 #     SOURCE_SUBDIR   include #we don't really want to build it
 # )
 FetchContent_Declare(outcome
-    URL             https://github.com/ned14/outcome/tarball/v2.2.4
+    URL             https://github.com/ned14/outcome/tarball/v2.2.7
     SOURCE_SUBDIR   include #we don't really want to build it
 )
 list(APPEND DECLARED_DEPENDENCIES outcome)
