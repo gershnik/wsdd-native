@@ -98,6 +98,7 @@ PRIVATE
     ptl::ptl
     LibXml2::LibXml2
     uuid::uuid_static
+    fmt::fmt
     spdlog::spdlog
     tomlplusplus::tomlplusplus
 
@@ -123,6 +124,7 @@ PRIVATE
     "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-object_path_lto,${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lto.o>"
     "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-cache_path_lto,${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/LTOCache>"
     "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-no_adhoc_codesign;-Wl,-reproducible>"
+    "$<$<AND:$<CXX_COMPILER_ID:AppleClang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,15.0>>:LINKER:-no_warn_duplicate_libraries>" #see https://gitlab.kitware.com/cmake/cmake/-/issues/25297
 )
 
 target_compile_definitions(wsddn

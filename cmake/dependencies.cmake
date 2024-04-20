@@ -15,7 +15,7 @@ list(APPEND DECLARED_DEPENDENCIES argum)
 
 FetchContent_Declare(sys_string
     GIT_REPOSITORY  https://github.com/gershnik/sys_string.git
-    GIT_TAG         v2.12
+    GIT_TAG         v2.13
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES sys_string)
@@ -29,7 +29,7 @@ list(APPEND DECLARED_DEPENDENCIES isptr)
 
 FetchContent_Declare(ptl
     GIT_REPOSITORY  https://github.com/gershnik/ptl.git
-    GIT_TAG         v0.6
+    GIT_TAG         v1.0
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES ptl)
@@ -56,7 +56,7 @@ if (NOT LibXml2_FOUND)
 
     FetchContent_Declare(libxml2
         GIT_REPOSITORY  https://gitlab.gnome.org/GNOME/libxml2.git
-        GIT_TAG         v2.11.5
+        GIT_TAG         v2.12.6
         GIT_SHALLOW     TRUE
     )
     list(APPEND DECLARED_DEPENDENCIES libxml2)
@@ -65,7 +65,7 @@ endif()
 
 FetchContent_Declare(libuuid
     GIT_REPOSITORY  https://github.com/gershnik/libuuid-cmake.git
-    GIT_TAG         v2.39.2
+    GIT_TAG         v2.40.rev1
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES libuuid)
@@ -74,19 +74,19 @@ set(FMT_INSTALL OFF)
 
 FetchContent_Declare(fmt
     GIT_REPOSITORY  https://github.com/fmtlib/fmt
-    GIT_TAG         10.1.1
+    GIT_TAG         10.2.1
     GIT_SHALLOW     TRUE
     GIT_SUBMODULES_RECURSE FALSE
 )
 list(APPEND DECLARED_DEPENDENCIES fmt)
 
-set(SPDLOG_NO_ATOMIC_LEVELS ON)
-set(SPDLOG_NO_TLS ON)
-set(SPDLOG_FMT_EXTERNAL ON)
+set(SPDLOG_NO_ATOMIC_LEVELS ON CACHE BOOL "prevent spdlog from using of std::atomic log levels (use only if your code never modifies log levels concurrently)")
+set(SPDLOG_NO_TLS ON CACHE BOOL "prevent spdlog from using thread local storage")
+set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt library instead of bundled")
 
 FetchContent_Declare(spdlog
     GIT_REPOSITORY  https://github.com/gabime/spdlog
-    GIT_TAG         v1.12.0
+    GIT_TAG         v1.13.0
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES spdlog)
@@ -109,14 +109,14 @@ list(APPEND DECLARED_DEPENDENCIES tomlplusplus)
 #     SOURCE_SUBDIR   include #we don't really want to build it
 # )
 FetchContent_Declare(outcome
-    URL             https://github.com/ned14/outcome/tarball/v2.2.7
+    URL             https://github.com/ned14/outcome/tarball/v2.2.8
     SOURCE_SUBDIR   include #we don't really want to build it
 )
 list(APPEND DECLARED_DEPENDENCIES outcome)
 
 FetchContent_Declare(asio
-    URL             https://sourceforge.net/projects/asio/files/asio/1.28.0%20%28Stable%29/asio-1.28.0.tar.gz/download
-    URL_HASH        MD5=0e653d933487d001022203a2ad144539
+    URL             https://sourceforge.net/projects/asio/files/asio/1.30.2%20%28Stable%29/asio-1.30.2.tar.gz/download
+    URL_HASH        MD5=c1643d3eddd45b210b760acc7ec25d59
 )
 list(APPEND DECLARED_DEPENDENCIES asio)
 

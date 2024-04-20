@@ -79,14 +79,18 @@ private:
     static void errorFunc(void * /*ctx*/, const char * /*msg*/, ...) {
 
     }
-    static void structuredErrorFunc(void * /*userData*/, xmlErrorPtr /*error*/) {
+    //Older versions of LibXml have this callback without const
+    static void structuredErrorFunc(void * /*userData*/, const xmlError * /*error*/) {
+
+    }
+    static void structuredErrorFunc(void * /*userData*/, xmlError * /*error*/) {
 
     }
 };
 
 class XmlException : public std::runtime_error {
 public:
-    XmlException(xmlErrorPtr err):
+    XmlException(const xmlError * err):
         std::runtime_error(err->message ? err->message : fmt::format("error: {0}, domain: {1}", err->code, err->domain)),
         m_domain(err->domain),
         m_code(err->code) {
