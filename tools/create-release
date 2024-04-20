@@ -34,8 +34,8 @@ with open(ROOT / "CHANGELOG.md", "wt") as change_log:
 (ROOT / "VERSION").write_text(f'{NEW_VER}\n')
 
 rpmSpec = (ROOT / "installers/rpm-systemd/wsddn.spec").read_text()
-rpmSpec = re.sub(r'Version:(\s*)\d+(?:\.\d+)*', f'Version:\g<1>{NEW_VER}', rpmSpec)
-rpmSpec = re.sub(r'Release:(\s*)\d+%\{\?dist\}', 'Release:\g<1>1%{?dist}', rpmSpec)
+rpmSpec = re.sub(r'Version:(\s*)\d+(?:\.\d+)*', rf'Version:\g<1>{NEW_VER}', rpmSpec)
+rpmSpec = re.sub(r'Release:(\s*)\d+%\{\?dist\}', r'Release:\g<1>1%{?dist}', rpmSpec)
 today = datetime.date.today().strftime("%a %b %d %Y")
 rpmSpec = re.sub(r'%changelog\n', f'%changelog\n* {today} gershnik - {NEW_VER}-1\n- Release {NEW_VER}\n\n', rpmSpec)
 (ROOT / "installers/rpm-systemd/wsddn.spec").write_text(rpmSpec)
