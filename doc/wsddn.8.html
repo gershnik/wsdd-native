@@ -1,5 +1,5 @@
-<!-- Creator     : groff version 1.22.4 -->
-<!-- CreationDate: Tue Oct 17 14:11:11 2023 -->
+<!-- Creator     : groff version 1.23.0 -->
+<!-- CreationDate: Sat Apr 20 16:48:44 2024 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -24,11 +24,18 @@
 <a href="#SYNOPSIS">SYNOPSIS</a><br>
 <a href="#DESCRIPTION">DESCRIPTION</a><br>
 <a href="#OPTIONS">OPTIONS</a><br>
+<a href="#General options">General options</a><br>
+<a href="#Daemon behavior options">Daemon behavior options</a><br>
+<a href="#Networking options">Networking options</a><br>
+<a href="#Machine information options">Machine information options</a><br>
 <a href="#SIGNALS">SIGNALS</a><br>
 <a href="#EXIT STATUS">EXIT STATUS</a><br>
 <a href="#FIREWALL SETUP">FIREWALL SETUP</a><br>
 <a href="#CONFIG FILE">CONFIG FILE</a><br>
 <a href="#EXAMPLES">EXAMPLES</a><br>
+<a href="#Run as a traditional Unix daemon">Run as a traditional Unix daemon</a><br>
+<a href="#Run as a systemd daemon">Run as a systemd daemon</a><br>
+<a href="#Handle traffic on eth0 and eth2 only, but only with IPv6 addresses">Handle traffic on eth0 and eth2 only, but only with IPv6 addresses</a><br>
 <a href="#AUTHOR">AUTHOR</a><br>
 <a href="#BUG REPORTS">BUG REPORTS</a><br>
 
@@ -40,228 +47,236 @@
 </h2>
 
 
-<p style="margin-left:11%; margin-top: 1em"><b>wsddn</b>
-&mdash; WS-Discovery Host Daemon</p>
+<p style="margin-left:9%; margin-top: 1em"><b>wsddn</b>
+&mdash; WS&minus;Discovery Host Daemon</p>
 
 <h2>SYNOPSIS
 <a name="SYNOPSIS"></a>
 </h2>
 
 
-<p style="margin-left:11%; margin-top: 1em"><tt>wsddn
---help <br>
-wsddn --version <br>
+<p style="margin-left:9%; margin-top: 1em">wsddn
+&minus;&minus;help <br>
+wsddn &minus;&minus;version <br>
 
-wsddn&nbsp;</tt>[<tt>--unixd</tt>|<tt>--systemd</tt>|<tt>--launchd</tt>]
-[<tt>-c&nbsp;</tt><i>path</i>]
-[[<tt>-i&nbsp;</tt><i>name</i>]...]
-[<tt>-4</tt>|<tt>-6</tt>]
-[<tt>--hoplimit&nbsp;</tt><i>number</i>]
-[<tt>--uuid&nbsp;</tt><i>uuid</i>]
-[<tt>-H&nbsp;</tt><i>name</i>]
-[<tt>-D</tt>|<tt>-W&nbsp;</tt><i>name</i>]
-[<tt>--log-level&nbsp;</tt><i>level</i>]
-[<tt>--log-file&nbsp;</tt><i>path</i> |
-<tt>--log-os-log</tt>]
-[<tt>--pid-file&nbsp;</tt><i>path</i>]
-[<tt>-U&nbsp;</tt><i>user</i>[:<i>group</i>]]
-[<tt>-r&nbsp;</tt><i>dir</i>]</p>
+wsddn&nbsp;[&minus;&minus;unixd|&minus;&minus;systemd|&minus;&minus;launchd]
+[&minus;c&nbsp;<i>path</i>] [[&minus;i&nbsp;<i>name</i>]...]
+[&minus;4|&minus;6]
+[&minus;&minus;hoplimit&nbsp;<i>number</i>]
+[&minus;&minus;uuid&nbsp;<i>uuid</i>]
+[&minus;H&nbsp;<i>name</i>]
+[&minus;D|&minus;W&nbsp;<i>name</i>]
+[&minus;&minus;log&minus;level&nbsp;<i>level</i>]
+[&minus;&minus;log&minus;file&nbsp;<i>path</i> |
+&minus;&minus;log&minus;os&minus;log]
+[&minus;&minus;pid&minus;file&nbsp;<i>path</i>]
+[&minus;U&nbsp;<i>user</i>[:<i>group</i>]]
+[&minus;r&nbsp;<i>dir</i>]</p>
 
 <h2>DESCRIPTION
 <a name="DESCRIPTION"></a>
 </h2>
 
 
-<p style="margin-left:11%; margin-top: 1em"><tt>wsddn</tt>
-is a native daemon that implements WS-Discovery (WSD) host
+<p style="margin-left:9%; margin-top: 1em">wsddn is a
+native daemon that implements WS&minus;Discovery (WSD) host
 protocol. It allows UNIX hosts to be found by modern Windows
 versions and displayed in their Explorer Network views.
-<tt>wsddn</tt> can be configured using command-line options
-or a configuration file (see <tt>--config</tt> option
-below); command-line options override values specified in
-the configuration file. <tt>wsddn</tt> rereads its
-configuration file when it receives a hangup signal,
-SIGHUP.</p>
+wsddn can be configured using command&minus;line options or
+a configuration file (see &minus;&minus;config option
+below); command&minus;line options override values specified
+in the configuration file. wsddn rereads its configuration
+file when it receives a hangup signal, SIGHUP.</p>
 
 <h2>OPTIONS
 <a name="OPTIONS"></a>
 </h2>
 
 
-<p style="margin-left:11%; margin-top: 1em">Unless
-otherwise specified options cannot be repeated. The options
-are as follows:</p>
+<p style="margin-left:9%; margin-top: 1em">Unless otherwise
+specified options cannot be repeated. The options are as
+follows:</p>
 
-<p style="margin-left:11%; margin-top: 1em"><b>General
-options</b> <tt><br>
---help</tt>, <tt>-h</tt></p>
+<h3>General options
+<a name="General options"></a>
+</h3>
 
-<p style="margin-left:22%;">Print usage information and
+
+
+<p style="margin-left:9%; margin-top: 1em">&minus;&minus;help,
+&minus;h</p>
+
+<p style="margin-left:18%;">Print usage information and
 exit.</p>
 
-<p style="margin-left:11%;"><tt>--version</tt>,
-<tt>-v</tt></p>
+<p style="margin-left:9%;">&minus;&minus;version,
+&minus;v</p>
 
-<p style="margin-left:22%;">Print version and exit.</p>
+<p style="margin-left:18%;">Print version and exit.</p>
 
-<p style="margin-left:11%;"><tt>--unixd</tt></p>
+<p style="margin-left:9%;">&minus;&minus;unixd</p>
 
-<p style="margin-left:22%;">Run as a traditional UNIX
+<p style="margin-left:18%;">Run as a traditional UNIX
 daemon.</p>
 
-<p style="margin-left:11%;"><tt>--systemd</tt></p>
+<p style="margin-left:9%;">&minus;&minus;systemd</p>
 
-<p style="margin-left:22%;">Run as a systemd daemon. This
+<p style="margin-left:18%;">Run as a systemd daemon. This
 option is only available on systemd systems.</p>
 
-<p style="margin-left:11%;"><tt>--launchd</tt></p>
+<p style="margin-left:9%;">&minus;&minus;launchd</p>
 
-<p style="margin-left:22%;">Run as a launchd daemon. This
+<p style="margin-left:18%;">Run as a launchd daemon. This
 option is only available on macOS.</p>
 
-<p style="margin-left:11%;"><tt>--config</tt> <i>path</i>,
-<tt>-c</tt> <i>path</i></p>
+<p style="margin-left:9%;">&minus;&minus;config
+<i>path</i>, &minus;c <i>path</i></p>
 
-<p style="margin-left:22%;">Path to the configuration file.
+<p style="margin-left:18%;">Path to the configuration file.
 The file does not need to exist. If it exists, the file is
 read and options specified in it are applied <i>if not
 already specified on command line</i>. See CONFIG FILE below
 for information about its syntax and content. Content of the
-configuration file is re-read upon SIGHUP signal. By
+configuration file is re&minus;read upon SIGHUP signal. By
 default, if this option isn&rsquo;t specified, no
 configuration file is read.</p>
 
-<p style="margin-left:11%; margin-top: 1em"><b>Daemon
-behavior options</b> <tt><br>
---log-level</tt> <i>level</i></p>
+<h3>Daemon behavior options
+<a name="Daemon behavior options"></a>
+</h3>
 
-<p style="margin-left:22%;">Sets the verbosity of log
+
+
+<p style="margin-left:9%; margin-top: 1em">&minus;&minus;log&minus;level
+<i>level</i></p>
+
+<p style="margin-left:18%;">Sets the verbosity of log
 output. Log levels range from 0 (disable logging) to 6
 (detailed trace) with default being 4. Passing values bigger
 than 6 is equivalent to 6. The equivalent config file option
-is <tt>log-level</tt></p>
+is log&minus;level</p>
 
-<p style="margin-left:11%;"><tt>--log-file</tt>
+<p style="margin-left:9%;">&minus;&minus;log&minus;file
 <i>path</i></p>
 
-<p style="margin-left:22%;">The path of the file to write
-the log output to. If not specified <tt>wsddn</tt> outputs
-the log messages as follows</p>
+<p style="margin-left:18%;">The path of the file to write
+the log output to. If not specified wsddn outputs the log
+messages as follows</p>
 
 <table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="22%"></td>
+<td width="18%"></td>
 <td width="1%">
 
 
 <p>&bull;</p></td>
 <td width="2%"></td>
-<td width="75%">
+<td width="79%">
 
 
 <p>If invoked without any daemon flags: to standard
 output</p> </td></tr>
 <tr valign="top" align="left">
-<td width="22%"></td>
+<td width="18%"></td>
 <td width="1%">
 
 
 <p>&bull;</p></td>
 <td width="2%"></td>
-<td width="75%">
+<td width="79%">
 
 
 <p>If invoked with &ndash;systemd: to standard output, with
 systemd severity prefixes</p></td></tr>
 <tr valign="top" align="left">
-<td width="22%"></td>
+<td width="18%"></td>
 <td width="1%">
 
 
 <p>&bull;</p></td>
 <td width="2%"></td>
-<td width="75%">
+<td width="79%">
 
 
 <p>If invoked with &ndash;unixd or &ndash;launchd: to
 /var/log/wsddn.log</p> </td></tr>
 </table>
 
-<p style="margin-left:22%; margin-top: 1em">If &ndash;user
+<p style="margin-left:18%; margin-top: 1em">If &ndash;user
 option is used, the directory of the logfile must allow the
 specified user to create and delete files. The equivalent
-config file option is <tt>log-file</tt></p>
+config file option is log&minus;file</p>
 
-<p style="margin-left:11%;"><tt>--log-os-log</tt></p>
 
-<p style="margin-left:22%;">Available on macOS only. If
+<p style="margin-left:9%;">&minus;&minus;log&minus;os&minus;log</p>
+
+<p style="margin-left:18%;">Available on macOS only. If
 specified log output is sent to system log visible via
-Console app or <tt>log</tt> command line tool. This option
-is mutually exclusive with <tt>--log-file</tt>.</p>
+Console app or log command line tool. This option is
+mutually exclusive with &minus;&minus;log&minus;file.</p>
 
-<p style="margin-left:11%;"><tt>--pid-file</tt>
+<p style="margin-left:9%;">&minus;&minus;pid&minus;file
 <i>path</i></p>
 
-<p style="margin-left:22%;">Set the path to PID file. If
+<p style="margin-left:18%;">Set the path to PID file. If
 not specified no PID file is written. Send SIGHUP signal to
 the process ID in the PID file to reload configuration. If
 &ndash;user option is used, the directory of the pidfile
 must allow the specified user to create and delete files.
-The equivalent config file option is <tt>pid-file</tt></p>
+The equivalent config file option is pid&minus;file</p>
 
-<p style="margin-left:11%;"><tt>--user</tt>
-<i>username</i>[:<i>groupname</i>], <tt>-U</tt>
+<p style="margin-left:9%;">&minus;&minus;user
+<i>username</i>[:<i>groupname</i>], &minus;U
 <i>username</i>[:<i>groupname</i>]</p>
 
-<p style="margin-left:22%;">Set the identity under which
+<p style="margin-left:18%;">Set the identity under which
 the process that performs network communications will run.
 If group name is not specified, primary group of the
 username is used.</p>
 
-<p style="margin-left:22%; margin-top: 1em">If this option
+<p style="margin-left:18%; margin-top: 1em">If this option
 is not specified then the behavior is as follows:</p>
 
 <table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="22%"></td>
+<td width="18%"></td>
 <td width="1%">
 
 
 <p>&bull;</p></td>
 <td width="2%"></td>
-<td width="75%">
+<td width="79%">
 
 
 <p>If wsddn process is run under the root account it tries
-to use a special unprivileged account name
-(<tt>_wsddn</tt>:<tt>_wsddn</tt> on macOS,
-<tt>wsddn</tt>:<tt>wsddn</tt> otherwise) The user and group
-are created if they do not exist. Any failures in these
-steps stop the process.</p></td></tr>
+to use a special unprivileged account name (_wsddn:_wsddn on
+macOS, wsddn:wsddn otherwise) The user and group are created
+if they do not exist. Any failures in these steps stop the
+process.</p> </td></tr>
 <tr valign="top" align="left">
-<td width="22%"></td>
+<td width="18%"></td>
 <td width="1%">
 
 
 <p>&bull;</p></td>
 <td width="2%"></td>
-<td width="75%">
+<td width="79%">
 
 
 <p>Otherwise, wsddn uses the account it is run under.</p></td></tr>
 </table>
 
-<p style="margin-left:22%; margin-top: 1em">The net effect
+<p style="margin-left:18%; margin-top: 1em">The net effect
 of these rules is that wsddn under no circumstances will
 perform network communications under root account. The
-equivalent config file option is <tt>user</tt></p>
+equivalent config file option is user</p>
 
-<p style="margin-left:11%;"><tt>--chroot</tt> <i>dir</i>,
-<tt>-r</tt> <i>dir</i></p>
+<p style="margin-left:9%;">&minus;&minus;chroot <i>dir</i>,
+&minus;r <i>dir</i></p>
 
-<p style="margin-left:22%;">Set the directory into which
+<p style="margin-left:18%;">Set the directory into which
 process that performs network communications should chroot
 into. This further limits any impact of potential network
 exploits into wsddn. If not specified the behavior is as
@@ -270,164 +285,172 @@ follows</p>
 <table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="22%"></td>
+<td width="18%"></td>
 <td width="1%">
 
 
 <p>&bull;</p></td>
 <td width="2%"></td>
-<td width="75%">
+<td width="79%">
 
 
 <p>If wsddn process is run under the root account: use
-<tt>/var/empty</tt> on macOS and <tt>/var/run/wsddn</tt> on
-other platforms. This directory will be created if it does
-not exist.</p></td></tr>
+/var/empty on macOS and /var/run/wsddn on other platforms.
+This directory will be created if it does not exist.</p></td></tr>
 <tr valign="top" align="left">
-<td width="22%"></td>
+<td width="18%"></td>
 <td width="1%">
 
 
 <p>&bull;</p></td>
 <td width="2%"></td>
-<td width="75%">
+<td width="79%">
 
 
 <p>Otherwise: do not chroot</p></td></tr>
 </table>
 
-<p style="margin-left:22%; margin-top: 1em">Note: do not
+<p style="margin-left:18%; margin-top: 1em">Note: do not
 use external methods to chroot wsddn process
-(e.g.&nbsp;using launchd config plist). Non-networking parts
-of it need access to the normal filesystem to detect things
-like SMB configuration etc. The equivalent command line
-option is <tt>chroot</tt></p>
+(e.g.&nbsp;using launchd config plist). Non&minus;networking
+parts of it need access to the normal filesystem to detect
+things like SMB configuration etc. The equivalent command
+line option is chroot</p>
 
-<p style="margin-left:11%; margin-top: 1em"><b>Networking
-options</b> <tt><br>
---interface</tt> <i>name</i>, <tt>-i</tt> <i>name</i></p>
+<h3>Networking options
+<a name="Networking options"></a>
+</h3>
 
-<p style="margin-left:22%;">Network interface to use. Pass
+
+
+<p style="margin-left:9%; margin-top: 1em">&minus;&minus;interface
+<i>name</i>, &minus;i <i>name</i></p>
+
+<p style="margin-left:18%;">Network interface to use. Pass
 this option multiple times for multiple interfaces. If not
-specified, all eligible interfaces will be used. Loop-back
-interfaces are never used, even when explicitly specified.
-For interfaces with IPv6 addresses, only link-local
-addresses will be used. The equivalent config file option is
-<tt>interfaces</tt></p>
+specified, all eligible interfaces will be used.
+Loop&minus;back interfaces are never used, even when
+explicitly specified. For interfaces with IPv6 addresses,
+only link&minus;local addresses will be used. The equivalent
+config file option is interfaces</p>
 
-<p style="margin-left:11%;"><tt>--ipv4only</tt>,
-<tt>-4</tt></p>
+<p style="margin-left:9%;">&minus;&minus;ipv4only,
+&minus;4</p>
 
-<p style="margin-left:22%;">Use only IPv4. By default both
+<p style="margin-left:18%;">Use only IPv4. By default both
 IPv4 and IPv6 are used. This option cannot be combined with
-<tt>--ipv6only</tt>. The equivalent config file option is
-<tt>allowed-address-family</tt>.</p>
+&minus;&minus;ipv6only. The equivalent config file option is
+allowed&minus;address&minus;family.</p>
 
-<p style="margin-left:11%;"><tt>--ipv6only</tt>,
-<tt>-6</tt></p>
+<p style="margin-left:9%;">&minus;&minus;ipv6only,
+&minus;6</p>
 
-<p style="margin-left:22%;">Use only IPv6. By default both
+<p style="margin-left:18%;">Use only IPv6. By default both
 IPv4 and IPv6 are used. This option cannot be combined with
-<tt>--ipv4only</tt>. The equivalent config file option is
-<tt>allowed-address-family</tt>.</p>
+&minus;&minus;ipv4only. The equivalent config file option is
+allowed&minus;address&minus;family.</p>
 
-<p style="margin-left:11%;"><tt>--hoplimit</tt>
+<p style="margin-left:9%;">&minus;&minus;hoplimit
 <i>number</i></p>
 
-<p style="margin-left:22%;">Set the hop limit for multicast
+<p style="margin-left:18%;">Set the hop limit for multicast
 packets. The default is 1 which should prevent packets from
 leaving the local network segment. The equivalent config
-file option is <tt>hoplimit</tt></p>
+file option is hoplimit</p>
 
-<p style="margin-left:11%; margin-top: 1em"><b>Machine
-information options</b> <tt><br>
---uuid</tt> <i>uuid</i></p>
+<h3>Machine information options
+<a name="Machine information options"></a>
+</h3>
 
-<p style="margin-left:22%;">WS-Discovery protocol requires
-your machine to have a unique identifier that is stable
-across reboots or changes in networks. By default,
-<tt>wsddn</tt> uses UUID version 5 with private namespace
-and the host name of the machine. This will remain stable as
-long as the hostname doesn&rsquo;t change.If desired, you
-can override this with a fixed UUID using this option. The
-equivalent config file option is <tt>uuid</tt></p>
 
-<p style="margin-left:11%;"><tt>--hostname</tt>
-<i>name</i>, <tt>-H</tt> <i>name</i></p>
 
-<p style="margin-left:22%;">Override hostname to be
+<p style="margin-left:9%; margin-top: 1em">&minus;&minus;uuid
+<i>uuid</i></p>
+
+<p style="margin-left:18%;">WS&minus;Discovery protocol
+requires your machine to have a unique identifier that is
+stable across reboots or changes in networks. By default,
+wsddn uses UUID version 5 with private namespace and the
+host name of the machine. This will remain stable as long as
+the hostname doesn&rsquo;t change.If desired, you can
+override this with a fixed UUID using this option. The
+equivalent config file option is uuid</p>
+
+<p style="margin-left:9%;">&minus;&minus;hostname
+<i>name</i>, &minus;H <i>name</i></p>
+
+<p style="margin-left:18%;">Override hostname to be
 reported to Windows machines. By default the local
 machine&rsquo;s hostname (with domain part, if any, removed)
-is used. If you set the name to <tt>:NETBIOS:</tt> then
-Netbios hostname will be used. The Netbios hostname is
-either detected from SMB configuration, if found, or
-produced by capitalizing normal machine hostname. The
-equivalent config file option is <tt>hostname</tt></p>
+is used. If you set the name to :NETBIOS: then Netbios
+hostname will be used. The Netbios hostname is either
+detected from SMB configuration, if found, or produced by
+capitalizing normal machine hostname. The equivalent config
+file option is hostname</p>
 
-<p style="margin-left:11%;"><tt>--domain</tt> <i>name</i>,
-<tt>-D</tt> <i>name</i></p>
+<p style="margin-left:9%;">&minus;&minus;domain
+<i>name</i>, &minus;D <i>name</i></p>
 
-<p style="margin-left:22%;">Report this computer as a
+<p style="margin-left:18%;">Report this computer as a
 member of Windows domain <i>name</i>. Options
-<tt>--domain</tt> and <tt>--workgroup</tt> are mutually
-exclusive. If neither is specified domain/workgroup
-membership is auto-detected from SMB configuration. If no
-SMB configuration is found it is set to a workgroup named
-<tt>WORKGROUP</tt>. The equivalent config file option is
-<tt>member-of</tt>.</p>
+&minus;&minus;domain and &minus;&minus;workgroup are
+mutually exclusive. If neither is specified domain/workgroup
+membership is auto&minus;detected from SMB configuration. If
+no SMB configuration is found it is set to a workgroup named
+WORKGROUP. The equivalent config file option is
+member&minus;of.</p>
 
-<p style="margin-left:11%;"><tt>--workgroup</tt>
-<i>name</i>, <tt>-W</tt> <i>name</i></p>
+<p style="margin-left:9%;">&minus;&minus;workgroup
+<i>name</i>, &minus;W <i>name</i></p>
 
-<p style="margin-left:22%;">Report this computer as a
+<p style="margin-left:18%;">Report this computer as a
 member of Windows workgroup <i>name</i>. Options
-<tt>--domain</tt> and <tt>--workgroup</tt> are mutually
-exclusive. If neither is specified domain/workgroup
-membership is auto-detected from SMB configuration. If no
-SMB configuration is found it is set to a workgroup named
-<tt>WORKGROUP</tt>. The equivalent config file option is
-<tt>member-of</tt>.</p>
+&minus;&minus;domain and &minus;&minus;workgroup are
+mutually exclusive. If neither is specified domain/workgroup
+membership is auto&minus;detected from SMB configuration. If
+no SMB configuration is found it is set to a workgroup named
+WORKGROUP. The equivalent config file option is
+member&minus;of.</p>
 
-<p style="margin-left:11%;"><tt>--smb-conf</tt>
+<p style="margin-left:9%;">&minus;&minus;smb&minus;conf
 <i>path</i></p>
 
-<p style="margin-left:22%;">Path to <tt>smb.conf</tt>,
-<tt>samba.conf</tt>, or <tt>ksmbd.conf</tt> file to extract
-the SMB configuration from. This option is not available on
-macOS. By default <tt>wsddn</tt> tries to locate this file
-on its own by querying your local Samba installation. Use
-this option if auto-detection fails, picks wrong Samba
-instance or if you are using KSMBD on Linux. The equivalent
-config file option is <tt>smb-conf</tt>.</p>
+<p style="margin-left:18%;">Path to smb.conf, samba.conf,
+or ksmbd.conf file to extract the SMB configuration from.
+This option is not available on macOS. By default wsddn
+tries to locate this file on its own by querying your local
+Samba installation. Use this option if auto&minus;detection
+fails, picks wrong Samba instance or if you are using KSMBD
+on Linux. The equivalent config file option is
+smb&minus;conf.</p>
 
 <h2>SIGNALS
 <a name="SIGNALS"></a>
 </h2>
 
 
-<p style="margin-left:11%; margin-top: 1em"><tt>wsddn</tt>
-handles the following signals:</p>
+<p style="margin-left:9%; margin-top: 1em">wsddn handles
+the following signals:</p>
 
 <table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="11%"></td>
-<td width="9%">
+<td width="9%"></td>
+<td width="8%">
 
 
-<p><tt>SIGHUP</tt></p></td>
-<td width="2%"></td>
-<td width="78%">
+<p>SIGHUP</p></td>
+<td width="1%"></td>
+<td width="82%">
 
 
 <p>gracefully stop network communications, reload
-configuration and re-start communications.</p></td></tr>
+configuration and re&minus;start communications.</p></td></tr>
 </table>
 
-<p style="margin-left:11%;"><tt>SIGTERM</tt>,
-<tt>SIGINT</tt></p>
+<p style="margin-left:9%;">SIGTERM, SIGINT</p>
 
-<p style="margin-left:22%;">gracefully stop network
+<p style="margin-left:18%;">gracefully stop network
 communications and exit.</p>
 
 <h2>EXIT STATUS
@@ -435,61 +458,61 @@ communications and exit.</p>
 </h2>
 
 
-<p style="margin-left:11%; margin-top: 1em"><tt>wsddn</tt>
-exit code is 0 upon normal termination (via <tt>SIGINT</tt>
-or <tt>SIGTERM</tt>) or non-zero upon error.</p>
+<p style="margin-left:9%; margin-top: 1em">wsddn exit code
+is 0 upon normal termination (via SIGINT or SIGTERM) or
+non&minus;zero upon error.</p>
 
 <h2>FIREWALL SETUP
 <a name="FIREWALL SETUP"></a>
 </h2>
 
 
-<p style="margin-left:11%; margin-top: 1em">Traffic for the
+<p style="margin-left:9%; margin-top: 1em">Traffic for the
 following ports, directions and addresses must be
 allowed:</p>
 
 <table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
-<td width="11%"></td>
+<td width="9%"></td>
 <td width="1%">
 
 
 <p>&bull;</p></td>
 <td width="2%"></td>
-<td width="86%">
+<td width="88%">
 
 
 <p>Incoming and outgoing traffic to udp/3702 with multicast
 destination: 239.255.255.250 for IPv4 and ff02::c for
 IPv6</p> </td></tr>
 <tr valign="top" align="left">
-<td width="11%"></td>
+<td width="9%"></td>
 <td width="1%">
 
 
 <p>&bull;</p></td>
 <td width="2%"></td>
-<td width="86%">
+<td width="88%">
 
 
 <p>Outgoing unicast traffic from udp/3702</p></td></tr>
 <tr valign="top" align="left">
-<td width="11%"></td>
+<td width="9%"></td>
 <td width="1%">
 
 
 <p>&bull;</p></td>
 <td width="2%"></td>
-<td width="86%">
+<td width="88%">
 
 
 <p>Incoming traffic to tcp/5357</p></td></tr>
 </table>
 
-<p style="margin-left:11%; margin-top: 1em">You should
-further restrict the traffic to the (link-)local subnet,
-e.g.&nbsp;by using the <tt>fe80::/10</tt> address space for
+<p style="margin-left:9%; margin-top: 1em">You should
+further restrict the traffic to the (link&minus;)local
+subnet, e.g.&nbsp;by using the fe80::/10 address space for
 IPv6. Please note that IGMP traffic must be enabled in order
 to get IPv4 multicast traffic working.</p>
 
@@ -498,76 +521,75 @@ to get IPv4 multicast traffic working.</p>
 </h2>
 
 
-<p style="margin-left:11%; margin-top: 1em">The syntax of
+<p style="margin-left:9%; margin-top: 1em">The syntax of
 the configuration file is TOML (https://toml.io/en/).</p>
 
-<p style="margin-left:11%; margin-top: 1em">Any options
+<p style="margin-left:9%; margin-top: 1em">Any options
 specified on command line take precedence over options in
 the config file. Most options are named and behave exactly
 the same as corresponding command line options. Exceptions
-are explained in-depth below. <tt><br>
-allowed-address-family</tt> = &ldquo;IPv4&rdquo; |
+are explained in&minus;depth below. <br>
+allowed&minus;address&minus;family = &ldquo;IPv4&rdquo; |
 &ldquo;IPv6&rdquo;</p>
 
-<p style="margin-left:22%;">Restrict communications to the
+<p style="margin-left:18%;">Restrict communications to the
 given address family. Valid values are &ldquo;IPv4&rdquo; or
-&ldquo;IPv6&rdquo; case-insensitive. The equivalent command
-line options are <tt>--ipv4only</tt> and
-<tt>--ipv6only</tt></p>
+&ldquo;IPv6&rdquo; case&minus;insensitive. The equivalent
+command line options are &minus;&minus;ipv4only and
+&minus;&minus;ipv6only</p>
 
-<p style="margin-left:11%;"><tt>chroot</tt> =
-&ldquo;path&rdquo;</p>
+<p style="margin-left:9%;">chroot = &ldquo;path&rdquo;</p>
 
-<p style="margin-left:22%;">Same as <tt>--chroot</tt>
+<p style="margin-left:18%;">Same as &minus;&minus;chroot
 command line option</p>
 
-<p style="margin-left:11%;"><tt>hoplimit</tt> =
-<i>number</i></p>
+<p style="margin-left:9%;">hoplimit = <i>number</i></p>
 
-<p style="margin-left:22%;">Same as <tt>--hoplimit</tt>
+<p style="margin-left:18%;">Same as &minus;&minus;hoplimit
 command line option</p>
 
-<p style="margin-left:11%;"><tt>hostname</tt> =
+<p style="margin-left:9%;">hostname =
 &ldquo;<i>name</i>&rdquo;</p>
 
-<p style="margin-left:22%;">Same as <tt>--hostname</tt>
+<p style="margin-left:18%;">Same as &minus;&minus;hostname
 command line option</p>
 
-<p style="margin-left:11%;"><tt>interfaces</tt> = [
+<p style="margin-left:9%;">interfaces = [
 &ldquo;<i>name</i>&rdquo;, ... ]</p>
 
-<p style="margin-left:22%;">Specify on which interfaces
+<p style="margin-left:18%;">Specify on which interfaces
 wsddn will be listening on. If no interfaces are specified,
 or the list is empty all suitable detected interfaces will
-be used. Loop-back interfaces are never used, even when
-explicitly specified. For interfaces with IPv6 addresses,
-only link-local addresses will be used. The equivalent
-command line option is <tt>--interface</tt></p>
+be used. Loop&minus;back interfaces are never used, even
+when explicitly specified. For interfaces with IPv6
+addresses, only link&minus;local addresses will be used. The
+equivalent command line option is
+&minus;&minus;interface</p>
 
-<p style="margin-left:11%;"><tt>log-level</tt> =
+<p style="margin-left:9%;">log&minus;level =
 <i>number</i></p>
 
-<p style="margin-left:22%;">Same as <tt>--log-level</tt>
-command line option</p>
+<p style="margin-left:18%;">Same as
+&minus;&minus;log&minus;level command line option</p>
 
-<p style="margin-left:11%;"><tt>log-file</tt> =
+<p style="margin-left:9%;">log&minus;file =
 &ldquo;path&rdquo;</p>
 
-<p style="margin-left:22%;">Same as <tt>--log-file</tt>
-command line option</p>
+<p style="margin-left:18%;">Same as
+&minus;&minus;log&minus;file command line option</p>
 
-<p style="margin-left:11%;"><tt>log-os-log</tt> =
+<p style="margin-left:9%;">log&minus;os&minus;log =
 true/false</p>
 
-<p style="margin-left:22%;">This setting is only available
-on macOS. Setting it to <tt>true</tt> is the same as
-<tt>--log-os-log</tt> command line option</p>
+<p style="margin-left:18%;">This setting is only available
+on macOS. Setting it to true is the same as
+&minus;&minus;log&minus;os&minus;log command line option</p>
 
-<p style="margin-left:11%;"><tt>member-of</tt> =
+<p style="margin-left:9%;">member&minus;of =
 &ldquo;Workgroup/<i>name</i>&rdquo; |
 &ldquo;Domain/<i>name</i>&rdquo;</p>
 
-<p style="margin-left:22%;">Report whether the host is a
+<p style="margin-left:18%;">Report whether the host is a
 member of a given workgroup or domain. To specify a
 workgroup use &ldquo;Workgroup/name&rdquo; syntax. To
 specify a domain use &ldquo;Domain/name&rdquo;. The
@@ -576,71 +598,80 @@ are not case sensitive. If not specified workgroup/domain
 membership is detected from SMB configuration. If no SMB
 configuration is found it is set to a workgroup named
 WORKGROUP. The equivalent command line options are
-<tt>--domain</tt> and <tt>--workgroup</tt>.</p>
+&minus;&minus;domain and &minus;&minus;workgroup.</p>
 
-<p style="margin-left:11%;"><tt>pid-file</tt> =
+<p style="margin-left:9%;">pid&minus;file =
 &ldquo;path&rdquo;</p>
 
-<p style="margin-left:22%;">Same as <tt>--pid-file</tt>
-command line option</p>
+<p style="margin-left:18%;">Same as
+&minus;&minus;pid&minus;file command line option</p>
 
-<p style="margin-left:11%;"><tt>smb-conf</tt> =
+<p style="margin-left:9%;">smb&minus;conf =
 &ldquo;_path&rdquo;</p>
 
-<p style="margin-left:22%;">Same as <tt>--smb-conf</tt>
-command line option</p>
+<p style="margin-left:18%;">Same as
+&minus;&minus;smb&minus;conf command line option</p>
 
-<p style="margin-left:11%;"><tt>user</tt> =
+<p style="margin-left:9%;">user =
 &ldquo;username[:groupname]&rdquo;</p>
 
-<p style="margin-left:22%;">Same as <tt>--user</tt> command
-line option</p>
+<p style="margin-left:18%;">Same as &minus;&minus;user
+command line option</p>
 
-<p style="margin-left:11%;"><tt>uuid</tt> =
-&ldquo;xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx&rdquo;</p>
+<p style="margin-left:9%;">uuid =
+&ldquo;xxxxxxxx&minus;xxxx&minus;xxxx&minus;xxxx&minus;xxxxxxxxxxxx&rdquo;</p>
 
-<p style="margin-left:22%;">Same as <tt>--uuid</tt> command
-line option</p>
+<p style="margin-left:18%;">Same as &minus;&minus;uuid
+command line option</p>
 
 <h2>EXAMPLES
 <a name="EXAMPLES"></a>
 </h2>
 
 
-<p style="margin-left:11%; margin-top: 1em"><b>Run as a
-traditional Unix daemon</b></p>
-
-<pre style="margin-left:22%;">wsddn --unixd --config=/usr/local/etc/wsddn.conf --pid-file=/var/run/wsddn/wsddn.pid --log-file=/var/log/wsddn.log</pre>
-
-
-<p style="margin-left:11%; margin-top: 1em"><b>Run as a
-systemd daemon</b></p>
-
-<pre style="margin-left:22%;">wsddn --systemd --config=/etc/wsddn.conf</pre>
+<h3>Run as a traditional Unix daemon
+<a name="Run as a traditional Unix daemon"></a>
+</h3>
 
 
-<p style="margin-left:11%; margin-top: 1em"><b>Handle
-traffic on eth0 and eth2 only, but only with IPv6
-addresses</b></p>
+<p style="margin-left:18%; margin-top: 1em">wsddn
+&minus;&minus;unixd
+&minus;&minus;config=/usr/local/etc/wsddn.conf
+&minus;&minus;pid&minus;file=/var/run/wsddn/wsddn.pid
+&minus;&minus;log&minus;file=/var/log/wsddn.log</p>
 
-<pre style="margin-left:22%;">wsddn -i eth0 -i eth2 -6</pre>
+<h3>Run as a systemd daemon
+<a name="Run as a systemd daemon"></a>
+</h3>
 
+
+<p style="margin-left:18%; margin-top: 1em">wsddn
+&minus;&minus;systemd
+&minus;&minus;config=/etc/wsddn.conf</p>
+
+<h3>Handle traffic on eth0 and eth2 only, but only with IPv6 addresses
+<a name="Handle traffic on eth0 and eth2 only, but only with IPv6 addresses"></a>
+</h3>
+
+
+<p style="margin-left:18%; margin-top: 1em">wsddn &minus;i
+eth0 &minus;i eth2 &minus;6</p>
 
 <h2>AUTHOR
 <a name="AUTHOR"></a>
 </h2>
 
 
-<p style="margin-left:11%; margin-top: 1em">Eugene Gershnik
-&lt;gershnik@hotmail.com&gt;</p>
+<p style="margin-left:9%; margin-top: 1em">Eugene Gershnik
+<a href="mailto:gershnik@hotmail.com">gershnik@hotmail.com</a></p>
 
 <h2>BUG REPORTS
 <a name="BUG REPORTS"></a>
 </h2>
 
 
-<p style="margin-left:11%; margin-top: 1em">Report bugs at
-&lt;https://github.com/gershnik/wsdd-native/issues&gt;.</p>
+<p style="margin-left:9%; margin-top: 1em">Report bugs at
+<a href="https://github.com/gershnik/wsdd-native/issues">https://github.com/gershnik/wsdd-native/issues</a>.</p>
 <hr>
 </body>
 </html>
