@@ -1,0 +1,57 @@
+name: Check
+
+on: 
+  workflow_dispatch:
+
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: 
+        - compiler: gcc
+          version: 11
+        - compiler: gcc
+          version: 12
+        - compiler: gcc
+          version: 13
+        - compiler: clang
+          version: 13
+        - compiler: clang
+          version: 14
+        - compiler: clang
+          version: 15
+        - compiler: clang
+          version: 17
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Linux
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsystemd-dev
+
+          if [[ '${{ matrix.compiler }}' == 'clang' ]]; then
+            wget https://apt.llvm.org/llvm.sh
+            chmod u+x llvm.sh
+            sudo ./llvm.sh ${{ matrix.version }}
+          fi
+
+          if [[ '${{ matrix.compiler }}' == 'gcc' ]]; then
+            sudo apt-get update
+            sudo apt-get install -y gcc-${{ matrix.version }} g++-${{ matrix.version }}
+          fi
+        
+      - name: Configure
+        run: |
+          [ -d "out" ] && tools/uncache out
+          cmake -S . -B out \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+      - name: Build
+        run: |
+          installers/deb-systemd/build.py --sign . out
+        
