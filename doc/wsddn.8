@@ -185,8 +185,8 @@ WS\-Discovery protocol requires your machine to have a unique identifier
 that is stable across reboots or changes in networks.
 By default, \f[CR]wsddn\f[R] uses UUID version 5 with private namespace
 and the host name of the machine.
-This will remain stable as long as the hostname doesn\[cq]t change.If
-desired, you can override this with a fixed UUID using this option.
+This will remain stable as long as the hostname doesn\[cq]t change.
+If desired, you can override this with a fixed UUID using this option.
 The equivalent config file option is \f[CR]uuid\f[R]
 .TP
 \f[CR]\-\-hostname\f[R] \f[I]name\f[R], \f[CR]\-H\f[R] \f[I]name\f[R]
@@ -228,6 +228,15 @@ querying your local Samba installation.
 Use this option if auto\-detection fails, picks wrong Samba instance or
 if you are using KSMBD on Linux.
 The equivalent config file option is \f[CR]smb\-conf\f[R].
+.TP
+\f[CR]\-\-metadata\f[R] \f[I]path\f[R], \f[CR]\-m\f[R] \f[I]path\f[R]
+Path to a custom metadata XML file.
+Custom metadata allows you to completely replace the information
+normally supplied by \f[CR]wsddn\f[R] to Windows with your own.
+See \c
+.UR https://github.com/gershnik/wsdd-native/blob/master/config/metadata/README.md
+.UE \c
+\ for details about the metadata format and content.
 .SH SIGNALS
 \f[CR]wsddn\f[R] handles the following signals:
 .TP
@@ -256,7 +265,10 @@ e.g.\ by using the \f[CR]fe80::/10\f[R] address space for IPv6.
 Please note that IGMP traffic must be enabled in order to get IPv4
 multicast traffic working.
 .SH CONFIG FILE
-The syntax of the configuration file is TOML (https://toml.io/en/).
+The syntax of the configuration file is TOML (\c
+.UR https://toml.io/en/
+.UE \c
+).
 .PP
 Any options specified on command line take precedence over options in
 the config file.
@@ -315,8 +327,11 @@ The equivalent command line options are \f[CR]\-\-domain\f[R] and
 \f[CR]pid\-file\f[R] = \[lq]path\[rq]
 Same as \f[CR]\-\-pid\-file\f[R] command line option
 .TP
-\f[CR]smb\-conf\f[R] = \[lq]_path\[rq]
+\f[CR]smb\-conf\f[R] = \[lq]path\[rq]
 Same as \f[CR]\-\-smb\-conf\f[R] command line option
+.TP
+\f[CR]metadata\f[R] = \[lq]path\[rq]
+Same as \f[CR]\-\-metadata\f[R] command line option
 .TP
 \f[CR]user\f[R] = \[lq]username[:groupname]\[rq]
 Same as \f[CR]\-\-user\f[R] command line option

@@ -1,5 +1,5 @@
 <!-- Creator     : groff version 1.23.0 -->
-<!-- CreationDate: Sat Apr 20 16:48:44 2024 -->
+<!-- CreationDate: Wed Apr 24 10:25:05 2024 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -372,7 +372,7 @@ requires your machine to have a unique identifier that is
 stable across reboots or changes in networks. By default,
 wsddn uses UUID version 5 with private namespace and the
 host name of the machine. This will remain stable as long as
-the hostname doesn&rsquo;t change.If desired, you can
+the hostname doesn&rsquo;t change. If desired, you can
 override this with a fixed UUID using this option. The
 equivalent config file option is uuid</p>
 
@@ -423,6 +423,16 @@ Samba installation. Use this option if auto&minus;detection
 fails, picks wrong Samba instance or if you are using KSMBD
 on Linux. The equivalent config file option is
 smb&minus;conf.</p>
+
+<p style="margin-left:9%;">&minus;&minus;metadata
+<i>path</i>, &minus;m <i>path</i></p>
+
+<p style="margin-left:18%;">Path to a custom metadata XML
+file. Custom metadata allows you to completely replace the
+information normally supplied by wsddn to Windows with your
+own. See
+<a href="https://github.com/gershnik/wsdd-native/blob/master/config/metadata/README.md">https://github.com/gershnik/wsdd-native/blob/master/config/metadata/README.md</a>&nbsp;for
+details about the metadata format and content.</p>
 
 <h2>SIGNALS
 <a name="SIGNALS"></a>
@@ -522,7 +532,8 @@ to get IPv4 multicast traffic working.</p>
 
 
 <p style="margin-left:9%; margin-top: 1em">The syntax of
-the configuration file is TOML (https://toml.io/en/).</p>
+the configuration file is TOML
+(<a href="https://toml.io/en/">https://toml.io/en/</a>).</p>
 
 <p style="margin-left:9%; margin-top: 1em">Any options
 specified on command line take precedence over options in
@@ -607,10 +618,16 @@ WORKGROUP. The equivalent command line options are
 &minus;&minus;pid&minus;file command line option</p>
 
 <p style="margin-left:9%;">smb&minus;conf =
-&ldquo;_path&rdquo;</p>
+&ldquo;path&rdquo;</p>
 
 <p style="margin-left:18%;">Same as
 &minus;&minus;smb&minus;conf command line option</p>
+
+<p style="margin-left:9%;">metadata =
+&ldquo;path&rdquo;</p>
+
+<p style="margin-left:18%;">Same as &minus;&minus;metadata
+command line option</p>
 
 <p style="margin-left:9%;">user =
 &ldquo;username[:groupname]&rdquo;</p>

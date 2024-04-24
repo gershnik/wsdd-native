@@ -421,6 +421,15 @@ These measures are automatic and cannot be bypassed. Taken together they should 
 
 Note that when running on `systemd` systems it is recommended to use its `DynamicUser` facility instead of running as root and relying on the measures above. The Debian/Ubuntu installer does so.
 
+### Custom metadata
+
+By default **wsdd-native** exposes the host it is running on as a computer in "Computer" section of Windows Explorer Network view. Clicking on a computer will attempt to access its shares via SMB protocol.
+
+Instead of this **wsdd-native** allows you to expose the host as a different kind of device among those supported by Windows Explorer, for example a media player, home security, printer etc. To do so you need to author a custom metadata XML and specify it via `--metadata` command line switch or `metadata` field in `wsddn.conf`.
+
+More details on this can be found [on this page](config/metadata/README.md).
+
+
 ## Acknowledgements
 
 **wsdd-native** is directly influenced by [wsdd][wsdd]. While no source code from it was directly re-used in this project, many design and implementation ideas were; as well as command line design and some documentation content.

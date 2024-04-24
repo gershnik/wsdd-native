@@ -97,7 +97,7 @@ exploits into wsddn. If not specified the behavior is as follows
 ## Machine information options
 
 `--uuid` _uuid_
-:   WS-Discovery protocol requires your machine to have a unique identifier that is stable across reboots or changes in networks.  By default, `wsddn` uses UUID version 5 with private namespace and the host name of the machine. This will remain stable as long as the hostname doesn't change.If desired, you can override this with a fixed UUID using this option. The equivalent config file option is `uuid`
+:   WS-Discovery protocol requires your machine to have a unique identifier that is stable across reboots or changes in networks.  By default, `wsddn` uses UUID version 5 with private namespace and the host name of the machine. This will remain stable as long as the hostname doesn't change. If desired, you can override this with a fixed UUID using this option. The equivalent config file option is `uuid`
 
 `--hostname` _name_, `-H` _name_
 :   Override hostname to be reported to Windows machines. By default the local machine's hostname (with domain part, if any, removed) is used. If you set the name to `:NETBIOS:` then Netbios hostname will be used. The Netbios hostname is either detected from SMB configuration, if found, or produced by capitalizing normal machine hostname. The equivalent config file option is `hostname`
@@ -109,7 +109,10 @@ exploits into wsddn. If not specified the behavior is as follows
 :   Report this computer as a member of Windows workgroup _name_. Options `--domain` and `--workgroup` are mutually exclusive. If neither is specified domain/workgroup membership is auto-detected from SMB configuration. If no SMB configuration is found it is set to a workgroup named `WORKGROUP`. The equivalent config file option is `member-of`. 
 
 `--smb-conf` _path_
-:   Path to `smb.conf`, `samba.conf`, or `ksmbd.conf` file to extract the SMB configuration from. This option is not available on macOS. By default `wsddn` tries to locate this file on its own by querying your local Samba installation. Use this option if auto-detection fails, picks wrong Samba instance or if you are using KSMBD on Linux. The equivalent config file option is `smb-conf`. 
+:   Path to `smb.conf`, `samba.conf`, or `ksmbd.conf` file to extract the SMB configuration from. This option is not available on macOS. By default `wsddn` tries to locate this file on its own by querying your local Samba installation. Use this option if auto-detection fails, picks wrong Samba instance or if you are using KSMBD on Linux. The equivalent config file option is `smb-conf`.
+
+`--metadata` _path_, `-m` _path_
+:   Path to a custom metadata XML file. Custom metadata allows you to completely replace the information normally supplied by `wsddn` to Windows with your own. See <https://github.com/gershnik/wsdd-native/blob/master/config/metadata/README.md> for details about the metadata format and content.
 
 
 # SIGNALS
@@ -138,7 +141,7 @@ You should further restrict the traffic to the (link-)local subnet, e.g. by usin
 
 # CONFIG FILE
 
-The syntax of the configuration file is TOML (https://toml.io/en/). 
+The syntax of the configuration file is TOML (<https://toml.io/en/>). 
 
 Any options specified on command line take precedence over options in the config file. Most options are named and behave exactly the same as corresponding command line options. Exceptions are explained in-depth below.
 
@@ -172,8 +175,11 @@ Any options specified on command line take precedence over options in the config
 `pid-file` = "path"
 : Same as `--pid-file` command line option
 
-`smb-conf` = "_path"
+`smb-conf` = "path"
 : Same as `--smb-conf` command line option
+
+`metadata` = "path"
+: Same as `--metadata` command line option
 
 `user` = "username\[:groupname\]"
 : Same as `--user` command line option
