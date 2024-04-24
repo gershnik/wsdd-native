@@ -42,6 +42,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 - [Usage](#usage)
     - [Firewall Setup](#firewall-setup)
     - [Security](#security)
+    - [Custom metadata](#custom-metadata)
 - [Acknowledgements](#acknowledgements)
 - [Reporting Bugs](#reporting-bugs)
 
