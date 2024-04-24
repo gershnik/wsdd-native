@@ -16,6 +16,8 @@ const sys_string g_wsdtUri = S("http://schemas.xmlsoap.org/ws/2004/09/transfer")
 
 const sys_string g_wsdUrn  = S("urn:schemas-xmlsoap-org:ws:2005:04:discovery");
 
+using namespace std::literals;
+
 
 class WSDResponseBuilder {
 private:
@@ -48,15 +50,16 @@ public:
         ip::tcp::endpoint httpEndpoint;
         sys_string httpPath;
     };
-    struct GetResponse {
+    struct ResponseToGet {
         sys_string endpointIdentifier;
         sys_string friendlyName;
-        sys_string serviceId;
         sys_string fullComputerName;
+        ip::address hostAddr;
+        XmlDoc * metadataTemplate = nullptr;
     };
 
 private:
-    using BodyType = std::variant<std::monostate, Hello, Bye, ProbeMatch, ResolveMatch, GetResponse>;
+    using BodyType = std::variant<std::monostate, Hello, Bye, ProbeMatch, ResolveMatch, ResponseToGet>;
 
 public:
     WSDResponseBuilder() {
@@ -164,35 +167,153 @@ private:
         addMetadataVersion(ns, resolveMatch);
     }
 
-    void fill(const GetResponse & val, XmlNode & bodyNode, const Namespaces & ns) {
+    void fill(const ResponseToGet & val, XmlNode & bodyNode, const Namespaces & ns) {
         
-        auto & metadata = bodyNode.newChild(ns.wsx, u8"Metadata");
-        {
-            auto & section = metadata.newChild(ns.wsx, u8"MetadataSection");
-            section.newAttr(nullptr, u8"Dialect", xml_str(g_wsdpUri + S("/ThisDevice")));
-            auto & device = section.newChild(ns.wsdp, u8"ThisDevice");
-            device.newTextChild(ns.wsdp, u8"FriendlyName",    xml_str(val.friendlyName));
-            device.newTextChild(ns.wsdp, u8"FirmwareVersion", u8"1.0");
-            device.newTextChild(ns.wsdp, u8"SerialNumber",    u8"1");
+        if (val.metadataTemplate) {
+            auto newNode = bodyNode.document()->copyNode(*val.metadataTemplate->getRootElement());
+            
+            replacePlaceholders(*newNode, val);
+            
+            bodyNode.addChild(*newNode);
+            newNode.release();
+            
+            xmlReconciliateNs(c_ptr(bodyNode.document()), c_ptr(bodyNode.document()->getRootElement()));
+            
+        } else {
+            
+            auto & metadata = bodyNode.newChild(ns.wsx, u8"Metadata");
+            {
+                auto & section = metadata.newChild(ns.wsx, u8"MetadataSection");
+                section.newAttr(nullptr, u8"Dialect", xml_str(g_wsdpUri + S("/ThisDevice")));
+                auto & device = section.newChild(ns.wsdp, u8"ThisDevice");
+                device.newTextChild(ns.wsdp, u8"FriendlyName",    xml_str(val.friendlyName));
+                device.newTextChild(ns.wsdp, u8"FirmwareVersion", u8"1.0");
+                device.newTextChild(ns.wsdp, u8"SerialNumber",    u8"1");
+            }
+            {
+                auto & section = metadata.newChild(ns.wsx, u8"MetadataSection");
+                section.newAttr(nullptr, u8"Dialect", xml_str(g_wsdpUri + S("/ThisModel")));
+                auto & model = section.newChild(ns.wsdp, u8"ThisModel");
+                model.newTextChild(ns.wsdp, u8"Manufacturer",   u8"wsddn"); //FIXME!
+                model.newTextChild(ns.wsdp, u8"ModelName",      u8"wsddn");
+                model.newTextChild(ns.pnpx, u8"DeviceCategory", u8"Computers");
+            }
+            {
+                auto & section = metadata.newChild(ns.wsx, u8"MetadataSection");
+                section.newAttr(nullptr, u8"Dialect", xml_str(g_wsdpUri + S("/Relationship")));
+                auto & relationship = section.newChild(ns.wsdp, u8"Relationship");
+                relationship.newAttr(nullptr, u8"Type",  xml_str(g_wsdpUri + S("/host")));
+                auto & host = relationship.newChild(ns.wsdp, u8"Host");
+                addEndpointReference(ns, host, val.endpointIdentifier);
+                host.newTextChild(ns.wsdp, u8"Types", u8"pub:Computer");
+                host.newTextChild(ns.wsdp, u8"ServiceId", xml_str(val.endpointIdentifier));
+                host.newTextChild(ns.pub, u8"Computer", xml_str(val.fullComputerName));
+            }
         }
-        {
-            auto & section = metadata.newChild(ns.wsx, u8"MetadataSection");
-            section.newAttr(nullptr, u8"Dialect", xml_str(g_wsdpUri + S("/ThisModel")));
-            auto & model = section.newChild(ns.wsdp, u8"ThisModel");
-            model.newTextChild(ns.wsdp, u8"Manufacturer",   u8"wsddn"); //FIXME!
-            model.newTextChild(ns.wsdp, u8"ModelName",      u8"wsddn");
-            model.newTextChild(ns.pnpx, u8"DeviceCategory", u8"Computers");
+    }
+    
+private:
+    void replacePlaceholders(XmlNode & node, const ResponseToGet & data) {
+        replacePlaceholdersInSelf(node, data);
+        if (auto child = node.firstChild())
+            replacePlaceholdersInSelfSiblingsAndChildren(*child, data);
+    }
+    
+    std::u8string replaceInString(sys_string::char_access & str, const ResponseToGet & data) {
+        std::u8string ret;
+        ret.reserve(str.size());
+        
+        auto dest = std::back_inserter(ret);
+        auto first = (const char8_t *)str.data();
+        auto last = first + str.size();
+        bool inDollar = false;
+        while (first != last) {
+            char8_t c = *first;
+            if (inDollar) {
+                inDollar = false;
+                if (c == '$') {
+                    *dest++ = c;
+                } else {
+                    auto rest = std::u8string_view(first, last);
+                    if (auto test = u8"ENDPOINT_ID"sv; rest.starts_with(test)) {
+                        sys_string::char_access access(data.endpointIdentifier);
+                        dest = std::copy(access.data(), access.data() + access.size(), dest);
+                        first += test.size();
+                        continue;
+                    }
+                    if (auto test = u8"SMB_HOST_DESCRIPTION"sv; rest.starts_with(test)) {
+                        sys_string::char_access access(data.friendlyName);
+                        dest = std::copy(access.data(), access.data() + access.size(), dest);
+                        first += test.size();
+                        continue;
+                    }
+                    if (auto test = u8"SMB_FULL_HOST_NAME"sv; rest.starts_with(test)) {
+                        sys_string::char_access access(data.fullComputerName);
+                        dest = std::copy(access.data(), access.data() + access.size(), dest);
+                        first += test.size();
+                        continue;
+                    }
+                    if (auto test = u8"IP_ADDR"sv; rest.starts_with(test)) {
+                        auto str = data.hostAddr.to_string();
+                        dest = std::copy(str.data(), str.data() + str.size(), dest);
+                        first += test.size();
+                        continue;
+                    }
+                }
+            } else {
+                if (c == '$') {
+                    inDollar = true;
+                } else {
+                    *dest++ = c;
+                }
+            }
+            ++first;
         }
-        {
-            auto & section = metadata.newChild(ns.wsx, u8"MetadataSection");
-            section.newAttr(nullptr, u8"Dialect", xml_str(g_wsdpUri + S("/Relationship")));
-            auto & relationship = section.newChild(ns.wsdp, u8"Relationship");
-            relationship.newAttr(nullptr, u8"Type",  xml_str(g_wsdpUri + S("/host")));
-            auto & host = relationship.newChild(ns.wsdp, u8"Host");
-            addEndpointReference(ns, host, val.endpointIdentifier);
-            host.newTextChild(ns.wsdp, u8"Types", u8"pub:Computer");
-            host.newTextChild(ns.wsdp, u8"ServiceId", xml_str(val.serviceId));
-            host.newTextChild(ns.pub, u8"Computer", xml_str(val.fullComputerName));
+        return ret;
+    }
+    
+    void replacePlaceholdersInSelf(XmlNode & node, const ResponseToGet & data) {
+        if (node.type() == XML_TEXT_NODE) {
+            auto cont = node.getContent();
+            
+            sys_string::char_access access(cont);
+            if (std::find(access.begin(), access.end(), u8'$') == access.end())
+                return;
+            
+            auto replaced = replaceInString(access, data);
+            node.setContent(replaced.c_str());
+            
+        } else if (node.type() == XML_ELEMENT_NODE) {
+            for (auto prop = node.firstProperty(); prop; prop = prop->nextSibling()) {
+                if (prop->firstChild()) {
+                    replacePlaceholdersInSelfSiblingsAndChildren(*prop->firstChild(), data);
+                }
+            }
+        }
+    }
+    
+    void replacePlaceholdersInSelfSiblingsAndChildren(XmlNode & node, const ResponseToGet & data) {
+        XmlNode * current = &node;
+        XmlNode * end = current->parent();
+        bool returningFromChild = false;
+        while(current != end) {
+            if (!returningFromChild) {
+                replacePlaceholdersInSelf(*current, data);
+                
+                if (current->firstChild()) {
+                    current = current->firstChild();
+                    continue;
+                }
+            }
+            
+            returningFromChild = false;
+            if (current->nextSibling()) {
+                current = current->nextSibling();
+                continue;
+            }
+            
+            current = current->parent();
+            returningFromChild = true;
         }
     }
 
@@ -222,6 +343,7 @@ public:
         m_config(config),
         m_iface(iface),
         m_httpAddress(addr, g_WsdHttpPort),
+        m_fullComputerName(buildFullComputerName(*config)),
         m_udpServer(udpFactory(ctxt, config, iface, addr)),
         m_httpServer(httpFactory(ctxt, config, iface, m_httpAddress)) {
     }
@@ -441,31 +563,13 @@ private:
     
     auto handleGet(XmlDoc & /*doc*/, XPathContext & /*xpathCtxt*/, WSDResponseBuilder & responseBuilder) -> bool {
         
-        auto & info = m_config->winNetInfo();
-
-        const sys_string & friendlyName = info.hostDescription;
-        sys_string_builder fullComputerNameBuilder;
-        fullComputerNameBuilder.append(info.hostName);
-        std::visit([&](auto & val) {
-            using ArgType = std::remove_cvref_t<decltype(val)>;
-            
-            if constexpr (std::is_same_v<WindowsWorkgroup, ArgType>)
-                fullComputerNameBuilder.append(u8"/Workgroup:");
-            else if constexpr (std::is_same_v<WindowsDomain, ArgType>)
-                fullComputerNameBuilder.append(u8"/Domain:");
-            else
-                static_assert(makeDependentOn<ArgType>(false), "unhandled type");
-            
-            fullComputerNameBuilder.append(val.name);
-            
-        }, info.memberOf);
-        
         responseBuilder.setAction(g_wsdtUri + S("/GetResponse"));
-        responseBuilder.setBody(WSDResponseBuilder::GetResponse{
+        responseBuilder.setBody(WSDResponseBuilder::ResponseToGet{
             .endpointIdentifier = m_config->endpointIdentifier(),
-            .friendlyName = friendlyName,
-            .serviceId = m_config->endpointIdentifier(),
-            .fullComputerName = fullComputerNameBuilder.build()
+            .friendlyName = m_config->winNetInfo().hostDescription,
+            .fullComputerName = m_fullComputerName,
+            .hostAddr = m_httpAddress.address(),
+            .metadataTemplate = m_config->metadataDoc()
         });
 
         return true;
@@ -482,11 +586,34 @@ private:
         m_knownMessageIdsLRU.push_front(it);
         return true;
     }
+    
+    static auto buildFullComputerName(Config & config) -> sys_string {
+        auto & info = config.winNetInfo();
+
+        sys_string_builder fullComputerNameBuilder;
+        fullComputerNameBuilder.append(info.hostName);
+        std::visit([&](auto & val) {
+            using ArgType = std::remove_cvref_t<decltype(val)>;
+            
+            if constexpr (std::is_same_v<WindowsWorkgroup, ArgType>)
+                fullComputerNameBuilder.append(u8"/Workgroup:");
+            else if constexpr (std::is_same_v<WindowsDomain, ArgType>)
+                fullComputerNameBuilder.append(u8"/Domain:");
+            else
+                static_assert(makeDependentOn<ArgType>(false), "unhandled type");
+            
+            fullComputerNameBuilder.append(val.name);
+            
+        }, info.memberOf);
+        
+        return fullComputerNameBuilder.build();
+    }
 
 private:
     const refcnt_ptr<Config> m_config;
     const NetworkInterface m_iface;
     const ip::tcp::endpoint m_httpAddress;
+    const sys_string m_fullComputerName;
 
     refcnt_ptr<UdpServer> m_udpServer;
     refcnt_ptr<HttpServer> m_httpServer;

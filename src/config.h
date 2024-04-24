@@ -6,6 +6,7 @@
 
 #include "sys_util.h"
 #include "util.h"
+#include "xml_wrapper.h"
 
 constexpr uint16_t g_WsdUdpPort = 3702;
 constexpr uint16_t g_WsdHttpPort = 5357;
@@ -35,6 +36,7 @@ public:
     auto endpointIdentifier() const -> const sys_string &   { return m_urnUuid; }
     auto httpPath() const -> const sys_string &             { return m_strUuid; }
     auto winNetInfo() const -> const WinNetInfo &           { return m_winNetInfo; }
+    auto metadataDoc() const -> XmlDoc *                    { return m_metadataDoc.get(); }
     
     auto enableIPv4() const -> bool                         { return m_allowedAddressFamily != IPv6Only; }
     auto enableIPv6() const -> bool                         { return m_allowedAddressFamily != IPv4Only; }
@@ -56,6 +58,8 @@ private:
     auto readSmbConf(const std::filesystem::path & path, bool useNetbiosHostName) -> std::optional<WinNetInfo>;
     
     auto getHostName() const -> sys_string;
+    
+    auto loadMetadaFile(const std::string & filename) const -> std::unique_ptr<XmlDoc>;
 private:
     size_t m_instanceIdentifier;
     sys_string m_fullHostName;
@@ -64,6 +68,7 @@ private:
     sys_string m_strUuid;
     sys_string m_urnUuid;
     WinNetInfo m_winNetInfo;
+    std::unique_ptr<XmlDoc> m_metadataDoc;
     
     AllowedAddressFamily m_allowedAddressFamily = BothIPv4AndIPv6;
     int m_hopLimit = 1;

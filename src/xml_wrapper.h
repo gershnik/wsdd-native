@@ -167,6 +167,7 @@ public:
 
 
 class XmlAttr;
+class XmlDoc;
 
 class XmlNode : public XmlHandle<xmlNode, XmlNode> {
 public:
@@ -185,7 +186,7 @@ public:
             return std::unique_ptr<XmlNode>(ret);
         XmlException::raiseFromLastError();
     }
-
+    
     XmlNs & newNs(const char8_t * href, const char8_t * prefix) {
         if (auto ret = XmlNs::from(xmlNewNs(this, asXml(href), asXml(prefix))))
             return *ret;
@@ -215,10 +216,21 @@ public:
     }
 
     XmlAttr & newAttr(const XmlNs * ns, const char8_t * name, const char8_t * value);
+    
+    XmlDoc * document() const;
 
     xmlElementType type() const {
         return Wrapped::type;
     }
+    
+    XmlAttr * firstProperty() const;
+    
+    XmlNode * firstChild() const
+        { return XmlNode::from(this->children); }
+    XmlNode * nextSibling() const
+        { return XmlNode::from(this->next); }
+    XmlNode * parent() const
+        { return XmlNode::from(c_ptr(this)->parent); }
 
     sys_string getContent() const {
         auto chars = asNative(xmlNodeGetContent(this));
@@ -227,6 +239,8 @@ public:
         std::unique_ptr<char8_t, decltype(xmlFree)> holder(chars, xmlFree);
         return sys_string(chars);
     }
+    
+    void setContent(const char8_t * content);
 };
 
 class XmlAttr : public XmlHandle<xmlAttr, XmlAttr> {
@@ -234,6 +248,13 @@ public:
     ~XmlAttr() {
         xmlFreeProp(this);
     }
+    
+    XmlNode * firstChild() const
+        { return XmlNode::from(this->children); }
+    XmlAttr * nextSibling() const
+        { return XmlAttr::from(this->next); }
+    XmlNode * parent() const
+        { return XmlNode::from(c_ptr(this)->parent); }
 };
 
 inline XmlAttr & XmlNode::newAttr(const XmlNs * ns, const char8_t * name, const char8_t * value) {
@@ -291,7 +312,33 @@ public:
         }
         return ret;
     }
+    
+    
+    std::unique_ptr<XmlNode> copyNode(XmlNode & node) {
+        auto ret = XmlNode::from(xmlDocCopyNode(c_ptr(&node), c_ptr(this), 1));
+        if (!ret) {
+            XmlException::raiseFromLastError();
+        }
+        return std::unique_ptr<XmlNode>(ret);
+    }
 };
+
+inline XmlDoc * XmlNode::document() const {
+    return XmlDoc::from(this->doc);
+}
+
+inline XmlAttr * XmlNode::firstProperty() const {
+    return XmlAttr::from(this->properties);
+}
+
+inline void XmlNode::setContent(const char8_t * content) {
+    auto encoded = asNative(xmlEncodeSpecialChars(c_ptr(document()), asXml(content)));
+    if (!encoded)
+        XmlException::raiseFromLastError();
+    std::unique_ptr<char8_t, decltype(xmlFree)> holder(encoded, xmlFree);
+    xmlNodeSetContent(this, asXml(encoded));
+    XmlException::raiseFromLastErrorIfPresent();
+}
 
 class XmlNodeset : public XmlHandle<xmlNodeSet, XmlNodeset> {
 public:

@@ -23,6 +23,8 @@ struct CommandLine {
     std::optional<std::filesystem::path> smbConf;
 #endif
     
+    std::optional<std::filesystem::path> metadataFile;
+    
     std::optional<spdlog::level::level_enum> logLevel;
     std::optional<std::filesystem::path> logFile;
 #if HAVE_OS_LOG
