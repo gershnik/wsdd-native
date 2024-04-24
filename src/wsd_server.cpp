@@ -234,7 +234,7 @@ private:
                 if (c == '$') {
                     *dest++ = c;
                 } else {
-                    auto rest = std::u8string_view(first, last);
+                    auto rest = std::u8string_view(first, last - first);
                     if (auto test = u8"ENDPOINT_ID"sv; rest.starts_with(test)) {
                         sys_string::char_access access(data.endpointIdentifier);
                         dest = std::copy(access.data(), access.data() + access.size(), dest);
