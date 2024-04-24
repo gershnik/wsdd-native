@@ -33,6 +33,7 @@ static auto tryToRunSambaToGetConfig(const char * path) -> std::optional<std::fi
 
     auto prefix = "   CONFIGFILE: "sv;
     std::vector<char> buf;
+    buf.reserve(1024);
     for (bool eof = false; !eof; ) {
         buf.clear();
         bool truncated = false;
@@ -71,6 +72,7 @@ auto Config::findSmbConf() -> std::optional<std::filesystem::path> {
         return std::nullopt;
     }
     std::vector<char> buf;
+    buf.reserve(1024);
     auto res = readLine(pipe, [&](char c) {
         if (buf.size() < 1024) {
             buf.push_back(c);
@@ -123,6 +125,7 @@ auto Config::findSmbConf() -> std::optional<std::filesystem::path> {
     bool inGlobalSection = false;
 
     std::vector<char> buf;
+    buf.reserve(1024);
     for (bool eof = false; !eof; ) {
         buf.clear();
         bool truncated = false;

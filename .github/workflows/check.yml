@@ -54,4 +54,34 @@ jobs:
       - name: Build
         run: |
           installers/deb-systemd/build.py --sign . out
+
+  mac:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: 
+        - os: macos-13
+          xcode: '14.3.1'
+        - os: macos-13
+          xcode: '15.2'
+        - os: macos-14
+          xcode: '14.3.1'
+        - os: macos-14
+          xcode: '15.3'
+    env: 
+      DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
         
+      - name: Configure
+        run: |
+          [ -d "out" ] && tools/uncache out
+          cmake -S . -B out \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            "-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64" 
+
+      - name: Build
+        run: |
+          installers/mac/build.py . out

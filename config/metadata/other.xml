@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsx:Metadata
+    xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" 
+    xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" 
+    xmlns:wsdp="http://schemas.xmlsoap.org/ws/2006/02/devprof" 
+    xmlns:pnpx="http://schemas.microsoft.com/windows/pnpx/2005/10" 
+    xmlns:pub="http://schemas.microsoft.com/windows/pub/2005/07">
+<wsx:MetadataSection Dialect="http://schemas.xmlsoap.org/ws/2006/02/devprof/ThisDevice">
+    <wsdp:ThisDevice>
+        <wsdp:FriendlyName>Contoso Device</wsdp:FriendlyName>
+        <wsdp:FirmwareVersion>1.0</wsdp:FirmwareVersion>
+        <wsdp:SerialNumber>1</wsdp:SerialNumber>
+    </wsdp:ThisDevice>
+</wsx:MetadataSection>
+<wsx:MetadataSection Dialect="http://schemas.xmlsoap.org/ws/2006/02/devprof/ThisModel">
+    <wsdp:ThisModel>
+        <wsdp:Manufacturer>Contoso, Ltd</wsdp:Manufacturer>
+        <wsdp:ManufacturerUrl>http://www.contoso.com</wsdp:ManufacturerUrl>
+        <wsdp:ModelName>Contoso Fancy Device</wsdp:ModelName>
+        <wsdp:ModelNumber>1</wsdp:ModelNumber>
+        <wsdp:ModelUrl>http://www.contoso.com</wsdp:ModelUrl>
+        <wsdp:PresentationUrl>http://$IP_ADDR/</wsdp:PresentationUrl>
+        <pnpx:DeviceCategory>Other</pnpx:DeviceCategory>
+    </wsdp:ThisModel>
+</wsx:MetadataSection>
+<wsx:MetadataSection Dialect="http://schemas.xmlsoap.org/ws/2006/02/devprof/Relationship">
+    <wsdp:Relationship Type="http://schemas.xmlsoap.org/ws/2006/02/devprof/host">
+        <wsdp:Host>
+            <wsa:EndpointReference>
+                <wsa:Address>$ENDPOINT_ID</wsa:Address>
+            </wsa:EndpointReference>
+            <wsdp:ServiceId>$ENDPOINT_ID</wsdp:ServiceId>
+            <pub:Resource>something</pub:Resource>
+        </wsdp:Host>
+    </wsdp:Relationship>
+</wsx:MetadataSection>
+</wsx:Metadata>

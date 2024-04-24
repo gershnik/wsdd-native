@@ -125,13 +125,22 @@ static auto setMemberOf(CommandLine & cmdline, sys_string val) {
 #if CAN_HAVE_SAMBA
 static auto setSmbConf(CommandLine & cmdline, std::string_view val) {
     if (val.empty())
-        throw Parser::ValidationError("smb.conf  path cannot be empty");
+        throw Parser::ValidationError("smb.conf path cannot be empty");
     auto value = absolute(std::filesystem::path(val));
     if (!exists(value))
         throw Parser::ValidationError("smb.conf path does not exist");
     cmdline.smbConf.emplace(std::move(value));
 }
 #endif
+
+static auto setMetadataFile(CommandLine & cmdline, std::string_view val) {
+    if (val.empty())
+        throw Parser::ValidationError("metadata path cannot be empty");
+    auto value = absolute(std::filesystem::path(val));
+    if (!exists(value))
+        throw Parser::ValidationError("metadata path does not exist");
+    cmdline.metadataFile.emplace(std::move(value));
+}
 
 static auto setLogLevel(CommandLine & cmdline, unsigned decrease) {
     unsigned maxLevel = spdlog::level::level_enum::n_levels - 1;
@@ -310,6 +319,14 @@ void CommandLine::parse(int argc, char * argv[]) {
     }));
 #endif
     
+    parser.add(Option("--metadata", "-m").
+               argName("PATH").
+               help("location of a custom metadata XML file").
+               occurs(Argum::neverOrOnce).
+               handler([this](std::string_view val){
+        setMetadataFile(*this, val);
+    }));
+    
     //Behavior options
     parser.add(Option("--log-level").
                argName("LEVEL").
@@ -432,6 +449,12 @@ void CommandLine::parseConfigKey(std::string_view keyName, const toml::node & va
     #else
         throw ConfigFileError("smb.conf parsing is not available on Mac", spdlog::level::err, value.source());
     #endif
+        
+    } else if (keyName == "metadata"sv) {
+        
+        setConfigValue<std::string>(bool(this->metadataFile), keyName, value, [this](const toml::value<std::string> & val) {
+            setMetadataFile(*this, *val);
+        });
     
     } else
     

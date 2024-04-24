@@ -79,11 +79,21 @@ Config::Config(const CommandLine & cmdline):
         
     }, m_winNetInfo.memberOf);
         
-    WSDLOG_INFO("Configuration:\n    Hostname: {}\n    {}: {}\n    Description: {}\n    Identifier: {}",
-                 m_winNetInfo.hostName,
-                 memberOfType, memberOfName,
-                 m_winNetInfo.hostDescription,
-                 endpointIdentifier());
+    if (cmdline.metadataFile) {
+        m_metadataDoc = loadMetadaFile(cmdline.metadataFile->native());
+    }
+
+    WSDLOG_INFO("Configuration:\n"
+                "    Hostname: {}\n"
+                "    {}: {}\n"
+                "    Description: {}\n"
+                "    Identifier: {}\n"
+                "    Metadata: {}",
+                m_winNetInfo.hostName,
+                memberOfType, memberOfName,
+                m_winNetInfo.hostDescription,
+                endpointIdentifier(),
+                m_metadataDoc ? cmdline.metadataFile->c_str() : "default");
 }
 
 auto Config::getHostName() const -> sys_string {
@@ -94,5 +104,31 @@ auto Config::getHostName() const -> sys_string {
     ptl::getHostName({buf.begin(), buf.end()});
     builder.resize_storage(strlen(buf.begin()));
     return builder.build();
+}
+
+auto Config::loadMetadaFile(const std::string & filename) const -> std::unique_ptr<XmlDoc> {
+    auto file = ptl::FileDescriptor::open(filename, O_RDONLY);
+    std::vector<uint8_t> buf(m_pageSize);
+    try {
+        auto read = readFile(file, buf.data(), buf.size());
+        if (read < 4)
+            throw std::runtime_error(fmt::format("metada file {} is invalid", filename));
+        auto templateParsingCtx = XmlParserContext::createPush(buf.data(), int(read), filename.c_str());
+        for ( ; ; ) {
+            read = readFile(file, buf.data(), buf.size());
+            templateParsingCtx->parseChunk(buf.data(), int(read), read == 0);
+            if (!read) {
+                break;
+            }
+        }
+        
+        if (!templateParsingCtx->wellFormed())
+            throw std::runtime_error(fmt::format("metada file {} is not well formed XML", filename));
+        return templateParsingCtx->extractDoc();
+        
+    } catch (XmlException & ex) {
+        throw std::runtime_error(fmt::format("metada file {} is not a valid XML", filename));
+    }
+    
 }
 
