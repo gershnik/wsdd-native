@@ -178,7 +178,7 @@ journalctl -u wsddn
 
 ### FreeBSD
 
-Pre-built packages are available for FreeBSD 13 in a custom binary package repository. 
+Pre-built packages are available for FreeBSD 13 and 14 in a custom binary package repository. 
 Both `amd64` (aka `x86_64`) and `arm64` (aka `aarch64`) architectures are supported.
 
 To set the repo up:
