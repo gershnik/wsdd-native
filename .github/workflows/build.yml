@@ -44,6 +44,8 @@ jobs:
         #   installer: deb-systemd
         - remote_host: freebsd-13.1
           installer: bsd
+        - remote_host: freebsd-14
+          installer: bsd
         # - remote_host: freebsd-13.1-arm
         #   installer: bsd
         # - remote_host: centos-9
@@ -68,7 +70,7 @@ jobs:
             export PGP_KEY_NAME='${{ secrets.PGP_KEY_NAME }}'
             export PGP_KEY_PASSWD='${{ secrets.PGP_KEY_PASSWD }}'
         fi
-        if [[ '${{ matrix.remote_host }}' == 'freebsd-13.1' ]]; then
+        if [[ '${{ matrix.installer }}' == 'bsd' ]]; then
           mkdir -p out
           echo "::group::AMD64"
           [ -d "out/amd64" ] && tools/uncache out/amd64
