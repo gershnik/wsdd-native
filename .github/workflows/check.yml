@@ -12,11 +12,9 @@ on:
       - 'CHANGELOG.md'
       - 'SECURITY.md'
       - 'Acknowledgements.md'
-      - 'bom.json'
+      - 'config/metadata/**'
       - '.github/workflows/publish.yml'
       - '.github/workflows/build.yml'
-      - 'installers/mac/notarize'
-      - 'installers/mac/github-sign'
       - 'tools/**'
   workflow_dispatch:
 
@@ -70,7 +68,30 @@ jobs:
 
       - name: Build
         run: |
-          installers/deb-systemd/build.py --sign . out
+          installers/deb-systemd/build.py . out
+
+  linux-old:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Linux
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsystemd-dev
+          echo "CC=gcc-10"  >> $GITHUB_ENV
+          echo "CXX=g++-10" >> $GITHUB_ENV
+
+      - name: Configure
+        run: |
+          [ -d "out" ] && tools/uncache out
+          cmake -S . -B out \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo
+  
+      - name: Build
+        run: |
+          installers/deb-systemd/build.py . out
 
   mac:
     runs-on: ${{ matrix.os }}

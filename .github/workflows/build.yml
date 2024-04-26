@@ -12,11 +12,9 @@ on:
       - 'CHANGELOG.md'
       - 'SECURITY.md'
       - 'Acknowledgements.md'
-      - 'bom.json'
+      - 'config/metadata/**'
       - '.github/workflows/publish.yml'
       - '.github/workflows/check.yml'
-      - 'installers/mac/notarize'
-      - 'installers/mac/github-sign'
       - 'tools/**'
 
 
@@ -34,25 +32,11 @@ jobs:
           installer: deb-systemd
         - remote_host: debian-11-armhf
           installer: deb-systemd
-        # - remote_host: ubuntu-20.04-arm
-        #   installer: deb-systemd
-        # - remote_host: ubuntu-22.04-arm
-        #   installer: deb-systemd
-        # - remote_host: ubuntu-23.04
-        #   installer: deb-systemd
-        # - remote_host: ubuntu-23.04-arm
-        #   installer: deb-systemd
         - remote_host: freebsd-13.1
           installer: bsd
         - remote_host: freebsd-14
           installer: bsd
-        # - remote_host: freebsd-13.1-arm
-        #   installer: bsd
-        # - remote_host: centos-9
-        #   installer: rpm-systemd
-        # - remote_host: centos-9-arm
-        #   installer: rpm-systemd
-
+        
     steps:
     - name: Run remote build
       run: |
@@ -62,10 +46,6 @@ jobs:
         git fetch --all
         git fetch -f --prune --tags
         git reset --hard ${{ github.sha }}
-        if [[ '${{ matrix.remote_host }}' == 'ubuntu-20.04-arm' ]]; then
-          export CC=gcc-10
-          export CXX=g++-10
-        fi
         if [[ '${{ matrix.installer }}' == 'rpm-systemd' ]]; then
             export PGP_KEY_NAME='${{ secrets.PGP_KEY_NAME }}'
             export PGP_KEY_PASSWD='${{ secrets.PGP_KEY_PASSWD }}'
@@ -75,14 +55,14 @@ jobs:
           echo "::group::AMD64"
           [ -d "out/amd64" ] && tools/uncache out/amd64
           cmake -S . -B out/amd64 -DCMAKE_BUILD_TYPE=RelWithDebInfo 
-          installers/${{ matrix.installer }}/build.py . out/amd64
+          installers/bsd/build.py . out/amd64
           echo "::endgroup::"
 
           echo "::group::ARM64"
           installers/bsd/make-toolchain.py arm64 out/toolchain-arm64
           [ -d "out/arm64" ] && tools/uncache out/arm64
           cmake -S . -B out/arm64 -DCMAKE_TOOLCHAIN_FILE=out/toolchain-arm64/toolchain.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo
-          installers/${{ matrix.installer }}/build.py --arch=aarch64 . out/arm64
+          installers/bsd/build.py --arch=aarch64 . out/arm64
           echo "::endgroup::"
         else
           [ -d "out" ] && tools/uncache out
@@ -91,19 +71,9 @@ jobs:
         fi
         EOF
 
-  local:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include: 
-        # - os: ubuntu-22.04
-        #   installer: deb-systemd
-        # - os: ubuntu-20.04
-        #   installer: deb-systemd
-        - os: macos-latest
-          installer: mac
-    
+  mac:
+    runs-on: macos-latest
+     
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -119,42 +89,23 @@ jobs:
         path: out
         key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-out
 
-    - name: Setup Linux
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libsystemd-dev
-        if [[ '${{ matrix.os }}' == 'ubuntu-20.04' ]]; then
-          echo "CC=gcc-10"  >> $GITHUB_ENV
-          echo "CXX=g++-10" >> $GITHUB_ENV
-        fi
-
     - name: Configure
       run: |
           [ -d "out" ] && tools/uncache out
           cmake -S . -B out \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            "-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64" \
-            -DWSDDN_MACOS_BUILD_WRAPPER=ON 
+            "-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64"
 
     - name: Build
-      run: |
-          if [[ '${{ runner.os }}' == 'Linux' ]]; then
+      run: |     
+        export SIGN_CERTIFICATE='${{ secrets.SIGN_CERTIFICATE }}'
+        export SIGN_CERTIFICATE_PWD='${{ secrets.SIGN_CERTIFICATE_PWD }}'
+        export KEYCHAIN_PWD='${{ secrets.KEYCHAIN_PWD }}'
+        export NOTARIZE_USER='${{ secrets.NOTARIZE_USER }}'
+        export NOTARIZE_PWD='${{ secrets.NOTARIZE_PWD }}'
+        installers/mac/set-github-keychain
 
-            installers/${{ matrix.installer }}/build.py --sign . out
-
-          elif [[ '${{ runner.os }}' == 'macOS' ]]; then
-            
-            export SIGN_CERTIFICATE='${{ secrets.SIGN_CERTIFICATE }}'
-            export SIGN_CERTIFICATE_PWD='${{ secrets.SIGN_CERTIFICATE_PWD }}'
-            export KEYCHAIN_PWD='${{ secrets.KEYCHAIN_PWD }}'
-            export NOTARIZE_USER='${{ secrets.NOTARIZE_USER }}'
-            export NOTARIZE_PWD='${{ secrets.NOTARIZE_PWD }}'
-            installers/mac/set-github-keychain
-
-            installers/${{ matrix.installer }}/build.py --sign . out
-
-          fi
+        installers/mac/build.py --sign . out
 
 
 
