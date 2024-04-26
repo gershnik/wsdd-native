@@ -53,6 +53,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 * Fully supports macOS, Linux and FreeBSD
 * Can be configured via a configuration file, not just command line.
 * Discovers Samba/macOS SMB configuration on its own. (This can be overridden, if desired)
+* Can present the Unix host as something other than "Computer" in Windows Explorer.
 * Integrates well with `systemd` and `launchd`. Of course it can also run as a classical Unix daemon for other init systems.
 * Friendly to various log rotation methods like `newsyslogd` and `logrotate`. Supports standard reload semantics via SIGHUP.
 * Written with security in mind first and foremost. 
