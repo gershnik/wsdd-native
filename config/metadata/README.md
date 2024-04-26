@@ -4,6 +4,10 @@
 [wsdp]: https://specs.xmlsoap.org/ws/2006/02/devprof/devicesprofile.pdf
 [pnpx]: https://download.microsoft.com/download/a/f/7/af7777e5-7dcd-4800-8a0a-b18336565f5b/PnPX-spec.doc
 [ms-pbsd]: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-pbsd/a3c6b665-a44e-41d5-98ec-d70c188378e4
+[ms-dpwsrp]: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dpwsrp/0a96c35a-4cd4-4274-9f42-f44334d4d893
+[cont-id]: https://learn.microsoft.com/en-us/windows-hardware/drivers/install/container-ids-for-dpws-devices
+[metadata-retrieval]: https://learn.microsoft.com/en-us/windows-hardware/drivers/install/device-metadata-retrieval-client
+[wsdd-print]: https://learn.microsoft.com/en-us/windows-hardware/drivers/print/ws-discovery-mobile-printing-support
 <!-- End References -->
 
 WS-Discovery protocol tells Windows what kind of device it is exposing by sending over "metadata" - essentially an XML document containing information about the computer.
@@ -96,6 +100,11 @@ The entire area of what the actual WS-Discovery payload should be is incredibly 
 
 * [Devices Profile for Web Services][wsdp] - a horribly formatted obscure spec that leaves many questions unanswered
 * [PnPX: Plug and Play Extensions for Windows][pnpx] - (**warning: .doc file**). A very old spec that seems to exist only as a Word document. This sheds some light on `pnpx` stuff that can be used in metadata.
-* [MS-PBSD][ms-pbsd] - see especially "Section 3: Structure Examples" there. This describes the metadata for an SMB server.
+* [\[MS-PBSD\]: Publication Services Data Structure][ms-pbsd] - see especially "Section 3: Structure Examples" there. This describes the metadata for an SMB server.
+* [\[MS-DPWSRP\]: Devices Profile for Web Services (DPWS): Shared Resource Publishing Data Structure][ms-dpwsrp] - explains the bizarre "not quite base-64" data is in the "Structure Examples" above
+* [Container IDs for DPWS Devices][cont-id] - explains how multiple devices can be grouped into "containers" 
+* [Device Metadata Retrieval Client][metadata-retrieval] - indirectly explains how Windows looks up more information about devices including device-specific icons etc. Unfortunately it seems that there is no way to specify an icon via WS-Discovery, you need to register extra device metadata with Microsoft and refer to it by device ID.
+* [WS-Discovery mobile printing support][wsdd-print] - an example of how printers should expose themselves via WS-Discovery
+
 
 
