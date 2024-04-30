@@ -3,6 +3,8 @@
 
 #include "exc_handling.h"
 
+#if __has_include(<execinfo.h>) //moronic Alpine/MUSL have no backtrace and no replacement
+
 #include <execinfo.h>
 #include <dlfcn.h>
 #include <cxxabi.h>
@@ -107,3 +109,10 @@ auto formatCaughtExceptionBacktrace() -> std::string {
     return ret;
 }
 
+#else 
+
+auto formatCaughtExceptionBacktrace() -> std::string {
+    return {};
+}
+
+#endif
