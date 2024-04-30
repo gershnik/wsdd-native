@@ -123,3 +123,28 @@ jobs:
       - name: Build
         run: |
           installers/mac/build.py . out
+
+  weirdos:
+    concurrency: ${{ matrix.remote_host }}
+    runs-on: [self-hosted, server]
+    strategy:
+      fail-fast: false
+      matrix:
+        remote_host: [openbsd-7-5, alpine-3, archlinux]
+
+    steps:
+      - name: Run remote build
+        run: |
+          "$RUNNER_TOOLS_PATH"/run-agent gh-${{ matrix.remote_host }} <<'EOF'
+          set -e
+          if [ ! -d work/wsdd-native ]; then
+            git clone https://github.com/gershnik/wsdd-native.git work/wsdd-native
+          fi
+          cd work/wsdd-native
+          git fetch --all
+          git fetch -f --prune --tags
+          git reset --hard ${{ github.sha }}
+          [ -d "out" ] && tools/uncache out
+          cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          cmake --build out --target wsddn
+          EOF

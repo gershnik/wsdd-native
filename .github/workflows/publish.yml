@@ -42,6 +42,9 @@ jobs:
       run: |
         "$RUNNER_TOOLS_PATH"/run-agent gh-${{ matrix.remote_host }} <<'EOF'
         set -e
+        if [ ! -d work/wsdd-native ]; then
+          git clone https://github.com/gershnik/wsdd-native.git work/wsdd-native
+        fi
         cd work/wsdd-native
         git fetch --all
         git fetch -f --prune --tags
