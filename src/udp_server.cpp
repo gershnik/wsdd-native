@@ -80,9 +80,8 @@ private:
         m_unicastSendSocket.bind(ip::udp::endpoint(addr, g_WsdUdpPort));
 
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastIface, multicastGroupRequest);
-        m_multicastSendSocket.set_option(ip::multicast::enable_loopback(false));
-        m_multicastSendSocket.set_option(ip::multicast::hops(m_config->hopLimit()));
-
+        setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastLoop, false);
+        setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastTtl, uint8_t(m_config->hopLimit()));
     }
 
     void initAddresses(const ip::address_v6 & addr, const NetworkInterface & iface) {
