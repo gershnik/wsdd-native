@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 - Ability to supply custom metadata to Windows. This allows exposing the computer running **wsdd-native** as something other than an SMB server in Windows Explorer. For more details see [this page](config/metadata/README.md)
+- Support for Alpine Linux and musl libc
+- Support for OpenBSD
+
+### Fixed
+- Crash when looking up Samba configuration and `whereis` tool is not present on the host
 
 ## [1.9] - 2024-04-20
 
