@@ -87,6 +87,7 @@ auto Config::findSmbConf() -> std::optional<std::filesystem::path> {
     if (!startsWithAndHasMore(buf, prefix)) {
         WSDLOG_ERROR("output of '{}' does not match '{}<more chars>'", command, prefix);
         WSDLOG_DEBUG("output: {}", std::string_view(buf.data(), buf.size()));
+        return std::nullopt;
     }
     
     buf.push_back(' '); //ensure we have clean termination
