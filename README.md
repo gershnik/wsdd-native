@@ -3,7 +3,7 @@
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![macOS](https://img.shields.io/badge/-macOS-black?style=flat&logo=apple&logoColor=F0F0F0)
 ![FreeBSD](https://img.shields.io/badge/-FreeBSD-%23870000?style=flat&logo=freebsd&logoColor=white)
-![OpenBSD](https://img.shields.io/badge/-OpenBSD-789CAE?style=flat&logo=openbsd&logoColor=F0DE78)
+![OpenBSD](https://img.shields.io/badge/OpenBSD-e6ffff?style=flat&logo=openbsd&logoColor=FF0000)
 [![Language](https://img.shields.io/badge/language-C++-blue.svg)](https://isocpp.org/)
 [![Standard](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.wikipedia.org/wiki/C%2B%2B#Standardization)
 [![License](https://img.shields.io/badge/license-BSD-brightgreen.svg)](https://opensource.org/licenses/BSD-3-Clause)
@@ -351,6 +351,7 @@ log show --last 15m --debug --info \
 * Git
 * C++20 capable compiler. Minimal compilers known to work are GCC 10.2, Clang 13 and Xcode 13.
 * CMake 3.25 or greater. If your distribution CMake is older than that you can download a newer version from https://cmake.org/download/
+* `patch` tool. Most operating system distributions have it available by default by some minimalistic ones might not.
 * Optional: On Linux if you wish to enable `systemd` integration make sure you have `libsystemd` library and headers installed on your system. On APT systems use:
   ```bash
   sudo apt install libsystemd-dev
