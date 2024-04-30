@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.10] - 2024-04-30
+
 ### Added
 - Ability to supply custom metadata to Windows. This allows exposing the computer running **wsdd-native** as something other than an SMB server in Windows Explorer. For more details see [this page](config/metadata/README.md)
 - Support for Alpine Linux and musl libc
@@ -116,3 +118,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.7]: https://github.com/gershnik/wsdd-native/releases/v1.7
 [1.8]: https://github.com/gershnik/wsdd-native/releases/v1.8
 [1.9]: https://github.com/gershnik/wsdd-native/releases/v1.9
+[1.10]: https://github.com/gershnik/wsdd-native/releases/v1.10
