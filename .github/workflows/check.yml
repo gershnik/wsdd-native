@@ -32,10 +32,11 @@ jobs:
           version: 12
         - compiler: gcc
           version: 13
-        - compiler: clang
-          version: 13
-        - compiler: clang
-          version: 14
+        # See https://github.com/actions/runner-images/issues/8659
+        # - compiler: clang
+        #   version: 13
+        # - compiler: clang
+        #   version: 14
         - compiler: clang
           version: 15
         - compiler: clang
@@ -53,11 +54,15 @@ jobs:
             wget https://apt.llvm.org/llvm.sh
             chmod u+x llvm.sh
             sudo ./llvm.sh ${{ matrix.version }}
+            echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
+            echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
           fi
 
           if [[ '${{ matrix.compiler }}' == 'gcc' ]]; then
             sudo apt-get update
             sudo apt-get install -y gcc-${{ matrix.version }} g++-${{ matrix.version }}
+            echo "CC=gcc-${{ matrix.version }}" >> $GITHUB_ENV
+            echo "CXX=g++-${{ matrix.version }}" >> $GITHUB_ENV
           fi
         
       - name: Configure
