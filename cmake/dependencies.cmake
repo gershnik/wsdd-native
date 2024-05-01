@@ -15,7 +15,7 @@ list(APPEND DECLARED_DEPENDENCIES argum)
 
 FetchContent_Declare(sys_string
     GIT_REPOSITORY  https://github.com/gershnik/sys_string.git
-    GIT_TAG         v2.13
+    GIT_TAG         8b0c2ed5cd3f9e4f577e296e23a37e0639bb647c
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES sys_string)

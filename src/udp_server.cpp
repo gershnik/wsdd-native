@@ -65,10 +65,15 @@ private:
         
         m_multicastDest = ip::udp::endpoint(multicastGroupAddress, g_WsdUdpPort);
 
+    #if PTL_HAVE_IP_MREQN
         ip_mreqn multicastGroupRequest;
-        multicastGroupRequest.imr_multiaddr.s_addr = htonl(multicastGroupAddress.to_uint());
         multicastGroupRequest.imr_address.s_addr = htonl(addr.to_uint());
         multicastGroupRequest.imr_ifindex = iface.index;
+    #else
+        ip_mreq multicastGroupRequest;
+        multicastGroupRequest.imr_interface.s_addr = htonl(addr.to_uint());
+    #endif
+        multicastGroupRequest.imr_multiaddr.s_addr = htonl(multicastGroupAddress.to_uint());
 
         setSocketOption(m_recvSocket, ptl::SockOptIPv4AddMembership, multicastGroupRequest);
 
@@ -79,7 +84,11 @@ private:
         m_recvSocket.bind(ip::udp::endpoint(multicastGroupAddress, g_WsdUdpPort));
         m_unicastSendSocket.bind(ip::udp::endpoint(addr, g_WsdUdpPort));
 
+    #if !defined(__NetBSD__)
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastIface, multicastGroupRequest);
+    #else
+        setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastIface, multicastGroupRequest.imr_interface);
+    #endif
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastLoop, false);
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastTtl, uint8_t(m_config->hopLimit()));
     }
