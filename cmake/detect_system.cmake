@@ -24,10 +24,10 @@ if (NOT HAVE_NETLINK)
     HAVE_PF_ROUTE)
 
     check_cxx_source_compiles("
-        #include <sys/sysctl.h>
         #include <net/if.h>
         #include <net/if_dl.h>
         #include <sys/socket.h>
+        #include <sys/sysctl.h>
         int main() { 
             int x = NET_RT_IFLIST; 
         }" 
