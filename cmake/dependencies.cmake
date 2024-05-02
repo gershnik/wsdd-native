@@ -65,7 +65,7 @@ endif()
 
 FetchContent_Declare(libuuid
     GIT_REPOSITORY  https://github.com/gershnik/libuuid-cmake.git
-    GIT_TAG         19da4e9e22fc8d3bcbf57adbe711747bffeefd8e
+    GIT_TAG         a1b65e9837d5107d9828d54bfc772b8e149f195d
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES libuuid)
