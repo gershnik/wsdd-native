@@ -36,7 +36,7 @@ public:
         fmt::format_to(dest, "--------\n");
         for (auto ptr: m_pointers)
         {
-            auto addr = reinterpret_cast<const void *>(ptr);
+            auto addr = reinterpret_cast</*const*/ void *>(ptr);
             fmt::format_to(dest, "    {:p}", addr);
             Dl_info info{};
             if (dladdr(addr, &info))

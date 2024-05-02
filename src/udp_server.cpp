@@ -59,7 +59,7 @@ private:
     ~UdpServerImpl() noexcept {
     }
 
-    void initAddresses(const ip::address_v4 & addr, const NetworkInterface & iface) {
+    void initAddresses(const ip::address_v4 & addr, [[maybe_unused]] const NetworkInterface & iface) {
         
         auto multicastGroupAddress = ip::make_address_v4(g_WsdMulticastGroupV4);
         
@@ -84,7 +84,7 @@ private:
         m_recvSocket.bind(ip::udp::endpoint(multicastGroupAddress, g_WsdUdpPort));
         m_unicastSendSocket.bind(ip::udp::endpoint(addr, g_WsdUdpPort));
 
-    #if !defined(__NetBSD__)
+    #if !defined(__NetBSD__) && !defined(__sun)
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastIface, multicastGroupRequest);
     #else
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastIface, multicastGroupRequest.imr_interface);
@@ -111,7 +111,7 @@ private:
         m_recvSocket.bind(ip::udp::endpoint(ip::address_v6(multicastGroupAddress.to_bytes(), iface.index), g_WsdUdpPort));
         m_unicastSendSocket.bind(ip::udp::endpoint(ip::address_v6(addr.to_bytes(), iface.index), g_WsdUdpPort));
 
-        m_multicastSendSocket.set_option(ip::multicast::enable_loopback(false));
+        setSocketOption(m_multicastSendSocket, ptl::SockOptIPv6MulticastLoop, false);
         m_multicastSendSocket.set_option(ip::multicast::hops(m_config->hopLimit()));
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv6MulticastIface, iface.index);
     }

@@ -27,23 +27,78 @@ protected:
     T m_data;
 };
 
-class GetInterfaceFlags : public SocketIOControl<SIOCGIFFLAGS, ifreq> {
+#ifdef SIOCGIFFLAGS
 
-public:
-    GetInterfaceFlags(const sys_string & name) {
-        auto copied = name.copy_data(0, m_data.ifr_name, IFNAMSIZ);
-        memset(m_data.ifr_name + copied, 0, IFNAMSIZ - copied);
-    }
+    class GetInterfaceFlags : public SocketIOControl<(unsigned long)SIOCGIFFLAGS, ifreq> {
+
+    public:
+        GetInterfaceFlags(const sys_string & name) {
+            auto copied = name.copy_data(0, m_data.ifr_name, IFNAMSIZ);
+            memset(m_data.ifr_name + copied, 0, IFNAMSIZ - copied);
+        }
+        
+        auto result() const -> std::remove_cvref_t<decltype(this->m_data.ifr_flags)> {
+            return m_data.ifr_flags;
+        }
+    };
     
-    auto result() const -> std::remove_cvref_t<decltype(m_data.ifr_flags)> {
-        return m_data.ifr_flags;
-    }
-};
+#endif
+
+#ifdef SIOCGLIFCONF
+
+    class GetLInterfaceConf : public SocketIOControl<(unsigned long)SIOCGLIFCONF, lifconf> {
+    public:
+        GetLInterfaceConf(sa_family_t family, lifreq * dest, size_t size) {
+            m_data.lifc_family = family;
+            m_data.lifc_flags = 0;
+            m_data.lifc_len = size * sizeof(lifreq);
+            m_data.lifc_req = dest;
+        }
+
+        auto result() const -> size_t {
+            return m_data.lifc_len / sizeof(lifreq);
+        }
+    };
+
+#endif
+
+#ifdef SIOCGLIFINDEX
+
+    class GetLInterfaceIndex : public SocketIOControl<(unsigned long)SIOCGLIFINDEX, lifreq> {
+    public:
+        GetLInterfaceIndex(const sys_string & name) {
+            auto copied = name.copy_data(0, m_data.lifr_name, IFNAMSIZ);
+            memset(m_data.lifr_name + copied, 0, IFNAMSIZ - copied);
+        }
+
+        auto result() const -> int {
+            return m_data.lifr_index;
+        }
+    };
+
+#endif
+
+#ifdef SIOCGLIFFLAGS
+
+    class GetLInterfaceFlags : public SocketIOControl<(unsigned long)SIOCGLIFFLAGS, lifreq> {
+
+    public:
+        GetLInterfaceFlags(const sys_string & name) {
+            auto copied = name.copy_data(0, m_data.lifr_name, IFNAMSIZ);
+            memset(m_data.lifr_name + copied, 0, IFNAMSIZ - copied);
+        }
+        
+        auto result() const -> std::remove_cvref_t<decltype(this->m_data.lifr_flags)> {
+            return m_data.lifr_flags;
+        }
+    };
+
+#endif
 
 
-#ifdef __linux__
+#ifdef SIOCGIFNAME
 
-    class GetInterfaceName : public SocketIOControl<SIOCGIFNAME, ifreq> {
+    class GetInterfaceName : public SocketIOControl<(unsigned long)SIOCGIFNAME, ifreq> {
     public:
         GetInterfaceName(int ifIndex) {
             m_data.ifr_ifindex  = ifIndex;

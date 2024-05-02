@@ -63,7 +63,11 @@ include(cmake/dependencies.cmake)
 include(cmake/detect_system.cmake)
 
 if (NOT HAVE_NETLINK AND NOT HAVE_PF_ROUTE)
-    message(FATAL_ERROR "Neither netlink nor BSD PF_ROUTE headers were detected on your machine.\nThis platform seems not supported.")
+    message(FATAL_ERROR "Neither netlink nor PF_ROUTE headers were detected on your machine.\nThis platform seems not supported.")
+endif()
+
+if (HAVE_PF_ROUTE AND NOT HAVE_SYSCTL_PF_ROUTE AND NOT HAVE_SIOCGLIFCONF)
+    message(FATAL_ERROR "Neither BSD sysctl(CTL_NET, PF_ROUTE) not ioctl(SIOCGLIFCONF) were detected on your machine.\nThis platform seems not supported.")
 endif()
 
 add_executable(wsddn)
@@ -106,6 +110,8 @@ PRIVATE
     "$<$<PLATFORM_ID:Darwin>:-framework OpenDirectory>"
 
     "$<$<PLATFORM_ID:Linux>:dl>"
+
+    "$<$<PLATFORM_ID:SunOS>:socket>"
     
     "$<$<BOOL:${HAVE_EXECINFO_LIB}>:execinfo>"
 

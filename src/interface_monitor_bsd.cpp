@@ -5,8 +5,10 @@
 
 #include "interface_monitor.h"
 #include "sys_socket.h"
-
-#include <sys/sysctl.h>
+#include <sys/sockio.h>
+#if HAVE_SYSCTL_PF_ROUTE
+    #include <sys/sysctl.h>
+#endif
 #include <net/if.h>
 #include <net/if_dl.h>
 #include <net/route.h>
@@ -21,7 +23,22 @@ using namespace asio::generic;
 
 static inline auto alignedRtMessageLength(const sockaddr * sa) -> size_t {
     constexpr size_t salign = (alignof(rt_msghdr) - 1);
-    return sa->sa_len ? ((sa->sa_len + salign) & ~salign) : (salign + 1);
+    #if HAVE_SOCKADDR_SA_LEN
+        return sa->sa_len ? ((sa->sa_len + salign) & ~salign) : (salign + 1);
+    #else
+        size_t len;
+        if (sa->sa_family == AF_INET)
+            len = sizeof(sockaddr_in);
+        else if (sa->sa_family == AF_INET6)
+            len = sizeof(sockaddr_in6);
+        else if (sa->sa_family == AF_LINK)
+            len = sizeof(sockaddr_dl);
+        else  {
+            WSDLOG_ERROR("Unexpected address family {} if PF_ROUTE message", sa->sa_family);
+            std::terminate();
+        }
+        return (len + salign) & ~salign;
+    #endif
 }
 
 class InterfaceMonitorImpl : public InterfaceMonitor {
@@ -46,6 +63,39 @@ public:
     
         read();
 
+        loadInitial();
+    }
+    
+    void stop() override {
+        WSDLOG_INFO("Stopping interface monitor");
+        m_handler = nullptr;
+        m_socket.close();
+    }
+
+private:
+    auto readAddress(const sockaddr_in & addr) -> ip::address_v4 {
+        return ip::address_v4(ntohl(addr.sin_addr.s_addr));
+    }
+    auto readAddress(const sockaddr_in6 & addr) -> ip::address_v6 {
+        union {
+            ip::address_v6::bytes_type asio;
+            in6_addr raw;
+        } clearAddr;
+        memcpy(&clearAddr.raw, addr.sin6_addr.s6_addr, sizeof(clearAddr.raw));
+        uint32_t scope = addr.sin6_scope_id;
+        if (IN6_IS_SCOPE_LINKLOCAL(&clearAddr.raw)) {
+            uint16_t * words = (uint16_t *)&clearAddr.raw.s6_addr;
+            if (uint32_t embeddedScope = htons(words[1])) {
+                scope = embeddedScope;
+            }
+            words[1] = 0;
+        }
+        return ip::address_v6(clearAddr.asio, scope);
+    }
+
+    #if HAVE_SYSCTL_PF_ROUTE
+
+    void loadInitial() {
         int mib[6] = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST, 0 };
         std::vector<std::byte> buf;
         size_t tableSize = 0;
@@ -64,14 +114,43 @@ public:
 
         parseTable(buf.data(), buf.data() + tableSize, /*sequential*/true);
     }
-    
-    void stop() override {
-        WSDLOG_INFO("Stopping interface monitor");
-        m_handler = nullptr;
-        m_socket.close();
+
+    #elif HAVE_SIOCGLIFCONF
+
+    void loadInitial() {
+        std::vector<lifreq> buf(256); //no machine is expected to have more than 256 interfaces :)
+        auto count = ioctlSocket<GetLInterfaceConf>(m_socket, AF_UNSPEC, buf.data(), buf.size()).value();
+        for (size_t i = 0; i < count; ++i) {
+            auto & req = buf[i];
+            ip::address addr;
+            if (req.lifr_addr.ss_family == AF_INET) {
+                if (!m_config->enableIPv4())
+                    continue;
+                auto addr4 = (const sockaddr_in *)&req.lifr_addr;
+                addr = readAddress(*addr4);
+            } else if (req.lifr_addr.ss_family == AF_INET6) {
+                if (!m_config->enableIPv6())
+                    continue;
+                auto addr6 = (const sockaddr_in6 *)&req.lifr_addr;
+                auto cppAddr = readAddress(*addr6);
+                if (!cppAddr.is_link_local()) 
+                    continue;    
+                addr = cppAddr;
+            } else {
+                continue;
+            }
+            
+            sys_string name(req.lifr_name);
+            
+            auto interfaceFlags = ioctlSocket<GetLInterfaceFlags>(m_socket, name).value();
+            if ((interfaceFlags & IFF_LOOPBACK) || !(interfaceFlags & IFF_MULTICAST))
+                continue;
+            auto index = ioctlSocket<GetLInterfaceIndex>(m_socket, name).value();
+            m_handler->addAddress(NetworkInterface(index, name), addr);
+        }
     }
 
-private:
+    #endif
 
     void read() {
 
@@ -114,7 +193,7 @@ private:
 
             const std::byte * addrFirst;
             int entryMask;
-            int interfaceFlags;
+            int interfaceFlags = 0; //stupid gcc misdetects "not initialized"
             switch(header->rtm_type) {
             case RTM_NEWADDR:
             case RTM_DELADDR: {
@@ -153,7 +232,12 @@ private:
                     knownIfaces[result.iface->index] = (interfaceFlags & IFF_LOOPBACK) || !(interfaceFlags & IFF_MULTICAST);
                 } else {
                     if (auto it = knownIfaces.find(result.iface->index); it == knownIfaces.end()) {
-                        if (auto flagsRes = ioctlSocket<GetInterfaceFlags>(m_socket, result.iface->name)) {
+                        #if HAVE_SIOCGLIFCONF
+                            using GetInterfaceFlagsType = GetLInterfaceFlags;
+                        #else
+                            using GetInterfaceFlagsType = GetInterfaceFlags;
+                        #endif
+                        if (auto flagsRes = ioctlSocket<GetInterfaceFlagsType>(m_socket, result.iface->name)) {
                             interfaceFlags = flagsRes.assume_value();
                             bool ignore = (interfaceFlags & IFF_LOOPBACK) || !(interfaceFlags & IFF_MULTICAST);
                             knownIfaces.emplace(result.iface->index, ignore);
@@ -183,24 +267,13 @@ private:
                             if (addr->sa_family == AF_INET) {
                                 if (m_config->enableIPv4()) {
                                     auto addr4 = (const sockaddr_in *)addr;
-                                    result.addr.emplace(ip::address_v4(ntohl(addr4->sin_addr.s_addr)));
+                                    result.addr.emplace(readAddress(*addr4));
                                 }
                             } else if (addr->sa_family == AF_INET6) {
                                 if (m_config->enableIPv6()) {
                                     auto addr6 = (const sockaddr_in6 *)addr;
-                                    union {
-                                        ip::address_v6::bytes_type asio;
-                                        in6_addr raw;
-                                    } clearAddr;
-                                    memcpy(&clearAddr.raw, addr6->sin6_addr.s6_addr, sizeof(clearAddr.raw));
-                                    uint32_t scope = addr6->sin6_scope_id;
-                                    if (IN6_IS_SCOPE_LINKLOCAL(&clearAddr.raw)) {
-                                        if (uint32_t embeddedScope = htons(clearAddr.raw.__u6_addr.__u6_addr16[1]))
-                                            scope = embeddedScope;
-                                        clearAddr.raw.__u6_addr.__u6_addr16[1] = 0;
-                                    }
-                                    ip::address_v6 cppAddr(clearAddr.asio, scope);
-                                    if (cppAddr.is_link_local()) //yes in practice this duplicates the above check but it is cleaner
+                                    auto cppAddr = readAddress(*addr6);
+                                    if (cppAddr.is_link_local()) 
                                         result.addr.emplace(cppAddr);
                                 }
                             }
@@ -218,6 +291,16 @@ private:
                 }
             }
         }
+        //On Illumos PF_ROUTE does not return scope for link local addresses
+        #ifdef __sun
+        if (result.addr && result.addr->is_v6() && result.iface) {
+            ip::address_v6 addr6 = result.addr->to_v6();
+            if (addr6.scope_id() == 0) {
+                addr6.scope_id(result.iface->index);
+                *result.addr = addr6;
+            }
+        }
+        #endif
         return result;
     }
     

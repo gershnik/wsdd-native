@@ -29,7 +29,7 @@ list(APPEND DECLARED_DEPENDENCIES isptr)
 
 FetchContent_Declare(ptl
     GIT_REPOSITORY  https://github.com/gershnik/ptl.git
-    GIT_TAG         v1.1
+    GIT_TAG         b4a2a604067703d98ab2cc3725410f369698c3ac
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES ptl)
@@ -65,7 +65,7 @@ endif()
 
 FetchContent_Declare(libuuid
     GIT_REPOSITORY  https://github.com/gershnik/libuuid-cmake.git
-    GIT_TAG         v2.40.rev2
+    GIT_TAG         19da4e9e22fc8d3bcbf57adbe711747bffeefd8e
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES libuuid)
