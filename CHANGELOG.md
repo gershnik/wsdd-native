@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 - Support for NetBSD
+- Support for illumos
 
 ## [1.10] - 2024-04-30
 
