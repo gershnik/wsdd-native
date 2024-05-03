@@ -136,6 +136,7 @@ PRIVATE
 target_compile_definitions(wsddn
 PRIVATE
     SYS_STRING_USE_GENERIC=1
+    "$<$<PLATFORM_ID:SunOS>:ASIO_DISABLE_DEV_POLL=1>"
 )
 
 target_include_directories(wsddn
