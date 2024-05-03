@@ -59,16 +59,21 @@ private:
     ~UdpServerImpl() noexcept {
     }
 
-    void initAddresses(const ip::address_v4 & addr, const NetworkInterface & iface) {
+    void initAddresses(const ip::address_v4 & addr, [[maybe_unused]] const NetworkInterface & iface) {
         
         auto multicastGroupAddress = ip::make_address_v4(g_WsdMulticastGroupV4);
         
         m_multicastDest = ip::udp::endpoint(multicastGroupAddress, g_WsdUdpPort);
 
+    #if PTL_HAVE_IP_MREQN
         ip_mreqn multicastGroupRequest;
-        multicastGroupRequest.imr_multiaddr.s_addr = htonl(multicastGroupAddress.to_uint());
         multicastGroupRequest.imr_address.s_addr = htonl(addr.to_uint());
         multicastGroupRequest.imr_ifindex = iface.index;
+    #else
+        ip_mreq multicastGroupRequest;
+        multicastGroupRequest.imr_interface.s_addr = htonl(addr.to_uint());
+    #endif
+        multicastGroupRequest.imr_multiaddr.s_addr = htonl(multicastGroupAddress.to_uint());
 
         setSocketOption(m_recvSocket, ptl::SockOptIPv4AddMembership, multicastGroupRequest);
 
@@ -79,7 +84,11 @@ private:
         m_recvSocket.bind(ip::udp::endpoint(multicastGroupAddress, g_WsdUdpPort));
         m_unicastSendSocket.bind(ip::udp::endpoint(addr, g_WsdUdpPort));
 
+    #if !defined(__NetBSD__) && !defined(__sun)
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastIface, multicastGroupRequest);
+    #else
+        setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastIface, multicastGroupRequest.imr_interface);
+    #endif
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastLoop, false);
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastTtl, uint8_t(m_config->hopLimit()));
     }
@@ -102,7 +111,7 @@ private:
         m_recvSocket.bind(ip::udp::endpoint(ip::address_v6(multicastGroupAddress.to_bytes(), iface.index), g_WsdUdpPort));
         m_unicastSendSocket.bind(ip::udp::endpoint(ip::address_v6(addr.to_bytes(), iface.index), g_WsdUdpPort));
 
-        m_multicastSendSocket.set_option(ip::multicast::enable_loopback(false));
+        setSocketOption(m_multicastSendSocket, ptl::SockOptIPv6MulticastLoop, false);
         m_multicastSendSocket.set_option(ip::multicast::hops(m_config->hopLimit()));
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv6MulticastIface, iface.index);
     }

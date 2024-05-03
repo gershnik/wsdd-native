@@ -15,7 +15,7 @@ list(APPEND DECLARED_DEPENDENCIES argum)
 
 FetchContent_Declare(sys_string
     GIT_REPOSITORY  https://github.com/gershnik/sys_string.git
-    GIT_TAG         v2.13
+    GIT_TAG         v2.14
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES sys_string)
@@ -29,7 +29,7 @@ list(APPEND DECLARED_DEPENDENCIES isptr)
 
 FetchContent_Declare(ptl
     GIT_REPOSITORY  https://github.com/gershnik/ptl.git
-    GIT_TAG         v1.1
+    GIT_TAG         v1.2
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES ptl)
@@ -65,7 +65,7 @@ endif()
 
 FetchContent_Declare(libuuid
     GIT_REPOSITORY  https://github.com/gershnik/libuuid-cmake.git
-    GIT_TAG         v2.40.rev2
+    GIT_TAG         v2.40.rev3
     GIT_SHALLOW     TRUE
 )
 list(APPEND DECLARED_DEPENDENCIES libuuid)

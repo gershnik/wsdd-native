@@ -19,11 +19,40 @@ if (NOT HAVE_NETLINK)
         #include <net/if_dl.h>
         #include <sys/socket.h>
         int main() { 
-            int x = NET_RT_IFLIST; 
+            int x = PF_ROUTE;
         }" 
     HAVE_PF_ROUTE)
 
+    check_cxx_source_compiles("
+        #include <net/if.h>
+        #include <net/if_dl.h>
+        #include <sys/socket.h>
+        #include <sys/sysctl.h>
+        int main() { 
+            int x = NET_RT_IFLIST; 
+        }" 
+    HAVE_SYSCTL_PF_ROUTE)
+
+    check_cxx_source_compiles("
+        #include <sys/socket.h>
+        #include <sys/sockio.h>
+        #include <netinet/in.h>
+        #include <net/if.h>
+        int main() { 
+            int x = SIOCGLIFCONF; 
+            lifconf conf{};
+        }" 
+    HAVE_SIOCGLIFCONF)
+
 endif()
+
+check_cxx_source_compiles("
+    #include <sys/socket.h>
+    int main() {
+        struct sockaddr addr = {};
+        size_t x = addr.sa_len;
+    }" 
+HAVE_SOCKADDR_SA_LEN)
 
 check_include_files(execinfo.h HAVE_EXECINFO_H)
 check_library_exists(execinfo backtrace "" HAVE_EXECINFO_LIB)

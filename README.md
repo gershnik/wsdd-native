@@ -4,11 +4,12 @@
 ![macOS](https://img.shields.io/badge/-macOS-black?style=flat&logo=apple&logoColor=F0F0F0)
 ![FreeBSD](https://img.shields.io/badge/-FreeBSD-%23870000?style=flat&logo=freebsd&logoColor=white)
 ![OpenBSD](https://img.shields.io/badge/OpenBSD-e6ffff?style=flat&logo=openbsd&logoColor=FF0000)
+![NetBSD](https://img.shields.io/badge/NetBSD-fefefe?style=flat&logo=netbsd)
 [![Language](https://img.shields.io/badge/language-C++-blue.svg)](https://isocpp.org/)
 [![Standard](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.wikipedia.org/wiki/C%2B%2B#Standardization)
 [![License](https://img.shields.io/badge/license-BSD-brightgreen.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
-A Unix daemon that makes your Linux/macOS/BSD machine visible in Network view of Windows Explorer on newer versions of Windows.
+A Unix daemon that makes your Linux/macOS/BSD/illumos machine visible in Network view of Windows Explorer on newer versions of Windows.
 
 It implements WS-Discovery protocol that Windows now uses to discover machines on local network. It is a native daemon, written in C++. 
 
@@ -51,7 +52,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 
 ## Features
 
-* Fully supports macOS, Linux and FreeBSD
+* Fully supports macOS, Linux, FreeBSD, OpenBSD, NetBSD and illumos
 * Can be configured via a configuration file, not just command line.
 * Discovers Samba/macOS SMB configuration on its own. (This can be overridden, if desired)
 * Can present the Unix host as something other than "Computer" in Windows Explorer.

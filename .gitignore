@@ -2,6 +2,7 @@ out/
 __pycache__/
 
 .vscode/launch.json
+.vscode/tasks.json
 .devcontainer/
 
 LLDBInitFile

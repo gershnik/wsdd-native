@@ -6,6 +6,9 @@
 
 #cmakedefine01 HAVE_NETLINK
 #cmakedefine01 HAVE_PF_ROUTE
+#cmakedefine01 HAVE_SYSCTL_PF_ROUTE
+#cmakedefine01 HAVE_SIOCGLIFCONF
+#cmakedefine01 HAVE_SOCKADDR_SA_LEN
 #cmakedefine01 HAVE_EXECINFO_H
 #cmakedefine01 HAVE_CXXABI_H
 #cmakedefine01 HAVE_ABI_CXA_THROW
