@@ -61,7 +61,7 @@ Package: wsddn
 Source: wsddn
 Version: {VERSION}
 Architecture: {ARCH}
-Depends: systemd, {{shlibs_Depends}}
+Depends: {{shlibs_Depends}}
 Conflicts: wsdd
 Replaces: wsdd
 Maintainer: Eugene Gershnik <gershnik@hotmail.com>

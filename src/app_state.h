@@ -61,6 +61,9 @@ private:
 #if HAVE_OS_LOG
     std::optional<bool> m_logToOsLog;
 #endif
+#if HAVE_SYSTEMD
+    decltype(sd_notify) * m_sdNotify = nullptr;
+#endif
     PidFile m_pidFile;
     ptl::FileDescriptor m_savedStdOut;
     ptl::FileDescriptor m_savedStdErr;

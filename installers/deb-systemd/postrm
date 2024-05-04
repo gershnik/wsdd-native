@@ -3,7 +3,9 @@
 set -e
 
 if [ "$1" = remove ] && [ -d /run/systemd/system ] ; then
-	systemctl --system daemon-reload >/dev/null || true
+	if [ -x "/usr/bin/systemctl" ]; then
+		systemctl --system daemon-reload >/dev/null || true
+	fi
 fi
 
 if [ "$1" = "remove" ]; then

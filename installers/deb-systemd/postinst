@@ -3,28 +3,30 @@
 set -e
 
 if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
-	# This will only remove masks created by d-s-h on package removal.
-	deb-systemd-helper unmask 'wsddn.service' >/dev/null || true
+	if [ -x "/usr/bin/deb-systemd-helper" ] && [ -x "/usr/bin/systemctl" ] && [ -x "/usr/bin/deb-systemd-invoke" ] ; then
+		# This will only remove masks created by d-s-h on package removal.
+		deb-systemd-helper unmask 'wsddn.service' >/dev/null || true
 
-	# was-enabled defaults to true, so new installations run enable.
-	if deb-systemd-helper --quiet was-enabled 'wsddn.service'; then
-		# Enables the unit on first installation, creates new
-		# symlinks on upgrades if the unit file has changed.
-		deb-systemd-helper enable 'wsddn.service' >/dev/null || true
-	else
-		# Update the statefile to add new symlinks (if any), which need to be
-		# cleaned up on purge. Also remove old symlinks.
-		deb-systemd-helper update-state 'wsddn.service' >/dev/null || true
-	fi
-
-    if [ -d /run/systemd/system ]; then
-		systemctl --system daemon-reload >/dev/null || true
-		if [ -n "$2" ]; then
-			_dh_action=restart
+		# was-enabled defaults to true, so new installations run enable.
+		if deb-systemd-helper --quiet was-enabled 'wsddn.service'; then
+			# Enables the unit on first installation, creates new
+			# symlinks on upgrades if the unit file has changed.
+			deb-systemd-helper enable 'wsddn.service' >/dev/null || true
 		else
-			_dh_action=start
+			# Update the statefile to add new symlinks (if any), which need to be
+			# cleaned up on purge. Also remove old symlinks.
+			deb-systemd-helper update-state 'wsddn.service' >/dev/null || true
 		fi
-		deb-systemd-invoke $_dh_action 'wsddn.service' >/dev/null || true
+
+		if [ -d /run/systemd/system ]; then
+			systemctl --system daemon-reload >/dev/null || true
+			if [ -n "$2" ]; then
+				_dh_action=restart
+			else
+				_dh_action=start
+			fi
+			deb-systemd-invoke $_dh_action 'wsddn.service' >/dev/null || true
+		fi
 	fi
 fi
 

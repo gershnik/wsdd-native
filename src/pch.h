@@ -60,6 +60,7 @@
 #endif
 
 #if HAVE_SYSTEMD
+    #include <dlfcn.h>
     #include <systemd/sd-daemon.h>
 #endif
 

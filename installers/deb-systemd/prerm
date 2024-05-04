@@ -3,7 +3,9 @@
 set -e
 
 if [ -z "${DPKG_ROOT:-}" ] && [ "$1" = remove ] && [ -d /run/systemd/system ] ; then
-	deb-systemd-invoke stop 'wsddn.service' >/dev/null || true
+	if [ -x "/usr/bin/deb-systemd-invoke" ]; then
+		deb-systemd-invoke stop 'wsddn.service' >/dev/null || true
+	fi
 fi
 
 exit 0

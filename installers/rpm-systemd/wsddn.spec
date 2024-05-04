@@ -8,7 +8,6 @@ URL:            https://github.com/gershnik/wsdd-native
 Source0:        https://github.com/gershnik/wsdd-native/archive/refs/tags/v%{version}.zip
 
 BuildRequires:  gcc-c++ git make systemd-devel systemd-rpm-macros
-Requires:       systemd
 
 Conflicts:      wsdd
 

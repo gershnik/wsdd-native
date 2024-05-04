@@ -109,13 +109,11 @@ PRIVATE
     "$<$<PLATFORM_ID:Darwin>:-framework SystemConfiguration>"
     "$<$<PLATFORM_ID:Darwin>:-framework OpenDirectory>"
 
-    "$<$<PLATFORM_ID:Linux>:dl>"
+    "$<$<OR:$<PLATFORM_ID:Linux>,$<BOOL:${HAVE_SYSTEMD}>>:dl>"
 
     "$<$<PLATFORM_ID:SunOS>:socket>"
     
     "$<$<BOOL:${HAVE_EXECINFO_LIB}>:execinfo>"
-
-    ${LIBSYSTEMD_LIBRARY}
 )
 
 target_compile_options(wsddn 

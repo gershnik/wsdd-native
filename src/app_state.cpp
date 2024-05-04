@@ -9,6 +9,22 @@ AppState::AppState(int argc, char ** argv, std::set<int> untouchedSignals):
         
     m_origCommandLine.parse(argc, argv);
     m_currentCommandLine = m_origCommandLine;
+
+#if HAVE_SYSTEMD
+    if (m_currentCommandLine.daemonType && *m_currentCommandLine.daemonType == DaemonType::Systemd) {
+        auto * systemd = dlopen("libsystemd.so", RTLD_NOW | RTLD_LOCAL);
+        if (!systemd) {
+            WSDLOG_CRITICAL("systemd mode requested but cannot load libsystemd.so: {}", dlerror());
+            exit(EXIT_FAILURE);
+
+        }
+        m_sdNotify = (decltype(m_sdNotify))dlsym(systemd, "sd_notify");
+        if (!m_sdNotify) {
+            WSDLOG_CRITICAL("systemd mode requested but cannot find _sd_notify in libsystemd.so: {}", dlerror());
+            exit(EXIT_FAILURE);
+        }
+    }
+#endif
 }
 
 void AppState::reload() {
@@ -122,7 +138,7 @@ void AppState::postForkInServerProcess() noexcept {
 
 void AppState::notify([[maybe_unused]] DaemonStatus status) {
 #if HAVE_SYSTEMD
-    if (m_currentCommandLine.daemonType && *m_currentCommandLine.daemonType == DaemonType::Systemd) {
+    if (m_sdNotify) {
         std::string env;
         switch(status) {
             case DaemonStatus::Ready: env += "READY=1"; break;
@@ -131,7 +147,7 @@ void AppState::notify([[maybe_unused]] DaemonStatus status) {
         }
         env += "\nMAINPID=";
         env += std::to_string(m_mainPid);
-        sd_notify(0, env.c_str());
+        m_sdNotify(0, env.c_str());
     }
 #endif
 }

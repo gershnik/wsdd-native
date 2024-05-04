@@ -92,8 +92,6 @@ if (WSDDN_WITH_SYSTEMD STREQUAL "yes" OR WSDDN_WITH_SYSTEMD STREQUAL "auto" AND 
 
     message(CHECK_START "Looking for systemd")
 
-    find_package(PkgConfig)
-
     find_library(LIBSYSTEMD_LIBRARY NAMES systemd systemd-daemon)
 
     if (NOT LIBSYSTEMD_LIBRARY)
@@ -122,32 +120,6 @@ if (WSDDN_WITH_SYSTEMD STREQUAL "yes" OR WSDDN_WITH_SYSTEMD STREQUAL "auto" AND 
 
 endif()
 
-if (HAVE_SYSTEMD AND NOT DEFINED CACHE{SYSTEMD_SYSTEM_UNIT_DIR}) 
-
-    message(CHECK_START "Looking for systemd system unit dir")
-
-    find_package(PkgConfig)
-
-    if (PKG_CONFIG_FOUND)
-        execute_process(
-            COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd
-            OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR
-            RESULT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR_RESULT)
-
-        if (${SYSTEMD_SYSTEM_UNIT_DIR_RESULT} EQUAL 0)
-        string(STRIP ${SYSTEMD_SYSTEM_UNIT_DIR} SYSTEMD_SYSTEM_UNIT_DIR)
-            set(SYSTEMD_SYSTEM_UNIT_DIR ${SYSTEMD_SYSTEM_UNIT_DIR} CACHE STRING "systemd unit dir")
-        endif()
-    endif()
-
-    if (SYSTEMD_SYSTEM_UNIT_DIR)
-        message(CHECK_PASS "Found in ${SYSTEMD_SYSTEM_UNIT_DIR}")
-    else()
-        message(CHECK_PASS "Not found, assuming /usr/lib/systemd/system")
-        set(SYSTEMD_SYSTEM_UNIT_DIR "/usr/lib/systemd/system" CACHE STRING "systemd unit dir")
-    endif()
-
-endif()
 
 find_program(PANDOC_PATH pandoc)
 find_program(GROFF_PATH groff)
