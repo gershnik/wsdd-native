@@ -135,7 +135,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        remote_host: [openbsd-7-5, alpine-3, archlinux]
+        remote_host: [openbsd-7-5, alpine-3, archlinux, netbsd-10]
 
     steps:
       - name: Run remote build
