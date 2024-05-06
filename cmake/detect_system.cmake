@@ -46,13 +46,7 @@ if (NOT HAVE_NETLINK)
 
 endif()
 
-check_cxx_source_compiles("
-    #include <sys/socket.h>
-    int main() {
-        struct sockaddr addr = {};
-        size_t x = addr.sa_len;
-    }" 
-HAVE_SOCKADDR_SA_LEN)
+check_struct_has_member("struct sockaddr" "sa_len" "sys/types.h;sys/socket.h" HAVE_SOCKADDR_SA_LEN)
 
 check_include_files(execinfo.h HAVE_EXECINFO_H)
 check_library_exists(execinfo backtrace "" HAVE_EXECINFO_LIB)
