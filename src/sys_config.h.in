@@ -16,6 +16,8 @@
 #cmakedefine01 HAVE_USERADD
 #cmakedefine01 HAVE_PW
 
+#cmakedefine LIBSYSTEMD_SO "${LIBSYSTEMD_SO}"
+
 
 #if (defined(__APPLE__) && defined(__MACH__))
     #define WSDDN_PLATFORM_APPLE 1

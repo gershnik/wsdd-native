@@ -94,8 +94,19 @@ if (WSDDN_WITH_SYSTEMD STREQUAL "yes" OR WSDDN_WITH_SYSTEMD STREQUAL "auto" AND 
 
     find_library(LIBSYSTEMD_LIBRARY NAMES systemd systemd-daemon)
 
-    if (NOT LIBSYSTEMD_LIBRARY)
-        set(LIBSYSTEMD_LIBRARY "" CACHE INTERNAL "" FORCE)
+    if (LIBSYSTEMD_LIBRARY)
+        if(IS_SYMLINK "${LIBSYSTEMD_LIBRARY}")
+            message("HUYNA")
+            file(READ_SYMLINK "${LIBSYSTEMD_LIBRARY}" LIBSYSTEMD_SO)
+            if(NOT IS_ABSOLUTE "${LIBSYSTEMD_SO}")
+                get_filename_component(dir "${LIBSYSTEMD_LIBRARY}" DIRECTORY)
+                set(LIBSYSTEMD_SO "${dir}/${LIBSYSTEMD_SO}")
+            endif()
+        else()
+            set(LIBSYSTEMD_SO "${LIBSYSTEMD_LIBRARY}")
+        endif()
+
+        set(LIBSYSTEMD_SO "${LIBSYSTEMD_SO}"  CACHE INTERNAL "" FORCE)
     endif()
 
     cmake_push_check_state(RESET)
@@ -104,10 +115,10 @@ if (WSDDN_WITH_SYSTEMD STREQUAL "yes" OR WSDDN_WITH_SYSTEMD STREQUAL "auto" AND 
     check_function_exists(sd_notify HAVE_SYSTEMD_SD_NOTIFY)
     cmake_pop_check_state()
 
-    if (HAVE_SYSTEMD_SD_DAEMON_H AND HAVE_SYSTEMD_SD_NOTIFY)
+    if (HAVE_SYSTEMD_SD_DAEMON_H AND HAVE_SYSTEMD_SD_NOTIFY AND LIBSYSTEMD_SO)
 
         set(HAVE_SYSTEMD ON CACHE INTERNAL "")
-        message(CHECK_PASS "found in ${LIBSYSTEMD_LIBRARY}")
+        message(CHECK_PASS "found in ${LIBSYSTEMD_SO}")
 
     else()
 

@@ -12,7 +12,7 @@ AppState::AppState(int argc, char ** argv, std::set<int> untouchedSignals):
 
 #if HAVE_SYSTEMD
     if (m_currentCommandLine.daemonType && *m_currentCommandLine.daemonType == DaemonType::Systemd) {
-        auto * systemd = dlopen("libsystemd.so", RTLD_NOW | RTLD_LOCAL);
+        auto * systemd = dlopen(LIBSYSTEMD_SO, RTLD_NOW | RTLD_LOCAL);
         if (!systemd) {
             WSDLOG_CRITICAL("systemd mode requested but cannot load libsystemd.so: {}", dlerror());
             exit(EXIT_FAILURE);
