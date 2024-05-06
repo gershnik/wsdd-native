@@ -26,47 +26,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Updated 3rd party dependencies
 
 ### Fixed
-<!-- TOC -->
+- Fixed build break on GCC 14
 
-- [Changelog](#changelog)
-    - [Unreleased](#unreleased)
-        - [Added](#added)
-    - [[1.10] - 2024-04-30](#110---2024-04-30)
-        - [Added](#added)
-        - [Fixed](#fixed)
-    - [[1.9] - 2024-04-20](#19---2024-04-20)
-        - [Changed](#changed)
-        - [Fixed](#fixed)
-    - [[1.8] - 2023-10-17](#18---2023-10-17)
-        - [Changed](#changed)
-    - [[1.7] - 2023-09-22](#17---2023-09-22)
-        - [Added](#added)
-        - [Fixed](#fixed)
-    - [[1.6] - 2023-07-29](#16---2023-07-29)
-        - [Added](#added)
-        - [Changed](#changed)
-    - [[1.5] - 2023-07-21](#15---2023-07-21)
-        - [Fixed:](#fixed)
-        - [Changed:](#changed)
-    - [[1.4] - 2023-06-16](#14---2023-06-16)
-        - [Fixed:](#fixed)
-    - [[1.3] - 2023-05-27](#13---2023-05-27)
-        - [Added](#added)
-        - [Fixed](#fixed)
-        - [Changed](#changed)
-    - [[1.2] - 2023-05-21](#12---2023-05-21)
-        - [Fixed](#fixed)
-        - [Changed](#changed)
-    - [[1.1] - 2023-05-19](#11---2023-05-19)
-        - [Added](#added)
-        - [Changed](#changed)
-        - [Fixed](#fixed)
-    - [[1.0] - 2022-07-25](#10---2022-07-25)
-        - [Added](#added)
-    - [[0.6] - 2022-07-24](#06---2022-07-24)
-        - [Added](#added)
+## [1.8] - 2023-10-17
 
-<!-- /TOC -->f` distribution for Debian/Ubuntu
+### Changed
+- Updated 3rd party dependencies
+- macOS: removed "wrapper" app since Apple appears to have broken "associated bundles" functionality.
+- macOS: moved `_wsddn` role account to 501-699 ID range per conversation with Apple technical support. It appears that only this range ensures smooth account behavior during OS upgrade.
+
+## [1.7] - 2023-09-22
+
+### Added
+- Better isolation for child process when started as root
+  (See section "Supplementary Group IDs" in [SEI CERT C Coding Standard](https://wiki.sei.cmu.edu/confluence/display/c/POS36-C.+Observe+correct+revocation+order+while+relinquishing+privileges))
+
+### Fixed
+- Corrected pid file locking logic that had a race condition when used by 3 or more processes.
+
+## [1.6] - 2023-07-29
+
+### Added
+- Added application profile for UFW on Debian/Ubuntu distribution
+- Added `armhf` distribution for Debian/Ubuntu
 
 ### Changed
 - Updated 3rd party dependencies
