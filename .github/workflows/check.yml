@@ -129,13 +129,14 @@ jobs:
         run: |
           installers/mac/build.py . out
 
-  weirdos:
+  others:
     concurrency: ${{ matrix.remote_host }}
     runs-on: [self-hosted, server]
     strategy:
       fail-fast: false
       matrix:
         remote_host: 
+          - gh-centos-9
           - openbsd-7-5
           - alpine-3
           - archlinux
