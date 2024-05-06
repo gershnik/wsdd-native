@@ -90,7 +90,6 @@ if (WSDDN_WITH_SYSTEMD STREQUAL "yes" OR WSDDN_WITH_SYSTEMD STREQUAL "auto" AND 
 
     if (LIBSYSTEMD_LIBRARY)
         if(IS_SYMLINK "${LIBSYSTEMD_LIBRARY}")
-            message("HUYNA")
             file(READ_SYMLINK "${LIBSYSTEMD_LIBRARY}" LIBSYSTEMD_SO)
             if(NOT IS_ABSOLUTE "${LIBSYSTEMD_SO}")
                 get_filename_component(dir "${LIBSYSTEMD_LIBRARY}" DIRECTORY)
