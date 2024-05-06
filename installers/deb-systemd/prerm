@@ -8,4 +8,8 @@ if [ -z "${DPKG_ROOT:-}" ] && [ "$1" = remove ] && [ -d /run/systemd/system ] ; 
 	fi
 fi
 
+if [ "$1" = remove ] ; then
+	service wsddn stop >/dev/null || true
+fi
+
 exit 0
