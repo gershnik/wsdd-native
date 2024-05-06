@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.12] - 2024-05-06
+
 ### Added
 - Debian binary packages no longer require `systemd` presence. They can now be used on non-`systemd` based distributions as well as Docker. SysVInit scripts are now provided and "do the right thing" on `systemd` and non-`systemd` systems.
 - Support for NetBSD
@@ -124,3 +126,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.8]: https://github.com/gershnik/wsdd-native/releases/v1.8
 [1.9]: https://github.com/gershnik/wsdd-native/releases/v1.9
 [1.10]: https://github.com/gershnik/wsdd-native/releases/v1.10
+[1.12]: https://github.com/gershnik/wsdd-native/releases/v1.12
