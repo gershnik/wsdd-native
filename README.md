@@ -106,7 +106,9 @@ If you have UFW firewall running do
 sudo ufw allow wsddn
 ```
 
-Daemon will be enabled and started automatically on first install but keep its existing state on updates. To start/stop/reload it use
+Daemon will be enabled and started automatically on first install but keep its existing state on updates. 
+
+On `systemd` based distributions to start/stop/reload it use
 
 ```bash
 sudo systemctl start wsddn
@@ -122,6 +124,16 @@ Daemon log can be viewed via `journalctl` as usual
 ```bash
 journalctl -u wsddn
 ```
+
+On non-`systemd` based distributions (and Docker) you can use:
+
+```bash
+sudo /etc/init.d/wsddn start
+sudo /etc/init.d/wsddn stop
+sudo /etc/init.d/wsddn reload
+```
+
+and the log is available at `/var/log/wsddn.log`
 
 ### RedHat/CentOS/Fedora
 
