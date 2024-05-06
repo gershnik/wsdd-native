@@ -136,7 +136,7 @@ jobs:
       fail-fast: false
       matrix:
         remote_host: 
-          - gh-centos-9
+          - centos-9
           - openbsd-7-5
           - alpine-3
           - archlinux
