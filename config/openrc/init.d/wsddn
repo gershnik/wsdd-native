@@ -1,0 +1,20 @@
+#!/sbin/openrc-run
+
+depend() {
+	need net
+}
+
+name=wsddn
+description="WS-Discovery Host Daemon"
+pidfile="/var/run/${RC_SVCNAME}/${RC_SVCNAME}.pid"
+command="/usr/bin/wsddn"
+command_args="--user=wsddn:wsddn --config=/etc/wsddn.conf --pid-file=${pidfile} --log-file=/var/log/${RC_SVCNAME}.log"
+command_args_background="--unixd"
+extra_started_commands="reload"
+
+reload() {
+  ebegin "Reloading ${RC_SVCNAME}"
+  start-stop-daemon --signal HUP --pidfile "${pidfile}"
+  eend $?
+}
+
