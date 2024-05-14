@@ -59,8 +59,7 @@ static auto tryToRunSambaToGetConfig(const char * path) -> std::optional<std::fi
     return std::nullopt;
 }
 
-auto Config::findSmbConf() -> std::optional<std::filesystem::path> {
-    
+static auto findSmbConfViaSamba() -> std::optional<std::filesystem::path> {
     auto prefix = "samba: "sv;
 
     WSDLOG_DEBUG("trying to locate samba");
@@ -106,7 +105,35 @@ auto Config::findSmbConf() -> std::optional<std::filesystem::path> {
             pathStart = pathEnd + 1;
         }
     }
-    return std::nullopt;
+    return {};
+}
+
+static auto findKsmbConf() -> std::optional<std::filesystem::path> {
+    std::array paths = {
+        "/etc/ksmbd/ksmbd.conf",
+        "/usr/local/etc/ksmbd/ksmbd.conf"
+    };
+    for (auto * p: paths) {
+        WSDLOG_DEBUG("checking '{}' existence", p);
+        std::filesystem::path testPath{p};
+        std::error_code ec;
+        if (exists(testPath, ec)) {
+            WSDLOG_INFO("found samba config at '{}'", p);
+            return testPath;
+        }
+    }
+    return {};
+}
+
+auto Config::findSmbConf() -> std::optional<std::filesystem::path> {
+
+    if (auto res = findSmbConfViaSamba())
+        return res;
+    #ifdef __linux__
+        return findKsmbConf();
+    #else
+        return {};
+    #endif
 }
 
  auto Config::readSmbConf(const std::filesystem::path & path, bool useNetbiosHostName) -> std::optional<WinNetInfo> {
