@@ -1,6 +1,6 @@
 Name:           wsddn
 Version:        1.12
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        WS-Discovery Host Daemon
 
 License:        BSD-3-Clause
@@ -32,7 +32,7 @@ cd %{_topdir}/BUILD/wsdd-native-%{version}
 cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo
 cmake --build out -- %{?_smp_mflags}
 cp installers/wsddn.conf out/
-sed -i "s/{RELOAD_INSTRUCTIONS}/ sudo systemctl restart wsddn\n/g" out/wsddn.conf
+sed -i "s/{RELOAD_INSTRUCTIONS}/# sudo systemctl restart wsddn\n/g" out/wsddn.conf
 sed -i "s/{SAMPLE_IFACE_NAME}/eth0/g" out/wsddn.conf
 
 
