@@ -23,6 +23,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 [chroot_jail]: https://en.wikipedia.org/wiki/Chroot
 [macports]: https://www.macports.org
 [homebrew]: https://brew.sh
+[aur]: https://wiki.archlinux.org/title/Arch_User_Repository
 
 <!-- End Links -->
 
@@ -32,6 +33,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 - [Binary packages](#binary-packages)
     - [Ubuntu/Debian/Mint/Raspberry Pi](#ubuntudebianmintraspberry-pi)
     - [RedHat/CentOS/Fedora](#redhatcentosfedora)
+    - [Arch Linux](#arch-linux)
     - [FreeBSD](#freebsd)
     - [macOS](#macos)
         - [Standalone installer](#standalone-installer)
@@ -165,6 +167,36 @@ sudo dnf install wsddn
 ```
 
 On first install firewall ports `5357/tcp` and `3702/udp` will be opened. 
+
+Enable and start the daemon:
+
+```bash
+sudo systemctl enable wsddn
+sudo systemctl start wsddn
+```
+
+To start/stop/reload it use
+
+```bash
+sudo systemctl start wsddn
+sudo systemctl stop wsddn
+sudo systemctl reload wsddn
+```
+
+Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+
+Daemon log can be viewed via `journalctl` as usual
+
+```bash
+journalctl -u wsddn
+```
+
+### Arch Linux
+
+You can install **wsdd-native** package from [AUR][aur] at https://aur.archlinux.org/packages/wsdd-native 
+
+As per Arch Linux convention the installation does not automatically enable or start services.
 
 Enable and start the daemon:
 
