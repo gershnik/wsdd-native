@@ -208,7 +208,7 @@ void AppState::setLogOutput(bool firstTime) {
 
 void AppState::setPidFile() {
     if (m_currentCommandLine.pidFile) {
-        auto maybePidFile = PidFile::open(*m_currentCommandLine.pidFile, m_currentCommandLine.runAs);
+        auto maybePidFile = PidFile::open(*m_currentCommandLine.pidFile);
         if (!maybePidFile)
             throw std::runtime_error("another copy of this application is already running");
         m_pidFile = std::move(*maybePidFile);
