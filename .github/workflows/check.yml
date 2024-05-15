@@ -59,6 +59,7 @@ jobs:
           fi
 
           if [[ '${{ matrix.compiler }}' == 'gcc' ]]; then
+            add-apt-repository -y ppa:ubuntu-toolchain-r/test
             sudo apt-get update
             sudo apt-get install -y gcc-${{ matrix.version }} g++-${{ matrix.version }}
             echo "CC=gcc-${{ matrix.version }}" >> $GITHUB_ENV
