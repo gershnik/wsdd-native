@@ -139,7 +139,7 @@ and the log is available at `/var/log/wsddn.log`
 
 ### RedHat/CentOS/Fedora
 
-Pre-built packages are available [Fedora Copr](https://copr.fedorainfracloud.org/coprs/gershnik/wsddn/) repository.
+Pre-built packages are available on [Fedora Copr](https://copr.fedorainfracloud.org/coprs/gershnik/wsddn/) repository.
 Visit that link to see currently supported distributions and architectures. 
 
 To set the repo up you need to install `copr` plugin if you haven't already done so:
@@ -194,7 +194,32 @@ journalctl -u wsddn
 
 ### Arch Linux
 
-You can install **wsdd-native** package from [AUR][aur] at https://aur.archlinux.org/packages/wsdd-native 
+Source package is available on [AUR][aur] at https://aur.archlinux.org/packages/wsdd-native 
+
+Pre-built packages are available in a custom `pacman` repository. Only `x86_64` architecture is supported.
+
+To set up the repository:
+
+1. Import the repository PGP key
+  ```bash
+  sudo pacman-key --recv-keys 'CF567A58C5DB9C6908C6E87E6EBB54370005A361' \
+    && sudo pacman-key --lsign-key 'CF567A58C5DB9C6908C6E87E6EBB54370005A361'
+  ```
+2. Add the repository configuration to `/etc/pacman.conf`
+  ```ini
+  [gershnik]
+  Server = https://www.gershnik.com/arch-repo/x86_64
+  ```
+3. Refresh the package databases
+  ```bash
+  sudo pacman -Sy
+  ```
+
+Once the repository is set up you can install `wsdd-native` as usual via:
+
+```bash
+sudo pacman -S wsdd-native
+```
 
 As per Arch Linux convention the installation does not automatically enable or start services.
 
