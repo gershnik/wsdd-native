@@ -1,0 +1,8 @@
+/var/log/wsddn.log {
+    rotate 5
+    size 100k
+    sharedscripts
+    postrotate
+        kill -HUP `cat /var/wsddn/wsddn.pid`
+    endscript
+}
