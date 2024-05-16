@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.13] - 2024-05-16
+
 ### Added
 - On Linux KSMBD configuration is now auto-detected if Samba configuration is not present.
 - Binary packages are now available for Arch Linux and Alpine
@@ -144,3 +146,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.9]: https://github.com/gershnik/wsdd-native/releases/v1.9
 [1.10]: https://github.com/gershnik/wsdd-native/releases/v1.10
 [1.12]: https://github.com/gershnik/wsdd-native/releases/v1.12
+[1.13]: https://github.com/gershnik/wsdd-native/releases/v1.13
