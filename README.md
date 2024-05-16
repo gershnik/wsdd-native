@@ -34,6 +34,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
     - [Ubuntu/Debian/Mint/Raspberry Pi](#ubuntudebianmintraspberry-pi)
     - [RedHat/CentOS/Fedora](#redhatcentosfedora)
     - [Arch Linux](#arch-linux)
+    - [Alpine](#alpine)
     - [FreeBSD](#freebsd)
     - [macOS](#macos)
         - [Standalone installer](#standalone-installer)
@@ -247,6 +248,59 @@ Daemon log can be viewed via `journalctl` as usual
 journalctl -u wsddn
 ```
 
+### Alpine
+
+Pre-built packages are available in a custom `apk` repository for Alpine 3.18 or above. 
+
+Architectures supported: `x86_64` and`aarch64`
+
+To set up the repository:
+
+1. Import the repository key
+  ```bash
+  wget -qO-  https://www.gershnik.com/alpine-repo/gershnik@hotmail.com-6643812b.rsa.pub \
+    | sudo tee /etc/apk/keys/gershnik@hotmail.com-6643812b.rsa.pub >/dev/null
+  ```
+
+2. Add the repository configuration to `/etc/apk/repositories`
+  ```txt
+  https://www.gershnik.com/alpine-repo/main
+  ```
+
+3. Update `apk`
+  ```bash
+  sudo apk update
+  ```
+
+4. Install the package. 
+  ```bash
+  sudo apk add wsdd-native
+  ```
+  
+If your Alpine system has OpenRC running (e.g. not a Docker container), OpenRC configuration will be automatically installed to.
+Otherwise, if desired, you can manually add it via `sudo apk add wsdd-native-openrc`. Similarly documentation is available via `sudo apk add wsdd-native-doc`.
+
+Under OpenRC:
+
+Enable and start the service:
+
+```bash
+sudo rc-update add wsddn
+sudo rc-service wsddn start
+```
+
+To start/stop/reload it use
+
+```bash
+sudo rc-service wsddn start
+sudo rc-service wsddn stop
+sudo rc-service wsddn reload
+```
+
+Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+If you installed documentation you can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+
+Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `logrotate`. To modify rotation settings edit `/etc/logrotate.d/wsddn`
 
 ### FreeBSD
 
