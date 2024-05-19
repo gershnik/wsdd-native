@@ -277,7 +277,7 @@ To set up the repository:
   sudo apk add wsdd-native
   ```
   
-If your Alpine system has OpenRC running (e.g. not a Docker container), OpenRC configuration will be automatically installed to.
+If your Alpine system has OpenRC running (e.g. not a Docker container), OpenRC configuration will be automatically installed too.
 Otherwise, if desired, you can manually add it via `sudo apk add wsdd-native-openrc`. Similarly documentation is available via `sudo apk add wsdd-native-doc`.
 
 Under OpenRC:
@@ -359,8 +359,7 @@ Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via
 
 On macOS there are 3 ways to install `wsddn`: via a standalone installer package, [Homebrew][homebrew] or [Macports][macports]. 
 Using a standalone installer is simpler but you will have to manually install any future updates as well.
-Homebrew/Macports are a bit more complicated to set up (and Macports also requires Xcode to be present) but it provides updatability 
-similar to Linux package managers. 
+Homebrew/Macports are a bit more complicated to set up (and Macports also requires Xcode to be present) but it provides updatability similar to Linux package managers. 
 
 For all 3 methods the supported platforms are:
 - macOS Catalina (10.15) and above
@@ -370,12 +369,13 @@ For all 3 methods the supported platforms are:
 
 To install via standalone `.pkg` installer:
 
-* Navigate to [Releases][releases] page.
-* Expand the release you wish to install and download `wsddn-macos-x.x.pkg`
-* Launch it to run GUI installer or, if you prefer, install on command line via
-  ```bash
-  sudo installer -pkg /path/to/wsddn-macos-x.x.pkg -target /
-  ```
+* Download [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.13/wsddn-macos-1.13.pkg)
+* Double click it to run and follow the prompts.
+
+If you prefer command line, you can also install via:
+```bash
+sudo installer -pkg /path/to/wsddn-macos-1.13.pkg -target /
+```
 
 To fully uninstall `wsddn` run `/usr/local/bin/wsddn-uninstall`
 
@@ -547,7 +547,7 @@ The first concern is by far the most significant one. All software contains bugs
 
 These measures are automatic and cannot be bypassed. Taken together they should limit the fallout of any vulnerability though, of course, nothing ever can be claimed to be 100% secure.
 
-Note that when running on `systemd` systems it is recommended to use its `DynamicUser` facility instead of running as root and relying on the measures above. The Debian/Ubuntu installer does so.
+Note that when running on `systemd` systems it is recommended to use its `DynamicUser` facility instead of running as root and relying on the measures above. The Debian/Ubuntu/Arch installer does so.
 
 ### Custom metadata
 
