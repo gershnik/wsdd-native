@@ -77,6 +77,11 @@ Debian 11 (bullseye). Any Debian system based upon those or newer should work.
 
 Architectures supported: `amd64` (aka `x86_64`), `arm64` (aka `aarch64`) and `armhf` 
 
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
+
 To set up the apt repository:
 
 * Import the repository public key
@@ -138,10 +143,17 @@ sudo /etc/init.d/wsddn reload
 
 and the log is available at `/var/log/wsddn.log`
 
+</details>
+
 ### RedHat/CentOS/Fedora
 
 Pre-built packages are available on [Fedora Copr](https://copr.fedorainfracloud.org/coprs/gershnik/wsddn/) repository.
 Visit that link to see currently supported distributions and architectures. 
+
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
 
 To set the repo up you need to install `copr` plugin if you haven't already done so:
 
@@ -193,11 +205,18 @@ Daemon log can be viewed via `journalctl` as usual
 journalctl -u wsddn
 ```
 
+</details>
+
 ### Arch Linux
 
 Source package is available on [AUR][aur] at https://aur.archlinux.org/packages/wsdd-native 
 
 Pre-built packages are available in a custom `pacman` repository. Only `x86_64` architecture is supported.
+
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
 
 To set up the repository:
 
@@ -248,11 +267,18 @@ Daemon log can be viewed via `journalctl` as usual
 journalctl -u wsddn
 ```
 
+</details>
+
 ### Alpine
 
 Pre-built packages are available in a custom `apk` repository for Alpine 3.18 or above. 
 
 Architectures supported: `x86_64` and`aarch64`
+
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
 
 To set up the repository:
 
@@ -302,10 +328,17 @@ If you installed documentation you can also use `man wsddn` to learn about confi
 
 Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `logrotate`. To modify rotation settings edit `/etc/logrotate.d/wsddn`
 
+</details>
+
 ### FreeBSD
 
 Pre-built packages are available for FreeBSD 13 and 14 in a custom binary package repository. 
 Both `amd64` (aka `x86_64`) and `arm64` (aka `aarch64`) architectures are supported.
+
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
 
 To set the repo up:
 
@@ -355,17 +388,24 @@ You can also use `man wsddn` to learn about configuration or see online version 
 
 Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsylogd`. To modify rotation settings edit `/usr/local/etc/newsyslog.conf.d/wsddn.conf`
 
+</details>
+
 ### macOS
 
 On macOS there are 3 ways to install `wsddn`: via a standalone installer package, [Homebrew][homebrew] or [Macports][macports]. 
 Using a standalone installer is simpler but you will have to manually install any future updates as well.
-Homebrew/Macports are a bit more complicated to set up (and Macports also requires Xcode to be present) but it provides updatability similar to Linux package managers. 
+Homebrew/Macports are a bit more complicated to set up but it provides updatability similar to Linux/BSD package managers. 
 
 For all 3 methods the supported platforms are:
 - macOS Catalina (10.15) and above
 - Both Intel and Apple Silicon
 
 #### Standalone installer
+
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
 
 To install via standalone `.pkg` installer:
 
@@ -381,6 +421,7 @@ To fully uninstall `wsddn` run `/usr/local/bin/wsddn-uninstall`
 
 Daemon will start automatically on install. 
 
+<a id="mac_usage"></a>
 To start/stop/reload the daemon use:
 
 ```bash
@@ -400,7 +441,14 @@ log show --last 15m --debug --info \
   --predicate 'subsystem CONTAINS "wsddn" OR process CONTAINS "wsddn"'
 ```
 
+</details>
+
 #### Homebrew
+
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
 
 Homebrew package ('cask') can be installed via a custom tap. 
 
@@ -416,10 +464,17 @@ Then
 brew install wsddn
 ```
 
-This installs exactly the same thing as standalone installer would so all the usage instructions [above](#standalone-installer) apply as well.
+This installs exactly the same thing as standalone installer would so all the usage instructions [above](#mac_usage) apply as well.
+
+</details>
 
 
 #### Macports
+
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
 
 Macports package can be installed via a custom repository.
 
@@ -467,6 +522,8 @@ process names containing string `wsddn`. For example:
 log show --last 15m --debug --info \
   --predicate 'subsystem CONTAINS "wsddn" OR process CONTAINS "wsddn"'
 ```
+
+</details>
 
 ## Building from sources
 
