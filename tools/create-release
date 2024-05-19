@@ -40,7 +40,17 @@ today = datetime.date.today().strftime("%a %b %d %Y")
 rpmSpec = re.sub(r'%changelog\n', f'%changelog\n* {today} gershnik - {NEW_VER}-1\n- Release {NEW_VER}\n\n', rpmSpec)
 (ROOT / "installers/rpm-systemd/wsddn.spec").write_text(rpmSpec)
 
+readme = (ROOT / 'README.md').read_text()
+readme = re.subn(r'https://github.com/gershnik/wsdd-native/releases/download/v(?:\d+(?:\.\d+))', 
+                 f'https://github.com/gershnik/wsdd-native/releases/download/v{NEW_VER}',
+                 readme)
+readme = re.subn(r'wsddn-macos-(?:\d+(?:\.\d+)).pkg',
+                 f'wsddn-macos-{NEW_VER}.pkg',
+                 readme)
+(ROOT / 'README.md').write_text(readme)
+
 subprocess.run(['git', 'add', 
+                ROOT / "README.md", 
                 ROOT / "CHANGELOG.md", 
                 ROOT / "VERSION",
                 ROOT / "installers/rpm-systemd/wsddn.spec"], check=True)
