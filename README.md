@@ -421,7 +421,6 @@ To fully uninstall `wsddn` run `/usr/local/bin/wsddn-uninstall`
 
 Daemon will start automatically on install. 
 
-<a id="mac_usage"></a>
 To start/stop/reload the daemon use:
 
 ```bash
@@ -464,7 +463,7 @@ Then
 brew install wsddn
 ```
 
-This installs exactly the same thing as standalone installer would so all the usage instructions [above](#mac_usage) apply as well.
+This installs exactly the same thing as standalone installer would so all the usage instructions under [Standalone installer](#standalone-installer) apply as well.
 
 </details>
 
