@@ -467,6 +467,8 @@ private:
                 } else if (method == S("Resolve")) {
                     WSDLOG_DEBUG("Resolve message");
                     handled = handleResolve(*doc, *xpathCtxt, responseBuilder);
+                } else if (method == S("Hello") || method == S("Bye")) {
+                    WSDLOG_TRACE("Ignoring UDP message, {}/{}", uri, method);
                 } else {
                     WSDLOG_WARN("Unknown UDP message, {}/{}", uri, method);
                 }
@@ -543,8 +545,12 @@ private:
         
         xpathCtxt.setContextNode(*doc.asNode());
         sys_string resolveAddr = xpathCtxt.eval(u8"string(/soap:Envelope/soap:Body/wsd:Resolve/wsa:EndpointReference/wsa:Address)")->stringval();
-        if (resolveAddr != m_config->endpointIdentifier()) {
+        if (resolveAddr.empty()) {
             WSDLOG_WARN("No wsa:Address in Resolve message");
+            return false;
+        }
+        if (resolveAddr != m_config->endpointIdentifier()) {
+            WSDLOG_TRACE("wsa:Address in Resolve message doesn't match ours, ignoring");
             return false;
         }
 
