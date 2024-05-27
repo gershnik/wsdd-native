@@ -108,6 +108,7 @@ static auto findSmbConfViaSamba() -> std::optional<std::filesystem::path> {
     return {};
 }
 
+#ifdef __linux__
 static auto findKsmbConf() -> std::optional<std::filesystem::path> {
     std::array paths = {
         "/etc/ksmbd/ksmbd.conf",
@@ -124,6 +125,7 @@ static auto findKsmbConf() -> std::optional<std::filesystem::path> {
     }
     return {};
 }
+#endif
 
 auto Config::findSmbConf() -> std::optional<std::filesystem::path> {
 
