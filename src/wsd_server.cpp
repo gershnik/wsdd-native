@@ -187,15 +187,15 @@ private:
                 section.newAttr(nullptr, u8"Dialect", xml_str(g_wsdpUri + S("/ThisDevice")));
                 auto & device = section.newChild(ns.wsdp, u8"ThisDevice");
                 device.newTextChild(ns.wsdp, u8"FriendlyName",    xml_str(val.friendlyName));
-                device.newTextChild(ns.wsdp, u8"FirmwareVersion", u8"1.0");
-                device.newTextChild(ns.wsdp, u8"SerialNumber",    u8"1");
+                device.newTextChild(ns.wsdp, u8"FirmwareVersion", u8"1.0"); //Currently not shown by Windows anywhere
+                device.newTextChild(ns.wsdp, u8"SerialNumber",    u8"1");   //Currently not shown by Windows anywhere
             }
             {
                 auto & section = metadata.newChild(ns.wsx, u8"MetadataSection");
                 section.newAttr(nullptr, u8"Dialect", xml_str(g_wsdpUri + S("/ThisModel")));
                 auto & model = section.newChild(ns.wsdp, u8"ThisModel");
-                model.newTextChild(ns.wsdp, u8"Manufacturer",   u8"wsddn"); //FIXME!
-                model.newTextChild(ns.wsdp, u8"ModelName",      u8"wsddn");
+                model.newTextChild(ns.wsdp, u8"Manufacturer",   u8"wsddn"); //Currently not shown by Windows anywhere
+                model.newTextChild(ns.wsdp, u8"ModelName",      u8"wsddn"); //Currently not shown by Windows anywhere
                 model.newTextChild(ns.pnpx, u8"DeviceCategory", u8"Computers");
             }
             {
