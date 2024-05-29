@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+- Removed superfluous/misleading warning log messages (#10)
+
 ## [1.13] - 2024-05-16
 
 ### Added
