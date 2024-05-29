@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.14] - 2024-05-29
+
 ### Fixed
 - Removed superfluous/misleading warning log messages (#10)
 
@@ -150,3 +152,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.10]: https://github.com/gershnik/wsdd-native/releases/v1.10
 [1.12]: https://github.com/gershnik/wsdd-native/releases/v1.12
 [1.13]: https://github.com/gershnik/wsdd-native/releases/v1.13
+[1.14]: https://github.com/gershnik/wsdd-native/releases/v1.14
