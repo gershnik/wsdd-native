@@ -27,7 +27,7 @@ mydir = Path(sys.argv[0]).parent
 
 sys.path.append(str(mydir.absolute().parent))
 
-from common import getVersion, getSrcVersion, buildCode, installCode, copyTemplated, uploadResults
+from common import getVersion, getSrcVersion, buildCode, installCode, copyTemplated
 
 parser = argparse.ArgumentParser()
 
@@ -61,7 +61,7 @@ shutil.copytree(srcdir / 'config/bsd/usr', stagedir / 'usr', dirs_exist_ok=True)
 
 copyTemplated(mydir.parent / 'wsddn.conf', stagedir / 'usr/local/etc/wsddn.conf.sample', {
     'SAMPLE_IFACE_NAME': "hn0",
-    'RELOAD_INSTRUCTIONS': f"""
+    'RELOAD_INSTRUCTIONS': """
 # sudo service wsddn reload
 # or
 # sudo kill -HUP $(</var/run/wsddn/wsddn.pid)  
@@ -95,11 +95,15 @@ shutil.copy(mydir / 'post_deinstall', workdir / '+POST_DEINSTALL')
 subprocess.run(['pkg', 'create', '--verbose', '-m', workdir, '-r',  stagedir, '-p', workdir/'plist', '-o', workdir], check=True)
 
 
+subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
+
 if args.uploadResults:
-    subprocess.run(['aws', 's3', 'cp', workdir / f'wsddn-{VERSION}.pkg', f's3://gershnik.com/bsd-repo/{ABI}/All/'], check=True)
+    ostype, oslevel, osarch = ABI.split(':')
+    abiMarker = '-'.join((ostype, oslevel, osarch))
+
+    subprocess.run(['aws', 's3', 'cp', workdir / f'wsddn-{VERSION}.pkg', f's3://gershnik-builds/freebsd/wsddn-{VERSION}-{ARCH}-{oslevel}.pkg'], 
+                   check=True)
+    subprocess.run(['aws', 's3', 'cp', builddir / 'wsddn.gz', f's3://wsddn-symbols/wsddn-{VERSION}-{abiMarker}.gz'], check=True)
     
-    subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
-    abiMarker = ABI.replace(':', '-')
-    shutil.move(builddir / 'wsddn.gz', workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.gz')
-    shutil.move(workdir / f'wsddn-{VERSION}.pkg', workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.pkg')
-    uploadResults(workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.pkg', workdir / f'wsddn-bsd-{VERSION}-{abiMarker}.gz', VERSION)
+    shutil.move(workdir / f'wsddn-{VERSION}.pkg', workdir / f'wsddn-{VERSION}-{abiMarker}.pkg')
+    subprocess.run(['gh', 'release', 'upload', f'v{VERSION}', workdir / f'wsddn-{VERSION}-{abiMarker}.pkg'], check=True)

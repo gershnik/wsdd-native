@@ -27,11 +27,11 @@ jobs:
       matrix:
         include: 
         - remote_host: debian-11
-          installer: deb-systemd
+          installer: deb
         - remote_host: debian-11-arm
-          installer: deb-systemd
+          installer: deb
         - remote_host: debian-11-armhf
-          installer: deb-systemd
+          installer: deb
         - remote_host: freebsd-13.1
           installer: bsd
         - remote_host: freebsd-14
@@ -49,10 +49,6 @@ jobs:
         git fetch --all
         git fetch -f --prune --tags
         git reset --hard ${{ github.sha }}
-        if [[ '${{ matrix.installer }}' == 'rpm-systemd' ]]; then
-            export PGP_KEY_NAME='${{ secrets.PGP_KEY_NAME }}'
-            export PGP_KEY_PASSWD='${{ secrets.PGP_KEY_PASSWD }}'
-        fi
         if [[ '${{ matrix.installer }}' == 'bsd' ]]; then
           mkdir -p out
           echo "::group::AMD64"

@@ -74,7 +74,7 @@ jobs:
 
       - name: Build
         run: |
-          installers/deb-systemd/build.py . out
+          installers/deb/build.py . out
 
   linux-old:
     runs-on: ubuntu-20.04
@@ -97,7 +97,7 @@ jobs:
   
       - name: Build
         run: |
-          installers/deb-systemd/build.py . out
+          installers/deb/build.py . out
 
   mac:
     runs-on: ${{ matrix.os }}

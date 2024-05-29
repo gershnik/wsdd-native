@@ -11,13 +11,13 @@ from pathlib import Path
 
 RELEASE = '1'
 ARCH = subprocess.run(['dpkg-architecture', '-q', 'DEB_HOST_ARCH'], check=True, capture_output=True, encoding="utf-8").stdout.strip()
-CODENAME = subprocess.run(['lsb_release', '-sc'], check=True, capture_output=True, encoding="utf-8").stdout.strip()
+#CODENAME = subprocess.run(['lsb_release', '-sc'], check=True, capture_output=True, encoding="utf-8").stdout.strip()
 
 mydir = Path(sys.argv[0]).parent
 
 sys.path.append(str(mydir.absolute().parent))
 
-from common import parseCommandLine, getVersion, buildCode, installCode, copyTemplated, uploadResults
+from common import parseCommandLine, getVersion, buildCode, installCode, copyTemplated
 
 args = parseCommandLine()
 srcdir: Path = args.srcdir
@@ -27,7 +27,7 @@ buildCode(builddir)
 
 VERSION = getVersion(builddir)
 
-workdir = builddir / 'stage/deb-systemd'
+workdir = builddir / 'stage/deb'
 stagedir = workdir / f'wsddn_{VERSION}-{RELEASE}_{ARCH}'
 shutil.rmtree(workdir, ignore_errors=True)
 stagedir.mkdir(parents=True)
@@ -94,10 +94,7 @@ subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
 
 deb = list(workdir.glob('*.deb'))[0]
 
-shutil.move(builddir / 'wsddn.gz', workdir / f'wsddn-deb-systemd-{VERSION}-{ARCH}-{CODENAME}.gz')
-
 if args.uploadResults:
-    debForRelease = workdir / f'{CODENAME}-{deb.name}'
-    shutil.copy(deb, debForRelease)
-    subprocess.run(['aws', 's3', 'cp', debForRelease, 's3://gershnik.com/apt-repo/pool/main/'], check=True)
-    uploadResults(debForRelease, workdir / f'wsddn-deb-systemd-{VERSION}-{ARCH}-{CODENAME}.gz', VERSION)
+    subprocess.run(['aws', 's3', 'cp', deb, 's3://gershnik-builds/apt/'], check=True)
+    subprocess.run(['aws', 's3', 'cp', builddir / 'wsddn.gz', f's3://wsddn-symbols/wsddn-deb-{VERSION}-{ARCH}.gz'], check=True)
+    subprocess.run(['gh', 'release', 'upload', f'v{VERSION}', deb], check=True)
