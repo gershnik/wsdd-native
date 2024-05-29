@@ -17,7 +17,7 @@ mydir = Path(sys.argv[0]).parent
 
 sys.path.append(str(mydir.absolute().parent))
 
-from common import parseCommandLine, getVersion, buildCode, installCode, copyTemplated, uploadResults
+from common import parseCommandLine, getVersion, buildCode, installCode, copyTemplated
 
 args = parseCommandLine()
 srcdir: Path = args.srcdir
@@ -127,4 +127,5 @@ if args.sign:
 
 if args.uploadResults:
     subprocess.run(['tar', '-C', builddir, '-czf', workdir.absolute() / f'wsddn-macos-{VERSION}.dSYM.tgz', 'wsddn.dSYM'], check=True)
-    uploadResults(installer, workdir / f'wsddn-macos-{VERSION}.dSYM.tgz', VERSION)
+    subprocess.run(['aws', 's3', 'cp', workdir / f'wsddn-macos-{VERSION}.dSYM.tgz', f's3://wsddn-symbols/'], check=True)
+    subprocess.run(['gh', 'release', 'upload', f'v{VERSION}', installer], check=True)
