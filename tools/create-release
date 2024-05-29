@@ -43,10 +43,10 @@ rpmSpec = re.sub(r'%changelog\n', f'%changelog\n* {today} gershnik - {NEW_VER}-1
 readme = (ROOT / 'README.md').read_text()
 readme = re.subn(r'https://github.com/gershnik/wsdd-native/releases/download/v(?:\d+(?:\.\d+))', 
                  f'https://github.com/gershnik/wsdd-native/releases/download/v{NEW_VER}',
-                 readme)
+                 readme)[0]
 readme = re.subn(r'wsddn-macos-(?:\d+(?:\.\d+)).pkg',
                  f'wsddn-macos-{NEW_VER}.pkg',
-                 readme)
+                 readme)[0]
 (ROOT / 'README.md').write_text(readme)
 
 subprocess.run(['git', 'add', 
