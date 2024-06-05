@@ -108,7 +108,7 @@ sudo apt update
 sudo apt install wsddn
 ```
 
-If you have UFW firewall running do
+If you have UFW firewall running, do
 
 ```bash
 sudo ufw allow wsddn
@@ -241,6 +241,12 @@ Once the repository is set up you can install `wsdd-native` as usual via:
 sudo pacman -S wsdd-native
 ```
 
+If you have UFW firewall running, do
+
+```bash
+sudo ufw allow wsddn
+```
+
 As per Arch Linux convention the installation does not automatically enable or start services.
 
 Enable and start the daemon:
@@ -288,9 +294,11 @@ To set up the repository:
     | sudo tee /etc/apk/keys/gershnik@hotmail.com-6643812b.rsa.pub >/dev/null
   ```
 
-2. Add the repository configuration to `/etc/apk/repositories`
-  ```txt
-  https://www.gershnik.com/alpine-repo/main
+2. Add new repo
+  ```bash
+  sudo mkdir -p /etc/apk/repositories.d && \
+  echo "https://www.gershnik.com/alpine-repo/main" \
+    | sudo tee /etc/apk/repositories.d/www.gershnik.com.list >/dev/null
   ```
 
 3. Update `apk`
