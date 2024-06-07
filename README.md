@@ -31,16 +31,16 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 
 - [Features](#features)
 - [Binary packages](#binary-packages)
+    - [macOS](#macos)
+        - [Standalone installer](#standalone-installer)
+        - [Homebrew](#homebrew)
+        - [Macports](#macports)
     - [Ubuntu/Debian/Mint/Raspberry Pi](#ubuntudebianmintraspberry-pi)
     - [RedHat/CentOS/Fedora](#redhatcentosfedora)
     - [OpenSUSE](#opensuse)
     - [Arch Linux](#arch-linux)
     - [Alpine](#alpine)
     - [FreeBSD](#freebsd)
-    - [macOS](#macos)
-        - [Standalone installer](#standalone-installer)
-        - [Homebrew](#homebrew)
-        - [Macports](#macports)
 - [Building from sources](#building-from-sources)
     - [Prerequisites](#prerequisites)
     - [Building and installing](#building-and-installing)
@@ -70,6 +70,141 @@ There are a couple of similar projects available: [wsdd][wsdd] written in Python
 The biggest drawback of **wsdd-native** compared to these projects is that it requires modern (as of 2022) C++ compiler to build and set of modern `libc`, `libstdc++`/`libc++` etc. to run. This usually limits it to recent versions of operating systems it supports. (It is possible to build it on older ones with newer toolchains but doing so is non-trivial). Of course, as time passes this limitation will become less and less significant.
 
 ## Binary packages
+
+### macOS
+
+On macOS there are 3 ways to install `wsddn`: via a standalone installer package, [Homebrew][homebrew] or [Macports][macports]. 
+Using a standalone installer is simpler but you will have to manually install any future updates as well.
+Homebrew/Macports are a bit more complicated to set up but it provides updatability similar to Linux/BSD package managers. 
+
+For all 3 methods the supported platforms are:
+- macOS Catalina (10.15) and above
+- Both Intel and Apple Silicon
+
+#### Standalone installer
+
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
+
+To install via standalone `.pkg` installer:
+
+* Download [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.14/wsddn-macos-1.14.pkg)
+* Double click it to run and follow the prompts.
+
+If you prefer command line, you can also install via:
+```bash
+sudo installer -pkg /path/to/wsddn-macos-1.14.pkg -target /
+```
+
+To fully uninstall `wsddn` run `/usr/local/bin/wsddn-uninstall`
+
+Daemon will start automatically on install. 
+
+To start/stop/reload the daemon use:
+
+```bash
+sudo launchctl kickstart system/io.github.gershnik.wsddn
+sudo launchctl kill TERM system/io.github.gershnik.wsddn
+sudo launchctl kill HUP system/io.github.gershnik.wsddn
+```
+
+Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+
+Daemon and related logs can be viewed in system log by searching for subsystem or
+process names containing string `wsddn`. For example:
+
+```bash
+log show --last 15m --debug --info \
+  --predicate 'subsystem CONTAINS "wsddn" OR process CONTAINS "wsddn"'
+```
+
+</details>
+
+#### Homebrew
+
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
+
+Homebrew package ('cask') can be installed via a custom tap. 
+
+To set it up
+
+```bash
+brew tap gershnik/repo
+```
+
+Then
+
+```bash
+brew install wsddn
+```
+
+This installs exactly the same thing as standalone installer would so all the usage instructions under [Standalone installer](#standalone-installer) apply as well.
+
+</details>
+
+
+#### Macports
+
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
+
+Macports package can be installed via a custom repository.
+
+To set the repo up:
+
+```bash
+sudo bash <<'___'
+set -e
+pemurl=https://gershnik.com/macports-repo/macports.pem
+porturl=https://www.gershnik.com/macports-repo/ports.tar.bz2
+prefix=$(dirname $(dirname $(which port)))
+pemfile="$prefix/share/macports/gershnik.pem"
+pubkeysfile="$prefix/etc/macports/pubkeys.conf"
+sourcesfile="$prefix/etc/macports/sources.conf"
+curl -s $pemurl > "$pemfile"
+grep -qxF "$pemfile" "$pubkeysfile" || echo $pemfile >> "$pubkeysfile"
+grep -qxF "$porturl" "$sourcesfile" || echo $porturl >> "$sourcesfile"
+sudo port sync
+___
+```
+
+Then you can install `wsddn` as usual via
+
+```bash
+sudo port install wsddn
+```
+
+Daemon will start automatically on install. 
+
+To start/stop/reload the daemon use:
+
+```bash
+sudo launchctl kickstart system/org.macports.wsddn
+sudo launchctl kill TERM system/org.macports.wsddn
+sudo launchctl kill HUP system/org.macports.wsddn
+```
+
+Configuration file will be at `/opt/local/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+
+Daemon and related logs can be viewed in system log by searching for subsystem or
+process names containing string `wsddn`. For example:
+
+```bash
+log show --last 15m --debug --info \
+  --predicate 'subsystem CONTAINS "wsddn" OR process CONTAINS "wsddn"'
+```
+
+</details>
+
 
 ### Ubuntu/Debian/Mint/Raspberry Pi 
 
@@ -458,140 +593,6 @@ Configuration file will be at `/usr/local/etc/wsddn.conf`. Comments inside indic
 You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
 
 Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsylogd`. To modify rotation settings edit `/usr/local/etc/newsyslog.conf.d/wsddn.conf`
-
-</details>
-
-### macOS
-
-On macOS there are 3 ways to install `wsddn`: via a standalone installer package, [Homebrew][homebrew] or [Macports][macports]. 
-Using a standalone installer is simpler but you will have to manually install any future updates as well.
-Homebrew/Macports are a bit more complicated to set up but it provides updatability similar to Linux/BSD package managers. 
-
-For all 3 methods the supported platforms are:
-- macOS Catalina (10.15) and above
-- Both Intel and Apple Silicon
-
-#### Standalone installer
-
-<details>
-
-<summary>Setup and usage (click to expand)</summary>
-<br>
-
-To install via standalone `.pkg` installer:
-
-* Download [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.14/wsddn-macos-1.14.pkg)
-* Double click it to run and follow the prompts.
-
-If you prefer command line, you can also install via:
-```bash
-sudo installer -pkg /path/to/wsddn-macos-1.14.pkg -target /
-```
-
-To fully uninstall `wsddn` run `/usr/local/bin/wsddn-uninstall`
-
-Daemon will start automatically on install. 
-
-To start/stop/reload the daemon use:
-
-```bash
-sudo launchctl kickstart system/io.github.gershnik.wsddn
-sudo launchctl kill TERM system/io.github.gershnik.wsddn
-sudo launchctl kill HUP system/io.github.gershnik.wsddn
-```
-
-Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
-
-Daemon and related logs can be viewed in system log by searching for subsystem or
-process names containing string `wsddn`. For example:
-
-```bash
-log show --last 15m --debug --info \
-  --predicate 'subsystem CONTAINS "wsddn" OR process CONTAINS "wsddn"'
-```
-
-</details>
-
-#### Homebrew
-
-<details>
-
-<summary>Setup and usage (click to expand)</summary>
-<br>
-
-Homebrew package ('cask') can be installed via a custom tap. 
-
-To set it up
-
-```bash
-brew tap gershnik/repo
-```
-
-Then
-
-```bash
-brew install wsddn
-```
-
-This installs exactly the same thing as standalone installer would so all the usage instructions under [Standalone installer](#standalone-installer) apply as well.
-
-</details>
-
-
-#### Macports
-
-<details>
-
-<summary>Setup and usage (click to expand)</summary>
-<br>
-
-Macports package can be installed via a custom repository.
-
-To set the repo up:
-
-```bash
-sudo bash <<'___'
-set -e
-pemurl=https://gershnik.com/macports-repo/macports.pem
-porturl=https://www.gershnik.com/macports-repo/ports.tar.bz2
-prefix=$(dirname $(dirname $(which port)))
-pemfile="$prefix/share/macports/gershnik.pem"
-pubkeysfile="$prefix/etc/macports/pubkeys.conf"
-sourcesfile="$prefix/etc/macports/sources.conf"
-curl -s $pemurl > "$pemfile"
-grep -qxF "$pemfile" "$pubkeysfile" || echo $pemfile >> "$pubkeysfile"
-grep -qxF "$porturl" "$sourcesfile" || echo $porturl >> "$sourcesfile"
-sudo port sync
-___
-```
-
-Then you can install `wsddn` as usual via
-
-```bash
-sudo port install wsddn
-```
-
-Daemon will start automatically on install. 
-
-To start/stop/reload the daemon use:
-
-```bash
-sudo launchctl kickstart system/org.macports.wsddn
-sudo launchctl kill TERM system/org.macports.wsddn
-sudo launchctl kill HUP system/org.macports.wsddn
-```
-
-Configuration file will be at `/opt/local/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
-
-Daemon and related logs can be viewed in system log by searching for subsystem or
-process names containing string `wsddn`. For example:
-
-```bash
-log show --last 15m --debug --info \
-  --predicate 'subsystem CONTAINS "wsddn" OR process CONTAINS "wsddn"'
-```
 
 </details>
 
