@@ -1,13 +1,13 @@
 Name:           wsddn
 Version:        1.14
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        WS-Discovery Host Daemon
 
 License:        BSD-3-Clause
 URL:            https://github.com/gershnik/wsdd-native
 Source0:        https://github.com/gershnik/wsdd-native/archive/refs/tags/v%{version}.zip
 
-BuildRequires:  gcc-c++ git make systemd-devel systemd-rpm-macros
+BuildRequires:  gcc-c++ git make curl unzip systemd-devel systemd-rpm-macros
 
 Conflicts:      wsdd
 
