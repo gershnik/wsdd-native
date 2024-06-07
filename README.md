@@ -33,6 +33,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 - [Binary packages](#binary-packages)
     - [Ubuntu/Debian/Mint/Raspberry Pi](#ubuntudebianmintraspberry-pi)
     - [RedHat/CentOS/Fedora](#redhatcentosfedora)
+    - [OpenSUSE](#opensuse)
     - [Arch Linux](#arch-linux)
     - [Alpine](#alpine)
     - [FreeBSD](#freebsd)
@@ -177,6 +178,68 @@ Once the repository is set up you can install `wsddn` as usual via
 sudo dnf install wsddn
 #or with yum
 #sudo yum install wsddn
+```
+
+On first install firewall ports `5357/tcp` and `3702/udp` will be opened. 
+
+Enable and start the daemon:
+
+```bash
+sudo systemctl enable wsddn
+sudo systemctl start wsddn
+```
+
+To start/stop/reload it use
+
+```bash
+sudo systemctl start wsddn
+sudo systemctl stop wsddn
+sudo systemctl reload wsddn
+```
+
+Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+
+Daemon log can be viewed via `journalctl` as usual
+
+```bash
+journalctl -u wsddn
+```
+
+</details>
+
+### OpenSUSE
+
+Pre-built OpenSUSE packages for Tumbleweed are available via [Fedora Copr](https://copr.fedorainfracloud.org/coprs/gershnik/wsddn/). Supported architectures are `x86_64` and `aarch64`. 
+
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
+
+To set up the repository:
+
+1. Import the repository PGP key
+  ```bash
+  wget -qO wsddn.gpg  https://download.copr.fedorainfracloud.org/results/gershnik/wsddn/pubkey.gpg \
+    && sudo rpm --import wsddn.gpg \
+    && rm wsddn.gpg
+  ```
+2. Add the repository configuration to `zypper`
+  ```bash
+  sudo zypper addrepo -f https://download.copr.fedorainfracloud.org/results/gershnik/wsddn/opensuse-tumbleweed-$(arch) wsddn
+  ```
+3. Refresh `zypper`
+  ```bash
+  sudo zypper refresh
+  ```
+  You will receive a warning saying something like `Warning: File 'repomd.xml' from repository 'wsddn' is unsigned ...`. This is expected as Fedora Copr doesn't sign the repository itself, only actual RPMs.
+  Answer `y` to allow.
+
+Once the repository is set up you can install `wsddn` as usual via:
+
+```bash
+sudo zypper in wsddn
 ```
 
 On first install firewall ports `5357/tcp` and `3702/udp` will be opened. 
