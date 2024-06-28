@@ -41,10 +41,10 @@ rpmSpec = re.sub(r'%changelog\n', f'%changelog\n* {today} gershnik - {NEW_VER}-1
 (ROOT / "installers/rpm/wsddn.spec").write_text(rpmSpec)
 
 readme = (ROOT / 'README.md').read_text()
-readme = re.subn(r'https://github.com/gershnik/wsdd-native/releases/download/v(?:\d+(?:\.\d+))', 
+readme = re.subn(r'https://github.com/gershnik/wsdd-native/releases/download/v(?:\d+(?:\.\d+)+)', 
                  f'https://github.com/gershnik/wsdd-native/releases/download/v{NEW_VER}',
                  readme)[0]
-readme = re.subn(r'wsddn-macos-(?:\d+(?:\.\d+)).pkg',
+readme = re.subn(r'wsddn-macos-(?:\d+(?:\.\d+)+).pkg',
                  f'wsddn-macos-{NEW_VER}.pkg',
                  readme)[0]
 (ROOT / 'README.md').write_text(readme)
