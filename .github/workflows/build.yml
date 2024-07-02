@@ -49,17 +49,12 @@ jobs:
         git fetch --all
         git fetch -f --prune --tags
         git reset --hard ${{ github.sha }}
-
-        export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
         if [[ '${{ matrix.installer }}' == 'bsd' ]]; then
           mkdir -p out
           echo "::group::AMD64"
           [ -d "out/amd64" ] && tools/uncache out/amd64
           cmake -S . -B out/amd64 -DCMAKE_BUILD_TYPE=RelWithDebInfo 
           installers/bsd/build.py . out/amd64
-          tools/upload-dependencies -v 0 --sha ${{ github.sha }} --ref ${{ github.ref }} --jid ${{ github.job }} \
-            --jcor '${{ github.workflow }}_${{ github.job }}_${{ matrix.remote_host }}_amd64' \
-            out/amd64/dependencies.json
           echo "::endgroup::"
 
           echo "::group::ARM64"
@@ -67,17 +62,11 @@ jobs:
           [ -d "out/arm64" ] && tools/uncache out/arm64
           cmake -S . -B out/arm64 -DCMAKE_TOOLCHAIN_FILE=out/toolchain-arm64/toolchain.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo
           installers/bsd/build.py --arch=aarch64 . out/arm64
-          tools/upload-dependencies -v 0 --sha ${{ github.sha }} --ref ${{ github.ref }} --jid ${{ github.job }} \
-            --jcor '${{ github.workflow }}_${{ github.job }}_${{ matrix.remote_host }}_arm64' \
-            out/arm64/dependencies.json
           echo "::endgroup::"
         else
           [ -d "out" ] && tools/uncache out
           cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
           installers/${{ matrix.installer }}/build.py --sign . out
-          tools/upload-dependencies -v 0 --sha ${{ github.sha }} --ref ${{ github.ref }} --jid ${{ github.job }} \
-            --jcor '${{ github.workflow }}_${{ github.job }}_${{ matrix.remote_host }}' \
-            out/dependencies.json
         fi
         EOF
 
@@ -107,8 +96,6 @@ jobs:
             "-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64"
 
     - name: Build
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |     
         export SIGN_CERTIFICATE='${{ secrets.SIGN_CERTIFICATE }}'
         export SIGN_CERTIFICATE_PWD='${{ secrets.SIGN_CERTIFICATE_PWD }}'
@@ -118,10 +105,6 @@ jobs:
         installers/mac/set-github-keychain
 
         installers/mac/build.py --sign . out
-
-        tools/upload-dependencies -v 0 --sha ${{ github.sha }} --ref ${{ github.ref }} --jid ${{ github.job }} \
-            --jcor '${{ github.workflow }}_${{ github.job }}_mac' \
-            out/dependencies.json
 
 
 
