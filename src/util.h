@@ -74,7 +74,7 @@ template <> struct fmt::formatter<NetworkInterface> {
         return it;
     }
     template <typename FormatContext>
-    auto format(const NetworkInterface & iface, FormatContext & ctx) -> decltype(ctx.out()) {
+    auto format(const NetworkInterface & iface, FormatContext & ctx) const -> decltype(ctx.out()) {
         return fmt::format_to(ctx.out(), "{}(idx: {})", iface.name, iface.index);
     }
 };

@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Changed
+- Updated 3rd party dependencies
+
 ## [1.14] - 2024-05-29
 
 ### Fixed

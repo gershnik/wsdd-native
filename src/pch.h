@@ -113,7 +113,7 @@ template <> struct fmt::formatter<sys_string> : private fmt::formatter<const cha
     using super::parse;
 
     template <typename FormatContext>
-    auto format(const sys_string & str, FormatContext & ctx) -> decltype(ctx.out()) {
+    auto format(const sys_string & str, FormatContext & ctx) const -> decltype(ctx.out()) {
         return super::format(str.c_str(), ctx);
     }
 };

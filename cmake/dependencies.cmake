@@ -34,7 +34,7 @@ list(APPEND DEPENDECIES_JSON "\"sys_string\": \"pkg:github/${SYS_STRING_REPO}@${
 #################################################
 
 set(ISPTR_REPO gershnik/intrusive_shared_ptr)
-set(ISPTR_VER v1.4)
+set(ISPTR_VER v1.5)
 FetchContent_Declare(isptr
     GIT_REPOSITORY  https://github.com/${ISPTR_REPO}.git
     GIT_TAG         ${ISPTR_VER}
@@ -46,7 +46,7 @@ list(APPEND DEPENDECIES_JSON "\"isptr\": \"pkg:github/${ISPTR_REPO}@${ISPTR_VER}
 #################################################
 
 set(PTL_REPO gershnik/ptl)
-set(PTL_VER v1.2)
+set(PTL_VER v1.3)
 FetchContent_Declare(ptl
     GIT_REPOSITORY  https://github.com/${PTL_REPO}.git
     GIT_TAG         ${PTL_VER}
@@ -77,7 +77,7 @@ if (NOT LibXml2_FOUND)
     set(LIBXML2_WITH_MODULES OFF)
     set(LIBXML2_WITH_PROGRAMS OFF)
 
-    set(LIBXML_VER v2.12.6)
+    set(LIBXML_VER v2.13.4)
     FetchContent_Declare(libxml2
         GIT_REPOSITORY  https://gitlab.gnome.org/GNOME/libxml2.git
         GIT_TAG         ${LIBXML_VER}
@@ -91,7 +91,7 @@ endif()
 #################################################
 
 set(UUID_REPO gershnik/libuuid-cmake)
-set(UUID_VER v2.40.1)
+set(UUID_VER v2.40.2)
 FetchContent_Declare(libuuid
     GIT_REPOSITORY  https://github.com/${UUID_REPO}.git
     GIT_TAG         ${UUID_VER}
@@ -105,7 +105,7 @@ list(APPEND DEPENDECIES_JSON "\"libuuid\": \"pkg:github/${UUID_REPO}@${UUID_VER}
 set(FMT_INSTALL OFF)
 
 set(FMT_REPO fmtlib/fmt)
-set(FMT_VER 10.2.1)
+set(FMT_VER 11.0.2)
 FetchContent_Declare(fmt
     GIT_REPOSITORY  https://github.com/${FMT_REPO}
     GIT_TAG         ${FMT_VER}
@@ -122,7 +122,7 @@ set(SPDLOG_NO_TLS ON CACHE BOOL "prevent spdlog from using thread local storage"
 set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt library instead of bundled")
 
 set(SPDLOG_REPO gabime/spdlog)
-set(SPDLOG_VER v1.13.0)
+set(SPDLOG_VER v1.14.1)
 FetchContent_Declare(spdlog
     GIT_REPOSITORY  https://github.com/${SPDLOG_REPO}
     GIT_TAG         ${SPDLOG_VER}
@@ -150,7 +150,7 @@ list(APPEND DEPENDECIES_JSON "\"tomlplusplus\": \"pkg:github/${TOMPLUSPLUS_REPO}
 #################################################
 
 set(OUTCOME_REPO ned14/outcome)
-set(OUTCOME_VER v2.2.8)
+set(OUTCOME_VER v2.2.10)
 # FetchContent_Declare(outcome
 #     GIT_REPOSITORY  https://github.com/${OUTCOME_REPO}
 #     GIT_TAG         ${OUTCOME_VER}
