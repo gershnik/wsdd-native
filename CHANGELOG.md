@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.15] - 2024-10-03
+
 ### Changed
 - Updated 3rd party dependencies
 
@@ -122,3 +124,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.12]: https://github.com/gershnik/wsdd-native/releases/v1.12
 [1.13]: https://github.com/gershnik/wsdd-native/releases/v1.13
 [1.14]: https://github.com/gershnik/wsdd-native/releases/v1.14
+[1.15]: https://github.com/gershnik/wsdd-native/releases/v1.15
