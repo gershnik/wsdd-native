@@ -64,10 +64,14 @@ struct XmlParserInit {
     XmlParserInit() {
         xmlInitParser();
         xmlSetGenericErrorFunc(nullptr, XmlParserInit::errorFunc);
+        #if LIBXML_VERSION < 21300
         xmlThrDefSetGenericErrorFunc(nullptr, XmlParserInit::errorFunc);
+        #endif
 
         xmlSetStructuredErrorFunc(nullptr, XmlParserInit::structuredErrorFunc);
+        #if LIBXML_VERSION < 21300
         xmlThrDefSetStructuredErrorFunc(nullptr, XmlParserInit::structuredErrorFunc);
+        #endif
     }
     ~XmlParserInit() {
         xmlCleanupParser();
