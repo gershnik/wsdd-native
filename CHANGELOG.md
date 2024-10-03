@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Changed
+- Updated 3rd party dependencies
+
 ## [1.14] - 2024-05-29
 
 ### Fixed
@@ -35,41 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 - Crash when looking up Samba configuration and `whereis` tool is not present on the host
-<!-- TOC -->
 
-- [Unreleased](#unreleased)
-    - [Added](#added)
-    - [Fixed](#fixed)
-- [[1.12] - 2024-05-06](#112---2024-05-06)
-    - [Added](#added)
-- [[1.10] - 2024-04-30](#110---2024-04-30)
-    - [Added](#added)
-    - [Fixed](#fixed)
-- [[1.6] - 2023-07-29](#16---2023-07-29)
-    - [Added](#added)
-    - [Changed](#changed)
-- [[1.5] - 2023-07-21](#15---2023-07-21)
-    - [Fixed:](#fixed)
-    - [Changed:](#changed)
-- [[1.4] - 2023-06-16](#14---2023-06-16)
-    - [Fixed:](#fixed)
-- [[1.3] - 2023-05-27](#13---2023-05-27)
-    - [Added](#added)
-    - [Fixed](#fixed)
-    - [Changed](#changed)
-- [[1.2] - 2023-05-21](#12---2023-05-21)
-    - [Fixed](#fixed)
-    - [Changed](#changed)
-- [[1.1] - 2023-05-19](#11---2023-05-19)
-    - [Added](#added)
-    - [Changed](#changed)
-    - [Fixed](#fixed)
-- [[1.0] - 2022-07-25](#10---2022-07-25)
-    - [Added](#added)
-- [[0.6] - 2022-07-24](#06---2022-07-24)
-    - [Added](#added)
-
-<!-- /TOC -->
 ## [1.6] - 2023-07-29
 
 ### Added

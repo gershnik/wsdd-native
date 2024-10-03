@@ -63,11 +63,18 @@ private:
 struct XmlParserInit {
     XmlParserInit() {
         xmlInitParser();
+
+    //libxml marked xmlThrDefXxx variants deprecated without providing any sane
+    //alternative to suppress its idiotic default logging to stderr
+    //We will keep using these for now.
+    WSDDN_IGNORE_DEPRECATED_BEGIN
         xmlSetGenericErrorFunc(nullptr, XmlParserInit::errorFunc);
         xmlThrDefSetGenericErrorFunc(nullptr, XmlParserInit::errorFunc);
-
+        
         xmlSetStructuredErrorFunc(nullptr, XmlParserInit::structuredErrorFunc);
         xmlThrDefSetStructuredErrorFunc(nullptr, XmlParserInit::structuredErrorFunc);
+    WSDDN_IGNORE_DEPRECATED_END
+    
     }
     ~XmlParserInit() {
         xmlCleanupParser();
