@@ -6,6 +6,26 @@
 
 #include <sys_config.h>
 
+#ifdef __GNUC__
+    #define WSDDN_SUPPRESS_WARNINGS_BEGIN _Pragma("GCC diagnostic push") 
+    #define WSDDN_SUPPRESS_WARNING_HELPER0(arg) #arg
+    #define WSDDN_SUPPRESS_WARNING_HELPER1(name) WSDDN_SUPPRESS_WARNING_HELPER0(GCC diagnostic ignored name)
+    #define WSDDN_SUPPRESS_WARNING_HELPER2(name) WSDDN_SUPPRESS_WARNING_HELPER1(#name)
+    #define WSDDN_SUPPRESS_WARNING(name) _Pragma(WSDDN_SUPPRESS_WARNING_HELPER2(name))
+    #define WSDDN_SUPPRESS_WARNINGS_END _Pragma("GCC diagnostic pop")
+    
+    #define WSDDN_IGNORE_DEPRECATED_BEGIN WSDDN_SUPPRESS_WARNINGS_BEGIN \
+        WSDDN_SUPPRESS_WARNING(-Wdeprecated-declarations)
+    #define WSDDN_IGNORE_DEPRECATED_END WSDDN_SUPPRESS_WARNINGS_END
+#else
+    #define WSDDN_SUPPRESS_WARNINGS_BEGIN
+    #define WSDDN_SUPPRESS_WARNING(x)
+    #define WSDDN_SUPPRESS_WARNINGS_END
+
+    #define WSDDN_IGNORE_DEPRECATED_BEGIN
+    #define WSDDN_IGNORE_DEPRECATED_END
+#endif
+
 #include <argum/parser.h>
 #include <argum/type-parsers.h>
 #include <argum/validators.h>
@@ -14,12 +34,12 @@
 
 //must come before sys_string due to S macro collision
 #ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+    WSDDN_SUPPRESS_WARNINGS_BEGIN
+    WSDDN_SUPPRESS_WARNING(-Wshorten-64-to-32)
 #endif
 #include <asio.hpp>
 #ifdef __clang__
-#pragma clang diagnostic pop
+    WSDDN_SUPPRESS_WARNINGS_END
 #endif
 
 #include <sys_string/sys_string.h>
