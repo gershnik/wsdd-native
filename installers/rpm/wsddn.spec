@@ -1,6 +1,6 @@
 Name:           wsddn
 Version:        1.15
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        WS-Discovery Host Daemon
 
 License:        BSD-3-Clause
@@ -27,8 +27,8 @@ fi
 [ -d wsdd-native-%{version} ] || unzip -qq %{_topdir}/SOURCES/v%{version}.zip
 
 %build
-export PATH=%{_topdir}/BUILD/cmake/bin:$PATH
-cd %{_topdir}/BUILD/wsdd-native-%{version}
+export PATH=`pwd`/cmake/bin:$PATH
+cd wsdd-native-%{version}
 cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo
 cmake --build out -- %{?_smp_mflags}
 cp installers/wsddn.conf out/
@@ -37,8 +37,8 @@ sed -i "s/{SAMPLE_IFACE_NAME}/eth0/g" out/wsddn.conf
 
 
 %install
-export PATH=%{_topdir}/BUILD/cmake/bin:$PATH
-cd %{_topdir}/BUILD/wsdd-native-%{version}
+export PATH=`pwd`/cmake/bin:$PATH
+cd wsdd-native-%{version}
 cmake --install out --prefix %{buildroot}/usr
 mkdir -p %{buildroot}/usr/lib/systemd/system
 install -m 0644 config/systemd/usr/lib/systemd/system/%{name}.service \
