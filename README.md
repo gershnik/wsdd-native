@@ -354,7 +354,9 @@ journalctl -u wsddn
 
 ### OpenSUSE
 
-Pre-built OpenSUSE packages for Tumbleweed are available via [Fedora Copr](https://copr.fedorainfracloud.org/coprs/gershnik/wsddn/). Supported architectures are `x86_64` and `aarch64`. 
+Pre-built OpenSUSE packages for Tumbleweed are available via [Fedora Copr](https://copr.fedorainfracloud.org/coprs/gershnik/wsddn/). 
+
+Architectures supported: `x86_64` and`aarch64`
 
 <details>
 
@@ -418,7 +420,9 @@ journalctl -u wsddn
 
 Source package is available on [AUR][aur] at https://aur.archlinux.org/packages/wsdd-native 
 
-Pre-built packages are available in a custom `pacman` repository. Only `x86_64` architecture is supported.
+Pre-built packages are available in a custom `pacman` repository.
+
+Architectures supported: `x86_64` and`aarch64`
 
 <details>
 
@@ -435,7 +439,7 @@ To set up the repository:
 2. Add the repository configuration to `/etc/pacman.conf`
   ```ini
   [gershnik]
-  Server = https://www.gershnik.com/arch-repo/x86_64
+  Server = https://www.gershnik.com/arch-repo/$arch
   ```
 3. Refresh the package databases
   ```bash
