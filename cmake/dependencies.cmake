@@ -122,11 +122,14 @@ set(SPDLOG_NO_TLS ON CACHE BOOL "prevent spdlog from using thread local storage"
 set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt library instead of bundled")
 
 set(SPDLOG_REPO gabime/spdlog)
-set(SPDLOG_VER v1.14.1)
+set(SPDLOG_VER v1.15.0)
 FetchContent_Declare(spdlog
     GIT_REPOSITORY  https://github.com/${SPDLOG_REPO}
     GIT_TAG         ${SPDLOG_VER}
     GIT_SHALLOW     TRUE
+
+    PATCH_COMMAND    patch -p0 -s -f -i ${CMAKE_CURRENT_LIST_DIR}/patches/spdlog.diff 
+    LOG_PATCH        ON
 )
 list(APPEND DECLARED_DEPENDENCIES spdlog)
 list(APPEND DEPENDECIES_JSON "\"spdlog\": \"pkg:github/${SPDLOG_REPO}@${SPDLOG_VER}\"")
