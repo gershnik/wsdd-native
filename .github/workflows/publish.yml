@@ -75,7 +75,7 @@ jobs:
     runs-on: macos-14
     needs: prepare
     env: 
-      DEVELOPER_DIR: /Applications/Xcode_15.4.app
+      DEVELOPER_DIR: /Applications/Xcode_16.2.app
     
     steps:
     - name: Checkout
