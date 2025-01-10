@@ -22,7 +22,7 @@ list(APPEND DEPENDECIES_JSON "\"argum\": \"pkg:github/${ARGUM_REPO}@${ARGUM_VER}
 #################################################
 
 set(SYS_STRING_REPO gershnik/sys_string)
-set(SYS_STRING_VER v2.14)
+set(SYS_STRING_VER v2.16)
 FetchContent_Declare(sys_string
     GIT_REPOSITORY  https://github.com/${SYS_STRING_REPO}.git
     GIT_TAG         ${SYS_STRING_VER}
@@ -77,7 +77,7 @@ if (NOT LibXml2_FOUND)
     set(LIBXML2_WITH_MODULES OFF)
     set(LIBXML2_WITH_PROGRAMS OFF)
 
-    set(LIBXML_VER v2.13.4)
+    set(LIBXML_VER v2.13.5)
     FetchContent_Declare(libxml2
         GIT_REPOSITORY  https://gitlab.gnome.org/GNOME/libxml2.git
         GIT_TAG         ${LIBXML_VER}
@@ -105,7 +105,7 @@ list(APPEND DEPENDECIES_JSON "\"libuuid\": \"pkg:github/${UUID_REPO}@${UUID_VER}
 set(FMT_INSTALL OFF)
 
 set(FMT_REPO fmtlib/fmt)
-set(FMT_VER 11.0.2)
+set(FMT_VER 11.1.1)
 FetchContent_Declare(fmt
     GIT_REPOSITORY  https://github.com/${FMT_REPO}
     GIT_TAG         ${FMT_VER}
@@ -150,7 +150,7 @@ list(APPEND DEPENDECIES_JSON "\"tomlplusplus\": \"pkg:github/${TOMPLUSPLUS_REPO}
 #################################################
 
 set(OUTCOME_REPO ned14/outcome)
-set(OUTCOME_VER v2.2.10)
+set(OUTCOME_VER v2.2.11)
 # FetchContent_Declare(outcome
 #     GIT_REPOSITORY  https://github.com/${OUTCOME_REPO}
 #     GIT_TAG         ${OUTCOME_VER}
