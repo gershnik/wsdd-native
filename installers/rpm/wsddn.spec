@@ -63,6 +63,8 @@ install -m 0644 config/firewalls/etc/firewalld/services/%{name}-http.xml \
 /usr/bin/wsddn
 %doc /usr/share/man/man8/wsddn.8.gz
 /usr/lib/systemd/system/wsddn.service
+/usr/lib/firewalld/services/wsddn.xml
+/usr/lib/firewalld/services/wsddn-http.xml
 %config(noreplace) /etc/wsddn.conf
 %dir /usr/share/licenses/wsddn
 %license /usr/share/licenses/wsddn/LICENSE
@@ -71,8 +73,8 @@ install -m 0644 config/firewalls/etc/firewalld/services/%{name}-http.xml \
 %systemd_post wsddn.service
 if [ $1 -eq 1 ] ; then 
     # Initial installation 
-    firewall-cmd --zone=public --add-port=5357/tcp --permanent > /dev/null 2>&1 || :
-    firewall-cmd --zone=public --add-port=3702/udp --permanent > /dev/null 2>&1  || :
+    firewall-cmd --reload > /dev/null 2>&1 || :
+    firewall-cmd --zone=public --add-service=wsddn --permanent > /dev/null 2>&1 || :
     firewall-cmd --reload > /dev/null 2>&1 || :
 fi
 
@@ -85,6 +87,7 @@ if [ $1 -eq 0 ] ; then
     # Package removal, not upgrade 
     firewall-cmd --zone=public --remove-port=5357/tcp --permanent > /dev/null 2>&1 || :
     firewall-cmd --zone=public --remove-port=3702/udp --permanent > /dev/null 2>&1  || :
+    firewall-cmd --zone=public --remove-service=wsddn --permanent > /dev/null 2>&1  || :
     firewall-cmd --reload > /dev/null 2>&1 || :
 fi
 
