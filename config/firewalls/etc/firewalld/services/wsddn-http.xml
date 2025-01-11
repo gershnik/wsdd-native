@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>WS-Discovery Host Daemon (HTTP Interface)</short>
+  <description>Allows your machine to be discovered by Windows 10 and above systems and displayed by their Explorer "Network" views.</description>
+  <port port="5357" protocol="tcp"/>
+</service>

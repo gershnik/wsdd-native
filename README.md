@@ -669,6 +669,9 @@ Traffic for the following ports, directions and addresses must be allowed.
 
 You should further restrict the traffic to the (link-)local subnet, e.g. by using the `fe80::/10` address space for IPv6. Please note that IGMP traffic must be enabled in order to get IPv4 multicast traffic working.
 
+For UFW and firewalld, application/service profiles can be found under `config/firewalls`. If using binary installation packages these are provided 
+as part of the installation. Note that UFW profiles only allow to grant the traffic on specific UDP and TCP ports, but a restriction on the IP range (like link local for IPv6) or the multicast traffic is not possible.
+
 ### Security
 
 There are two main security concerns with a daemon that delivers data about local machine over the network

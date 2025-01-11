@@ -34,9 +34,10 @@ stagedir.mkdir(parents=True)
 
 installCode(builddir, stagedir / 'usr')
 
-shutil.copytree(srcdir / 'config/systemd/usr', stagedir / 'usr', dirs_exist_ok=True)
-shutil.copytree(srcdir / 'config/systemd/etc', stagedir / 'etc', dirs_exist_ok=True)
-shutil.copytree(srcdir / 'config/sysv/etc',    stagedir / 'etc', dirs_exist_ok=True)
+shutil.copytree(srcdir / 'config/systemd/usr',             stagedir / 'usr', dirs_exist_ok=True)
+shutil.copytree(srcdir / 'config/firewalls/etc/ufw',       stagedir / 'etc/ufw', dirs_exist_ok=True)
+shutil.copytree(srcdir / 'config/firewalls/etc/firewalld', stagedir / 'usr/lib/firewalld', dirs_exist_ok=True)
+shutil.copytree(srcdir / 'config/sysv/etc',                stagedir / 'etc', dirs_exist_ok=True)
 
 docdir = stagedir / 'usr/share/doc/wsddn'
 docdir.mkdir(parents=True)

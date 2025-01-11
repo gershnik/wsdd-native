@@ -9,6 +9,12 @@ Source0:        https://github.com/gershnik/wsdd-native/archive/refs/tags/v%{ver
 
 BuildRequires:  gcc-c++ git make curl unzip systemd-devel systemd-rpm-macros
 
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
+
+Requires: firewalld-filesystem
+
 Conflicts:      wsdd
 
 %description
@@ -42,11 +48,16 @@ cd wsdd-native-%{version}
 cmake --install out --prefix %{buildroot}/usr
 mkdir -p %{buildroot}/usr/lib/systemd/system
 install -m 0644 config/systemd/usr/lib/systemd/system/%{name}.service \
-                     %{buildroot}/usr/lib/systemd/system/%{name}.service
+                  %{buildroot}/usr/lib/systemd/system/%{name}.service
 mkdir -p %{buildroot}/%{_sysconfdir}
 install -m 0644 out/wsddn.conf %{buildroot}/%{_sysconfdir}/wsddn.conf
 mkdir -p %{buildroot}/usr/share/licenses/wsddn
 install -m 0644 LICENSE %{buildroot}/usr/share/licenses/wsddn/LICENSE
+mkdir -p %{buildroot}/usr/lib/firewalld/services
+install -m 0644 config/firewalls/etc/firewalld/services/%{name}.xml \
+                %{buildroot}/usr/lib/firewalld/services/%{name}.xml
+install -m 0644 config/firewalls/etc/firewalld/services/%{name}-http.xml \
+                %{buildroot}/usr/lib/firewalld/services/%{name}-http.xml
 
 %files
 /usr/bin/wsddn
