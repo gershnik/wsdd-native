@@ -657,7 +657,7 @@ Command line flags and configuration file entries are documented in `man wsddn` 
 
 ### Firewall Setup
 
-<small>Note: The following instructions are copied verbatim from [wsdd][wsdd] one since the requirements are identical</small>
+<small>Note: The following instructions are copied almost verbatim from [wsdd][wsdd] since the requirements are identical</small>
 
 Traffic for the following ports, directions and addresses must be allowed.
 
