@@ -94,6 +94,9 @@ exploits into wsddn. If not specified the behavior is as follows
 `--hoplimit` _number_
 :   Set the hop limit for multicast packets. The default is 1 which should prevent packets from leaving the local network segment. The equivalent config file option is `hoplimit`
 
+`--source-port` _number_
+:   Set the source port for outgoing multicast messages, so that replies will use this as the destination port. This is useful for firewalls that do not detect incoming unicast replies to a multicast as part of the flow, so the port needs to be fixed in order to be allowed manually.
+
 ## Machine information options
 
 `--uuid` _uuid_
@@ -153,6 +156,9 @@ Any options specified on command line take precedence over options in the config
 
 `hoplimit` = _number_
 : Same as `--hoplimit` command line option
+
+`source-port` = _number_
+: Same as `--source-port` command line option
 
 `hostname` = "_name_"
 : Same as `--hostname` command line option

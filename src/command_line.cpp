@@ -269,6 +269,11 @@ void CommandLine::parse(int argc, char * argv[]) {
                handler([this](std::string_view val){
         this->hoplimit = Argum::parseIntegral<unsigned>(val);
     }));
+    parser.add(Option("--source-port").
+               help("send multicast traffic and receive replies on this port.").
+               handler([this](std::string_view val){
+        this->sourcePort = Argum::parseIntegral<unsigned>(val);
+    }));
     
     //Machine info
     parser.add(Option("--uuid").
@@ -417,6 +422,14 @@ void CommandLine::parseConfigKey(std::string_view keyName, const toml::node & va
             if (*val < 1)
                 throw ConfigFileError("hoplimit value must be greater than 0", spdlog::level::err, val.source());
             this->hoplimit = int((unsigned short)*val);
+        });
+        
+    } else if (keyName == "source-port"sv) {
+        
+        setConfigValue<int64_t>(bool(this->sourcePort), keyName, value, [this](const toml::value<int64_t> & val) {
+            if (*val < 0 || *val >= 65536)
+                throw ConfigFileError("source-port value must be in [0, 65536) range", spdlog::level::err, val.source());
+            this->sourcePort = uint16_t(*val);
         });
         
     } else
