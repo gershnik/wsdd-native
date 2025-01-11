@@ -124,9 +124,11 @@ set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt library instead of bundl
 set(SPDLOG_REPO gabime/spdlog)
 set(SPDLOG_VER v1.15.0)
 FetchContent_Declare(spdlog
-    GIT_REPOSITORY  https://github.com/${SPDLOG_REPO}
-    GIT_TAG         ${SPDLOG_VER}
-    GIT_SHALLOW     TRUE
+    # GIT_REPOSITORY  https://github.com/${SPDLOG_REPO}
+    # GIT_TAG         ${SPDLOG_VER}
+    # GIT_SHALLOW     TRUE
+
+    URL              https://github.com/${SPDLOG_REPO}/tarball/${SPDLOG_VER}
 
     PATCH_COMMAND    patch -p0 -s -f -i ${CMAKE_CURRENT_LIST_DIR}/patches/spdlog.diff 
     LOG_PATCH        ON
