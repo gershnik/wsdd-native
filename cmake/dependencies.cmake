@@ -91,7 +91,7 @@ endif()
 #################################################
 
 set(UUID_REPO gershnik/libuuid-cmake)
-set(UUID_VER v2.40.2)
+set(UUID_VER v2.40.3)
 FetchContent_Declare(libuuid
     GIT_REPOSITORY  https://github.com/${UUID_REPO}.git
     GIT_TAG         ${UUID_VER}
