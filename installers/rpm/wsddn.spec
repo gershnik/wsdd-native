@@ -19,7 +19,7 @@ Conflicts:      wsdd
 
 %description
 Allows your Linux machine to be discovered by Windows 10 and above systems
-and displayed by their Explorer "Network" views. 
+and displayed by their Explorer "Network" views.
 
 %debug_package
 
@@ -71,8 +71,8 @@ install -m 0644 config/firewalls/etc/firewalld/services/%{name}-http.xml \
 
 %post
 %systemd_post wsddn.service
-if [ $1 -eq 1 ] ; then 
-    # Initial installation 
+if [ $1 -eq 1 ] ; then
+    # Initial installation
     firewall-cmd --reload > /dev/null 2>&1 || :
     firewall-cmd --zone=public --add-service=wsddn --permanent > /dev/null 2>&1 || :
     firewall-cmd --reload > /dev/null 2>&1 || :
@@ -83,8 +83,9 @@ fi
 
 %postun
 %systemd_postun_with_restart wsddn.service
-if [ $1 -eq 0 ] ; then 
-    # Package removal, not upgrade 
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    # Older versions opened ports explicitly without service
     firewall-cmd --zone=public --remove-port=5357/tcp --permanent > /dev/null 2>&1 || :
     firewall-cmd --zone=public --remove-port=3702/udp --permanent > /dev/null 2>&1  || :
     firewall-cmd --zone=public --remove-service=wsddn --permanent > /dev/null 2>&1  || :
