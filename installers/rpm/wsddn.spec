@@ -1,6 +1,6 @@
 Name:           wsddn
-Version:        1.15
-Release:        2%{?dist}
+Version:        1.16
+Release:        1%{?dist}
 Summary:        WS-Discovery Host Daemon
 
 License:        BSD-3-Clause
@@ -93,6 +93,9 @@ if [ $1 -eq 0 ] ; then
 fi
 
 %changelog
+* Sun Jan 12 2025 gershnik - 1.16-1
+- Release 1.16
+
 * Thu Oct 03 2024 gershnik - 1.15-1
 - Release 1.15
 

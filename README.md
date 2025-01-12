@@ -90,12 +90,12 @@ For all 3 methods the supported platforms are:
 
 To install via standalone `.pkg` installer:
 
-* Download [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.15/wsddn-macos-1.15.pkg)
+* Download [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.16/wsddn-macos-1.16.pkg)
 * Double click it to run and follow the prompts.
 
 If you prefer command line, you can also install via:
 ```bash
-sudo installer -pkg /path/to/wsddn-macos-1.15.pkg -target /
+sudo installer -pkg /path/to/wsddn-macos-1.16.pkg -target /
 ```
 
 To fully uninstall `wsddn` run `/usr/local/bin/wsddn-uninstall`

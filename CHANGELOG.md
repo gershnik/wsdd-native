@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.16] - 2025-01-12
+
 ### Added
 * `--source-port` command line argument and `source-port` config file option to set the source port for multicast messages 
   for better firewall interoperability.
@@ -134,3 +136,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.13]: https://github.com/gershnik/wsdd-native/releases/v1.13
 [1.14]: https://github.com/gershnik/wsdd-native/releases/v1.14
 [1.15]: https://github.com/gershnik/wsdd-native/releases/v1.15
+[1.16]: https://github.com/gershnik/wsdd-native/releases/v1.16
