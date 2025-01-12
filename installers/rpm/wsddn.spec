@@ -9,11 +9,17 @@ Source0:        https://github.com/gershnik/wsdd-native/archive/refs/tags/v%{ver
 
 BuildRequires:  gcc-c++ git make curl unzip systemd-devel systemd-rpm-macros
 
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
+
+Requires: firewalld-filesystem
+
 Conflicts:      wsdd
 
 %description
 Allows your Linux machine to be discovered by Windows 10 and above systems
-and displayed by their Explorer "Network" views. 
+and displayed by their Explorer "Network" views.
 
 %debug_package
 
@@ -42,26 +48,33 @@ cd wsdd-native-%{version}
 cmake --install out --prefix %{buildroot}/usr
 mkdir -p %{buildroot}/usr/lib/systemd/system
 install -m 0644 config/systemd/usr/lib/systemd/system/%{name}.service \
-                     %{buildroot}/usr/lib/systemd/system/%{name}.service
+                  %{buildroot}/usr/lib/systemd/system/%{name}.service
 mkdir -p %{buildroot}/%{_sysconfdir}
 install -m 0644 out/wsddn.conf %{buildroot}/%{_sysconfdir}/wsddn.conf
 mkdir -p %{buildroot}/usr/share/licenses/wsddn
 install -m 0644 LICENSE %{buildroot}/usr/share/licenses/wsddn/LICENSE
+mkdir -p %{buildroot}/usr/lib/firewalld/services
+install -m 0644 config/firewalls/etc/firewalld/services/%{name}.xml \
+                %{buildroot}/usr/lib/firewalld/services/%{name}.xml
+install -m 0644 config/firewalls/etc/firewalld/services/%{name}-http.xml \
+                %{buildroot}/usr/lib/firewalld/services/%{name}-http.xml
 
 %files
 /usr/bin/wsddn
 %doc /usr/share/man/man8/wsddn.8.gz
 /usr/lib/systemd/system/wsddn.service
+/usr/lib/firewalld/services/wsddn.xml
+/usr/lib/firewalld/services/wsddn-http.xml
 %config(noreplace) /etc/wsddn.conf
 %dir /usr/share/licenses/wsddn
 %license /usr/share/licenses/wsddn/LICENSE
 
 %post
 %systemd_post wsddn.service
-if [ $1 -eq 1 ] ; then 
-    # Initial installation 
-    firewall-cmd --zone=public --add-port=5357/tcp --permanent > /dev/null 2>&1 || :
-    firewall-cmd --zone=public --add-port=3702/udp --permanent > /dev/null 2>&1  || :
+if [ $1 -eq 1 ] ; then
+    # Initial installation
+    firewall-cmd --reload > /dev/null 2>&1 || :
+    firewall-cmd --zone=public --add-service=wsddn --permanent > /dev/null 2>&1 || :
     firewall-cmd --reload > /dev/null 2>&1 || :
 fi
 
@@ -70,10 +83,12 @@ fi
 
 %postun
 %systemd_postun_with_restart wsddn.service
-if [ $1 -eq 0 ] ; then 
-    # Package removal, not upgrade 
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    # Older versions opened ports explicitly without service
     firewall-cmd --zone=public --remove-port=5357/tcp --permanent > /dev/null 2>&1 || :
     firewall-cmd --zone=public --remove-port=3702/udp --permanent > /dev/null 2>&1  || :
+    firewall-cmd --zone=public --remove-service=wsddn --permanent > /dev/null 2>&1  || :
     firewall-cmd --reload > /dev/null 2>&1 || :
 fi
 

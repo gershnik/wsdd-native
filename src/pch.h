@@ -42,8 +42,6 @@
     WSDDN_SUPPRESS_WARNINGS_END
 #endif
 
-#include <sys_string/sys_string.h>
-
 #include <intrusive_shared_ptr/ref_counted.h>
 #include <intrusive_shared_ptr/refcnt_ptr.h>
 
@@ -66,6 +64,8 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/base_sink.h>
 #include <spdlog/pattern_formatter.h>
+
+#include <sys_string/sys_string.h>
 
 #include <outcome.hpp>
 

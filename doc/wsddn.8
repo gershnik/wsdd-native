@@ -178,6 +178,13 @@ Set the hop limit for multicast packets.
 The default is 1 which should prevent packets from leaving the local
 network segment.
 The equivalent config file option is \f[CR]hoplimit\f[R]
+.TP
+\f[CR]\-\-source\-port\f[R] \f[I]number\f[R]
+Set the source port for outgoing multicast messages, so that replies
+will use this as the destination port.
+This is useful for firewalls that do not detect incoming unicast replies
+to a multicast as part of the flow, so the port needs to be fixed in
+order to be allowed manually.
 .SS Machine information options
 .TP
 \f[CR]\-\-uuid\f[R] \f[I]uuid\f[R]
@@ -287,6 +294,9 @@ Same as \f[CR]\-\-chroot\f[R] command line option
 .TP
 \f[CR]hoplimit\f[R] = \f[I]number\f[R]
 Same as \f[CR]\-\-hoplimit\f[R] command line option
+.TP
+\f[CR]source\-port\f[R] = \f[I]number\f[R]
+Same as \f[CR]\-\-source\-port\f[R] command line option
 .TP
 \f[CR]hostname\f[R] = \[lq]\f[I]name\f[R]\[rq]
 Same as \f[CR]\-\-hostname\f[R] command line option

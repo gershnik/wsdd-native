@@ -83,7 +83,7 @@ private:
 
         m_recvSocket.bind(ip::udp::endpoint(multicastGroupAddress, g_WsdUdpPort));
         m_unicastSendSocket.bind(ip::udp::endpoint(addr, g_WsdUdpPort));
-
+        
     #if !defined(__NetBSD__) && !defined(__sun)
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastIface, multicastGroupRequest);
     #else
@@ -91,6 +91,9 @@ private:
     #endif
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastLoop, false);
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastTtl, uint8_t(m_config->hopLimit()));
+
+        if (m_config->sourcePort() != 0)
+            m_multicastSendSocket.bind(ip::udp::endpoint(addr, m_config->sourcePort()));
     }
 
     void initAddresses(const ip::address_v6 & addr, const NetworkInterface & iface) {
@@ -114,6 +117,10 @@ private:
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv6MulticastLoop, false);
         m_multicastSendSocket.set_option(ip::multicast::hops(m_config->hopLimit()));
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv6MulticastIface, iface.index);
+
+        if (m_config->sourcePort() != 0)
+            m_multicastSendSocket.bind(ip::udp::endpoint(ip::udp::endpoint(ip::address_v6(addr.to_bytes(), iface.index), m_config->sourcePort())));
+
     }
 
     void read() {

@@ -324,7 +324,7 @@ sudo dnf install wsddn
 #sudo yum install wsddn
 ```
 
-On first install firewall ports `5357/tcp` and `3702/udp` will be opened. 
+On first install firewall will be configured to open `wsddn` service. 
 
 Enable and start the daemon:
 
@@ -661,7 +661,7 @@ Command line flags and configuration file entries are documented in `man wsddn` 
 
 ### Firewall Setup
 
-<small>Note: The following instructions are copied verbatim from [wsdd][wsdd] one since the requirements are identical</small>
+<small>Note: The following instructions are copied almost verbatim from [wsdd][wsdd] since the requirements are identical</small>
 
 Traffic for the following ports, directions and addresses must be allowed.
 
@@ -673,12 +673,17 @@ Traffic for the following ports, directions and addresses must be allowed.
 
 You should further restrict the traffic to the (link-)local subnet, e.g. by using the `fe80::/10` address space for IPv6. Please note that IGMP traffic must be enabled in order to get IPv4 multicast traffic working.
 
+For UFW and firewalld, application/service profiles can be found under `config/firewalls`. If using binary installation packages these are provided 
+as part of the installation. Note that UFW profiles only allow to grant the traffic on specific UDP and TCP ports, but a restriction on the IP range (like link local for IPv6) or the multicast traffic is not possible.
+
 ### Security
 
-There are two main security concerns with a daemon that delivers data about local machine over the network
+There are four main security concerns with a daemon that accepts network requests and delivers data about local machine over the network
 
-1. A bug inside daemon code may allow remote attacker to penetrate the machine running it.
+1. A bug inside the daemon code may allow a remote attacker to penetrate the machine running it.
 2. The information legitimately provided by the daemon will disclose something to an attacker that would otherwise remain unknown, enabling him to mount further attacks.
+3. A bug or even the _normal functionality_ of the daemon might allow a remote attacker to use it to mount further attacks against other systems. For example it might be possible to "convince" the daemon to become a part of a distributed denial of service (DDoS) attack.
+4. A bug or a normal operation of the daemon might allow a remote attacker to make it or even the entire machine hosting it unresponsive resulting in a denial of service.
 
 Currently the implementation ignores the second concern. The things **wsdd-native** discloses are the existence of the local host, its name, presence of Samba on it and domain/workgroup membership. All of these are generally disclosed by Samba itself via SMB broadcasts so, assuming the firewall is configured as described above, there is no net gain for an attacker. WS-Discovery protocol contains provisions for encrypting its HTTP traffic and potentially authenticating clients accessing your host via their client certificates. This limits exposure somewhat but at a significant configuration and maintenance cost. If there is interest in any of it it is possible to easily add this functionality in a future version. 
 
@@ -688,7 +693,15 @@ The first concern is by far the most significant one. All software contains bugs
 
 These measures are automatic and cannot be bypassed. Taken together they should limit the fallout of any vulnerability though, of course, nothing ever can be claimed to be 100% secure.
 
-Note that when running on `systemd` systems it is recommended to use its `DynamicUser` facility instead of running as root and relying on the measures above. The Debian/Ubuntu/Arch installer does so.
+Note that when running on `systemd` systems it is recommended to use its `DynamicUser` facility instead of running as root and relying on the measures above. The Debian/Ubuntu/Fedora/Arch binary packages do so.
+
+The third concern is also a significant one. Even in absence of any bugs a completely correct implementation of WS-Discovery protocol is known to be vulnerable to these kinds of attacks. See for example 
+[here](https://blogs.akamai.com/sitr/2019/09/new-ddos-vector-observed-in-the-wild-wsd-attacks-hitting-35gbps.html) and 
+[here](https://www.zdnet.com/article/protocol-used-by-630000-devices-can-be-abused-for-devastating-ddos-attacks/). 
+Bugs (always a possibility) can make things even worse. As far as I know there is no effective mitigation to this threat that **wsdd-native** can implement in code. The only way to prevent these kinds of attacks is to __never__ expose **wsdd-native** ports to open internet via [firewall configuration](#firewall-setup). Given that the whole purpose of this daemon is to enable interoperability with Windows via SMB protocol there is probably never a good
+reason to let it accept and send traffic outside of a local network.
+
+The fourth concern, while also present, is less severe than the above. **wsdd-native** is single threaded and so, even if overwhelmed by traffic, will not stress more than 1 CPU core. Its memory consumption is bounded so, in absence of bugs, it will not stress system memory either. It can itself be rendered unresponsive, of course, by too much traffic but, considering that it probably isn't a vital service for anyone, this isn't something that would excite any attacker. Possible bugs change this picture, however. If the network process is hijacked, even if mitigations for the 1st concern prevent further system penetration, the attacker can still make the network process consume too much CPU and memory. You can try to mitigate against this possibility by limiting daemon CPU and memory usage via [cgroups](https://www.redhat.com/en/blog/cgroups-part-four) or other mechanisms. However, a much simpler solution to these issues is the same as the above - never expose the daemon to the open internet.
 
 ### Custom metadata
 

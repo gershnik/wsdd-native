@@ -44,6 +44,7 @@ public:
     auto isAllowedInterface(const sys_string & name) const -> bool {
         return m_interfaceWhitelist.empty() || m_interfaceWhitelist.contains(name);
     }
+    auto sourcePort() const -> uint16_t                     { return m_sourcePort; }
     
     auto pageSize() const -> size_t                         { return m_pageSize; }
 
@@ -73,6 +74,7 @@ private:
     AllowedAddressFamily m_allowedAddressFamily = BothIPv4AndIPv6;
     int m_hopLimit = 1;
     std::set<sys_string> m_interfaceWhitelist;
+    uint16_t m_sourcePort;
     
     size_t m_pageSize;
 };

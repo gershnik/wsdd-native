@@ -14,6 +14,7 @@ struct CommandLine {
     std::vector<sys_string> interfaces;
     std::optional<AllowedAddressFamily> allowedAddressFamily;
     std::optional<int> hoplimit;
+    std::optional<uint16_t> sourcePort;
     
     std::optional<Uuid> uuid;
     std::optional<sys_string> hostname;

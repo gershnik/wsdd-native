@@ -51,7 +51,7 @@ public:
         read();
     }
 
-    void stop() {
+    void stop() override {
         WSDLOG_INFO("Stopping interface monitor");
         m_socket.close();
         m_handler = nullptr;
