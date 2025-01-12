@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Added
+* `--source-port` command line argument and `source-port` config file option to set the source port for multicast messages 
+  for better firewall interoperability.
+* Configuration files for `firewalld`. These are now also delivered and used in RPM binary packages.
+
+### Changed
+- Updated 3rd party dependencies
+- Firewall configuration files now live under `config/firewalls`
+
 ## [1.15] - 2024-10-03
 
 ### Changed
