@@ -4,90 +4,22 @@
 #ifndef HEADER_SYS_UTIL_H_INCLUDED
 #define HEADER_SYS_UTIL_H_INCLUDED
 
-class Uuid {
-private:
-    struct IntStorage {
-        uint64_t v1;
-        uint64_t v2;
-    };
-    static_assert(sizeof(IntStorage) == sizeof(uuid_t), "IntStorage must much size of uuid_t");
-    static_assert(alignof(IntStorage) >= alignof(uuid_t), "IntStorage must have stricter or same alignment as uuid_t");
-    
-    union ValueType {
-        uuid_t system;
-        IntStorage optimized;
-    };
+inline sys_string to_urn(const Uuid & val) {
+    std::array<char, 36> buf;
+    val.to_chars(buf, Uuid::lowercase);
 
-    using StringType = char[37];
-    
-public:
-    Uuid() {
-        m_value.optimized = {0, 0};
-    }
-    Uuid(const uuid_t & val) {
-        uuid_copy(m_value.system, val);
-    }
+    sys_string_builder builder;
+    builder.reserve_storage(46);
+    builder.append(S("urn:uuid:"));
+    builder.append(buf.data(), buf.size());
+    return builder.build();
+}
 
-    static auto generate() -> Uuid {
-        ValueType val;
-        uuid_generate(val.system);
-        return val.optimized;
-    }
-
-    static auto generateV5(const Uuid & ns, const sys_string & name) -> Uuid {
-        ValueType val;
-        uuid_generate_sha1(val.system, ns.m_value.system, name.c_str(), name.storage_size());
-        return Uuid(val.optimized);
-    }
-    
-    static auto parse(const char * s) -> std::optional<Uuid> {
-        
-        ValueType val;
-        if (uuid_parse(s, val.system) != 0)
-            return std::nullopt;
-        return Uuid(val.optimized);
-    }
-
-    sys_string str() const {
-        StringType strUuid;
-        uuid_unparse_lower(m_value.system, strUuid);
-        return strUuid;
-    }
-
-    sys_string urn() const {
-        StringType strUuid;
-        uuid_unparse_lower(m_value.system, strUuid);
-        sys_string_builder builder;
-        builder.reserve_storage(46);
-        builder.append(S("urn:uuid:"));
-        builder.append(strUuid);
-        return builder.build();
-    }
-
-    friend auto operator<=>(const Uuid & lhs, const Uuid & rhs) -> std::strong_ordering {
-        int res = uuid_compare(lhs.m_value.system, rhs.m_value.system);
-        switch(res){
-            case -1: return std::strong_ordering::less;
-            case 0: return std::strong_ordering::equal;
-            case 1: return std::strong_ordering::greater;
-            default: __builtin_unreachable();
-        }
-    }
-
-    friend auto operator==(const Uuid & lhs, const Uuid & rhs) -> bool {
-        return lhs.m_value.optimized.v1 == rhs.m_value.optimized.v1 &&
-               lhs.m_value.optimized.v2 == rhs.m_value.optimized.v2;
-    }
-    friend auto operator!=(const Uuid & lhs, const Uuid & rhs) -> bool {
-        return !(lhs == rhs);
-    }
-private:
-    Uuid(IntStorage storage) {
-        m_value.optimized = storage;
-    }
-private:
-    ValueType m_value;
-};
+inline sys_string to_sys_string(const Uuid & val) {
+    std::array<char, 36> buf;
+    val.to_chars(buf, Uuid::lowercase);
+    return sys_string(buf.data(), buf.size());
+}
 
 class Identity {
 public:

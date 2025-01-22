@@ -5,6 +5,7 @@ include(CheckCXXSourceCompiles)
 include(CheckIncludeFiles)
 include(CheckLibraryExists)
 include(CheckFunctionExists)
+include(CheckStructHasMember)
 
 check_cxx_source_compiles("
     #include <linux/netlink.h>

@@ -19,11 +19,12 @@ Config::Config(const CommandLine & cmdline):
     if (cmdline.uuid) {
         m_uuid = *cmdline.uuid;
     } else {
-        static Uuid ns = Uuid::parse("49DAC291-0608-41C9-941C-ED0E7ACCDE1E").value();
-        m_uuid = Uuid::generateV5(ns, m_fullHostName);
+        using namespace muuid;
+        m_uuid = uuid::generate_sha1(uuid("49DAC291-0608-41C9-941C-ED0E7ACCDE1E"), 
+                                     {m_fullHostName.c_str(), m_fullHostName.storage_size()});
     }
-    m_strUuid = m_uuid.str();
-    m_urnUuid = m_uuid.urn();
+    m_strUuid = to_sys_string(m_uuid);
+    m_urnUuid = to_urn(m_uuid);
         
     bool useNetbiosHostName = cmdline.hostname && cmdline.hostname->empty();
         

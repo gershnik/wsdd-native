@@ -62,7 +62,7 @@ static auto addInterface(CommandLine & cmdline, sys_string val) {
 }
 
 static auto setUuid(CommandLine & cmdline, sys_string val) {
-    if (auto maybeUuid = Uuid::parse(val.c_str()))
+    if (auto maybeUuid = Uuid::from_chars(std::string_view(val.c_str(), val.storage_size())))
         cmdline.uuid = *maybeUuid;
     throw Parser::ValidationError("invalid uuid");
 }

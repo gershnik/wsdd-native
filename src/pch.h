@@ -54,6 +54,8 @@
 #include <ptl/system.h>
 #include <ptl/errors.h>
 
+#include <modern-uuid/uuid.h>
+
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
@@ -70,14 +72,6 @@
 #include <outcome.hpp>
 
 #include <toml++/toml.h>
-
-#if __has_include(<uuid/uuid.h>)
-    #include <uuid/uuid.h>
-#elif __has_include(<uuid.h>)
-    #include <uuid.h>
-#else
-    #error No uuid.h header available
-#endif
 
 #if HAVE_SYSTEMD
     #include <dlfcn.h>
@@ -122,6 +116,8 @@
 
 using namespace sysstr;
 using namespace isptr;
+
+using Uuid = muuid::uuid;
 
 namespace ip = asio::ip;
 namespace outcome = OUTCOME_V2_NAMESPACE;

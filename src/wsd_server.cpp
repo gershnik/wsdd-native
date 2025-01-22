@@ -103,7 +103,7 @@ public:
         auto & headerNode = envelopeNode->newChild(ns.soap, u8"Header");
         headerNode.newTextChild(ns.wsa, u8"To", xml_str(*m_to));
         headerNode.newTextChild(ns.wsa, u8"Action", xml_str(*m_action));
-        headerNode.newTextChild(ns.wsa, u8"MessageID", xml_str(Uuid::generate().urn()));
+        headerNode.newTextChild(ns.wsa, u8"MessageID", xml_str(to_urn(Uuid::generate_random())));
 
         if (m_relatesTo)
             headerNode.newTextChild(ns.wsa, u8"RelatesTo", xml_str(*m_relatesTo));
@@ -111,7 +111,7 @@ public:
         if (m_appSequence) {
             auto & appSequenceNode = headerNode.newChild(ns.wsd, u8"AppSequence");
             appSequenceNode.newAttr(nullptr, u8"InstanceId", xml_str(std::to_string(m_appSequence->instanceId)));
-            appSequenceNode.newAttr(nullptr, u8"SequenceId", xml_str(Uuid::generate().urn()));
+            appSequenceNode.newAttr(nullptr, u8"SequenceId", xml_str(to_urn(Uuid::generate_random())));
             appSequenceNode.newAttr(nullptr, u8"MessageNumber", xml_str(std::to_string(m_appSequence->messageNumber)));
         }
 

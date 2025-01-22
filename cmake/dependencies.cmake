@@ -90,15 +90,15 @@ endif()
 
 #################################################
 
-set(UUID_REPO gershnik/libuuid-cmake)
-set(UUID_VER v2.40.3)
-FetchContent_Declare(libuuid
-    GIT_REPOSITORY  https://github.com/${UUID_REPO}.git
-    GIT_TAG         ${UUID_VER}
+set(MUUID_REPO gershnik/modern-uuid)
+set(MUUID_VER v1.0)
+FetchContent_Declare(modern-uuid
+    GIT_REPOSITORY  https://github.com/${MUUID_REPO}.git
+    GIT_TAG         ${MUUID_VER}
     GIT_SHALLOW     TRUE
 )
-list(APPEND DECLARED_DEPENDENCIES libuuid)
-list(APPEND DEPENDECIES_JSON "\"libuuid\": \"pkg:github/${UUID_REPO}@${UUID_VER}\"")
+list(APPEND DECLARED_DEPENDENCIES modern-uuid)
+list(APPEND DEPENDECIES_JSON "\"modern-uuid\": \"pkg:github/${MUUID_REPO}@${MUUID_VER}\"")
 
 #################################################
 
@@ -208,5 +208,5 @@ set(DEPENDECIES_JSON "{
 \"dependencies\": {
   ${DEPENDECIES_JSON}
 }}")
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/dependencies.json ${DEPENDECIES_JSON})
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/dependencies.json ${DEPENDECIES_JSON})
 

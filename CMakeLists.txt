@@ -79,8 +79,8 @@ set_target_properties(ptl PROPERTIES FOLDER "Dependencies")
 if (TARGET LibXml2)
     set_target_properties(LibXml2 PROPERTIES FOLDER "Dependencies")
 endif()
-if (TARGET uuid_static)
-    set_target_properties(uuid_static PROPERTIES FOLDER "Dependencies")
+if (TARGET modern-uuid-static)
+    set_target_properties(modern-uuid-static PROPERTIES FOLDER "Dependencies")
 endif()
 set_target_properties(spdlog PROPERTIES FOLDER "Dependencies")
 set_target_properties(fmt PROPERTIES FOLDER "Dependencies")
@@ -101,7 +101,7 @@ PRIVATE
     intrusive-shared-ptr
     ptl::ptl
     LibXml2::LibXml2
-    uuid::uuid_static
+    modern-uuid::modern-uuid-static
     fmt::fmt
     spdlog::spdlog
     tomlplusplus::tomlplusplus
