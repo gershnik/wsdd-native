@@ -91,7 +91,7 @@ endif()
 #################################################
 
 set(MUUID_REPO gershnik/modern-uuid)
-set(MUUID_VER v1.0)
+set(MUUID_VER d0a6a93ce345d177db432531284d65c30631cf6f)
 FetchContent_Declare(modern-uuid
     GIT_REPOSITORY  https://github.com/${MUUID_REPO}.git
     GIT_TAG         ${MUUID_VER}
