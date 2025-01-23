@@ -46,7 +46,7 @@ list(APPEND DEPENDECIES_JSON "\"isptr\": \"pkg:github/${ISPTR_REPO}@${ISPTR_VER}
 #################################################
 
 set(PTL_REPO gershnik/ptl)
-set(PTL_VER 64a10e070ce185aa098c4f48bc124ee1648fc3df)
+set(PTL_VER v1.5)
 FetchContent_Declare(ptl
     GIT_REPOSITORY  https://github.com/${PTL_REPO}.git
     GIT_TAG         ${PTL_VER}
