@@ -45,6 +45,7 @@
 #include <intrusive_shared_ptr/ref_counted.h>
 #include <intrusive_shared_ptr/refcnt_ptr.h>
 
+#define PTL_USE_STD_FORMAT 0
 #include <ptl/file.h>
 #include <ptl/signal.h>
 #include <ptl/identity.h>
