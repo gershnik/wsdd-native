@@ -22,7 +22,7 @@ list(APPEND DEPENDECIES_JSON "\"argum\": \"pkg:github/${ARGUM_REPO}@${ARGUM_VER}
 #################################################
 
 set(SYS_STRING_REPO gershnik/sys_string)
-set(SYS_STRING_VER v2.17)
+set(SYS_STRING_VER v2.18)
 FetchContent_Declare(sys_string
     GIT_REPOSITORY  https://github.com/${SYS_STRING_REPO}.git
     GIT_TAG         ${SYS_STRING_VER}
