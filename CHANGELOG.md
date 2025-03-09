@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.17] - 2025-03-09
+
 ### Changed
 - `libuuid` dependency has been replaced with `modern-uuid`
 - Updated 3rd party dependencies
@@ -141,3 +143,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.14]: https://github.com/gershnik/wsdd-native/releases/v1.14
 [1.15]: https://github.com/gershnik/wsdd-native/releases/v1.15
 [1.16]: https://github.com/gershnik/wsdd-native/releases/v1.16
+[1.17]: https://github.com/gershnik/wsdd-native/releases/v1.17
