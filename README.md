@@ -165,22 +165,13 @@ sudo bash <<'___'
 set -e
 pemurl=https://gershnik.com/macports-repo/macports.pem
 porturl=https://www.gershnik.com/macports-repo/ports.tar.bz2
-archurl=https://www.gershnik.com/macports-repo/archives
 prefix=$(dirname $(dirname $(which port)))
 pemfile="$prefix/share/macports/gershnik.pem"
 pubkeysfile="$prefix/etc/macports/pubkeys.conf"
 sourcesfile="$prefix/etc/macports/sources.conf"
-archfile="$prefix/etc/macports/archive_sites.conf"
 curl -s $pemurl > "$pemfile"
 grep -qxF "$pemfile" "$pubkeysfile" || echo $pemfile >> "$pubkeysfile"
 grep -qxF "$porturl" "$sourcesfile" || echo $porturl >> "$sourcesfile"
-if [ "$prefix" == "/opt/local" ]; then
-    grep -qx "url\\s+$archurl\\s*" "$archfile" || (
-        echo "" >> "$archfile"
-        echo "name    gershnik.com" >> "$archfile"
-        echo "urls    $archurl" >> "$archfile"
-    )
-fi
 sudo port sync
 ___
 ```
