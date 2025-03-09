@@ -6,14 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## Unreleased
 
 ### Changed
-* `libuuid` dependency has been replaced with `modern-uuid`
+- `libuuid` dependency has been replaced with `modern-uuid`
+- Updated 3rd party dependencies
 
 ## [1.16] - 2025-01-12
 
 ### Added
-* `--source-port` command line argument and `source-port` config file option to set the source port for multicast messages 
-  for better firewall interoperability.
-* Configuration files for `firewalld`. These are now also delivered and used in RPM binary packages.
+- `--source-port` command line argument and `source-port` config file option to set the source port for 
+  multicast messages for better firewall interoperability.
+- Configuration files for `firewalld`. These are now also delivered and used in RPM binary packages.
 
 ### Changed
 - Updated 3rd party dependencies
