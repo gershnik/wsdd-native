@@ -14,6 +14,7 @@ set(GENERATED_ASSETS
 add_custom_command(
     OUTPUT ${GENERATED_ASSETS}
     DEPENDS ${ASSET_FILES}
+    COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/assets
     COMMAND actool --output-format human-readable-text --notices --warnings 
             --app-icon AppIcon --accent-color AccentColor 
             --output-partial-info-plist ${CMAKE_CURRENT_BINARY_DIR}/assets/PartialInfo.plist
@@ -21,7 +22,6 @@ add_custom_command(
             --minimum-deployment-target ${CMAKE_OSX_DEPLOYMENT_TARGET} --platform macosx 
             --compile ${CMAKE_CURRENT_BINARY_DIR}/assets 
             ${CMAKE_CURRENT_LIST_DIR}/Assets.xcassets 
-            --bundle-identifier ${WSDDN_BUNDLE_IDENTIFIER}.wrapper
     
 )
 
