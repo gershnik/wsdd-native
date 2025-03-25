@@ -280,4 +280,10 @@ if (GROFF_PATH)
     )
 endif()
 
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+
+    add_subdirectory(installers/mac/wrapper wrapper)
+
+endif()
+
 include(cmake/install.cmake)

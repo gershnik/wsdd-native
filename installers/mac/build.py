@@ -36,6 +36,18 @@ installCode(builddir, stagedir / 'usr/local')
 
 ignoreCrap = shutil.ignore_patterns('.DS_Store')
 
+supdir = stagedir / "Library/Application Support/wsdd-native"
+supdir.mkdir(parents=True)
+shutil.copytree(builddir / "wrapper/wsdd-native.app", supdir/'wsdd-native.app', ignore=ignoreCrap)
+subprocess.run(['/usr/bin/strip', '-u', '-r', '-no_code_signature_warning',
+                supdir/'wsdd-native.app/Contents/MacOS/wsdd-native'],
+               check=True)
+
+(supdir/'wsdd-native.app/Contents/Resources').mkdir(parents=True, exist_ok=True)
+(stagedir / 'usr/local/bin/wsddn').rename(supdir/'wsdd-native.app/Contents/Resources/wsddn')
+(stagedir / 'usr/local/bin/wsddn').symlink_to('/Library/Application Support/wsdd-native/wsdd-native.app/Contents/Resources/wsddn')
+
+
 shutil.copytree(srcdir / 'config/mac', stagedir, dirs_exist_ok=True, ignore=ignoreCrap)
 
 (stagedir / 'usr/local/bin').mkdir(parents=True, exist_ok=True)
@@ -56,17 +68,24 @@ copyTemplated(mydir / 'distribution.xml', workdir / 'distribution.xml', {
 with open(stagedir / 'Library/LaunchDaemons/io.github.gershnik.wsddn.plist', "rb") as src:
     daemonPlist = plistlib.load(src, fmt=plistlib.FMT_XML)
 daemonPlist['ProgramArguments'][0] = 'wsddn'
-daemonPlist['Program'] = '/usr/local/bin/wsddn'
+daemonPlist['Program'] = '/Library/Application Support/wsdd-native/wsdd-native.app/Contents/Resources/wsddn'
+daemonPlist['AssociatedBundleIdentifiers'] = 'io.github.gershnik.wsddn.wrapper'
 with open(stagedir / 'Library/LaunchDaemons/io.github.gershnik.wsddn.plist', "wb") as dst:
     plistlib.dump(daemonPlist, dst, fmt=plistlib.FMT_XML)
 
 
-if args.sign:
-    subprocess.run(['codesign', '--force', '--sign', 'Developer ID Application', '-o', 'runtime', '--timestamp', 
-                        stagedir / 'usr/local/bin/wsddn'], check=True)
-else:
-    subprocess.run(['codesign', '--force', '--sign', '-', '-o', 'runtime', '--timestamp=none', 
-                        stagedir / 'usr/local/bin/wsddn'], check=True)
+things_to_sign = [
+    'Library/Application Support/wsdd-native/wsdd-native.app/Contents/Resources/wsddn',
+    'Library/Application Support/wsdd-native/wsdd-native.app'
+]
+
+for to_sign in things_to_sign:
+    if args.sign:
+        subprocess.run(['codesign', '--force', '--sign', 'Developer ID Application', '-o', 'runtime', '--timestamp',
+                            stagedir / to_sign], check=True)
+    else:
+        subprocess.run(['codesign', '--force', '--sign', '-', '-o', 'runtime', '--timestamp=none',
+                            stagedir / to_sign], check=True)
 
 
 packagesdir = workdir / 'packages'
@@ -119,13 +138,15 @@ if args.sign:
     subprocess.run([mydir / 'notarize', '--user', os.environ['NOTARIZE_USER'], '--password', os.environ['NOTARIZE_PWD'], 
                     '--team', teamId, installer], check=True)
     print('Signature Info')
-    res1 = subprocess.run(['pkgutil', '--check-signature', installer])
+    res1 = subprocess.run(['pkgutil', '--check-signature', installer], check=False)
     print('\nAssesment')
-    res2 = subprocess.run(['spctl', '--assess', '-vvv', '--type', 'install', installer])
+    res2 = subprocess.run(['spctl', '--assess', '-vvv', '--type', 'install', installer], check=False)
     if res1.returncode != 0 or res2.returncode != 0:
         sys.exit(1)
 
 if args.uploadResults:
     subprocess.run(['tar', '-C', builddir, '-czf', workdir.absolute() / f'wsddn-macos-{VERSION}.dSYM.tgz', 'wsddn.dSYM'], check=True)
-    subprocess.run(['aws', 's3', 'cp', workdir / f'wsddn-macos-{VERSION}.dSYM.tgz', f's3://wsddn-symbols/'], check=True)
+    subprocess.run(['tar', '-C', builddir / 'wrapper', '-czf', workdir.absolute() / f'wsdd-native-macos-{VERSION}.app.dSYM.tgz', 'wsdd-native.app.dSYM'], check=True)
+    subprocess.run(['aws', 's3', 'cp', workdir / f'wsddn-macos-{VERSION}.dSYM.tgz', 's3://wsddn-symbols/'], check=True)
+    subprocess.run(['aws', 's3', 'cp', workdir / f'wsdd-native-macos-{VERSION}.app.dSYM.tgz', 's3://wsddn-symbols/'], check=True)
     subprocess.run(['gh', 'release', 'upload', f'v{VERSION}', installer], check=True)

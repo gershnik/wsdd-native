@@ -2,6 +2,8 @@
 
 set -e
 
+'/Library/Application Support/wsdd-native/wsdd-native.app/Contents/MacOS/wsdd-native' || true
+
 CONF=/etc/wsddn.conf
 if [[ ! -f "$CONF" ]]; then
      cp $CONF.sample $CONF
