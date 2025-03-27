@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.18] - 2025-03-27
+
 ### Fixed
 - macOS: "Allow in the background" settings now show "wsdd-native" rather than the author name (#16)
 
@@ -150,3 +152,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.15]: https://github.com/gershnik/wsdd-native/releases/v1.15
 [1.16]: https://github.com/gershnik/wsdd-native/releases/v1.16
 [1.17]: https://github.com/gershnik/wsdd-native/releases/v1.17
+[1.18]: https://github.com/gershnik/wsdd-native/releases/v1.18
