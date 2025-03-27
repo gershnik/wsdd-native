@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+- macOS: "Allow in the background" settings now show "wsddn-native" rather than the author name (#16)
+
+### Changed
+- Updated 3rd party dependencies
+
 ## [1.17] - 2025-03-09
 
 ### Changed
