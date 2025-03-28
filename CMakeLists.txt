@@ -280,7 +280,7 @@ if (GROFF_PATH)
     )
 endif()
 
-if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND NOT WSDDN_MACOS_SUPPRESS_WRAPPER)
 
     add_subdirectory(installers/mac/wrapper wrapper)
 
