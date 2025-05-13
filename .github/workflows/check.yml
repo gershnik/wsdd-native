@@ -37,6 +37,8 @@ jobs:
         - {os: ubuntu-22.04, compiler: clang, version: 16 }
         - {os: ubuntu-24.04, compiler: clang, version: 17 }
         - {os: ubuntu-24.04, compiler: clang, version: 18 }
+        - {os: ubuntu-24.04, compiler: clang, version: 19 }
+        - {os: ubuntu-24.04, compiler: clang, version: 20 }
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -74,6 +76,35 @@ jobs:
         run: |
           installers/deb/build.py . out
 
+  container:
+    runs-on: ubuntu-latest
+    container: ${{ matrix.container }}
+    strategy:
+      fail-fast: false
+      matrix: 
+        container: [gcc:15.1]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install pre-requisites
+      run: |
+        apt-get update
+        apt-get install -y ninja-build cmake
+        apt-get install -y python3-dev libsystemd-dev
+
+    - name: Configure
+      shell: bash
+      run: |
+        [ -d "out" ] && tools/uncache out
+        cmake -G Ninja -S . -B out \
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+    - name: Build and Test
+      shell: bash
+      run: |
+        cmake --build out
 
   mac:
     runs-on: ${{ matrix.os }}
