@@ -92,7 +92,7 @@ jobs:
       run: |
         apt-get update
         apt-get install -y ninja-build cmake
-        apt-get install -y python3-dev libsystemd-dev
+        apt-get install -y python3-dev libsystemd-dev dpkg-dev
 
     - name: Configure
       shell: bash
