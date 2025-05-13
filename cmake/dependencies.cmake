@@ -77,7 +77,7 @@ if (NOT LibXml2_FOUND)
     set(LIBXML2_WITH_MODULES OFF)
     set(LIBXML2_WITH_PROGRAMS OFF)
 
-    set(LIBXML_VER v2.13.8)
+    set(LIBXML_VER v2.14.2)
     FetchContent_Declare(libxml2
         GIT_REPOSITORY  https://gitlab.gnome.org/GNOME/libxml2.git
         GIT_TAG         ${LIBXML_VER}
