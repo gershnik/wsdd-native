@@ -92,19 +92,19 @@ jobs:
       run: |
         apt-get update
         apt-get install -y ninja-build cmake
-        apt-get install -y python3-dev libsystemd-dev dpkg-dev
+        apt-get install -y python3-dev libsystemd-dev
 
     - name: Configure
       shell: bash
       run: |
         [ -d "out" ] && tools/uncache out
-        cmake -S . -B out \
+        cmake -G Ninja -S . -B out \
           -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
     - name: Build and Test
       shell: bash
       run: |
-        installers/deb/build.py . out
+        cmake --build out
 
   mac:
     runs-on: ${{ matrix.os }}
