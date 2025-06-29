@@ -77,7 +77,7 @@ if (NOT LibXml2_FOUND)
     set(LIBXML2_WITH_MODULES OFF)
     set(LIBXML2_WITH_PROGRAMS OFF)
 
-    set(LIBXML_VER v2.14.2)
+    set(LIBXML_VER v2.14.4)
     FetchContent_Declare(libxml2
         GIT_REPOSITORY  https://gitlab.gnome.org/GNOME/libxml2.git
         GIT_TAG         ${LIBXML_VER}
@@ -91,7 +91,7 @@ endif()
 #################################################
 
 set(MUUID_REPO gershnik/modern-uuid)
-set(MUUID_VER v1.7)
+set(MUUID_VER v1.8)
 FetchContent_Declare(modern-uuid
     GIT_REPOSITORY  https://github.com/${MUUID_REPO}.git
     GIT_TAG         ${MUUID_VER}
