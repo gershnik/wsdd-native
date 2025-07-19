@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+- CMake build break when building a clean tree
+
 ## [1.19] - 2025-06-28
 
 ### Changed
