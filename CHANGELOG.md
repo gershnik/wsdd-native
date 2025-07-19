@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.20] - 2025-07-19
+
 ### Fixed
 - CMake build break when building a clean tree
 
@@ -162,3 +164,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.17]: https://github.com/gershnik/wsdd-native/releases/v1.17
 [1.18]: https://github.com/gershnik/wsdd-native/releases/v1.18
 [1.19]: https://github.com/gershnik/wsdd-native/releases/v1.19
+[1.20]: https://github.com/gershnik/wsdd-native/releases/v1.20
