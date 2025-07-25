@@ -153,18 +153,18 @@ inline void createMissingDirs(const std::filesystem::path & path, mode_t mode,
 template<class Sink>
 class LineReader {
 public:
-    LineReader(size_t maxLineSize, Sink sink):
-        m_maxLineSize(maxLineSize),
+    LineReader(size_t bufferSize, Sink sink):
+        m_bufferSize(bufferSize),
         m_sink(sink)
     {}
 
     void operator()(const ptl::FileDescriptor & fd) const {
         std::vector<char> buf;
-        buf.reserve(m_maxLineSize);
+        buf.reserve(m_bufferSize);
         bool ignore = false;
         while(true) {
             auto offset = buf.size();
-            const size_t addition = std::min(m_maxLineSize - offset, m_maxLineSize);
+            const size_t addition = std::min(m_bufferSize - offset, m_bufferSize);
             assert(addition > 0);
             buf.resize(offset + addition);
             auto read_count = ptl::readFile(fd, buf.data() + offset, addition);
@@ -185,7 +185,7 @@ public:
                 }
             }
             buf.erase(buf.begin(), processed_end);
-            if (buf.size() == m_maxLineSize) {
+            if (buf.size() == m_bufferSize) {
                 WSDLOG_WARN("read line is overly long, ignored");
                 ignore = true;
                 buf.clear();
@@ -198,7 +198,7 @@ public:
             m_sink(std::string_view(buf.data(), buf.size()));
     }
 private:
-    size_t m_maxLineSize;
+    size_t m_bufferSize;
     Sink m_sink;
 };
 
