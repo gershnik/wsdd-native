@@ -160,5 +160,113 @@ inline void createMissingDirs(const std::filesystem::path & path, mode_t mode,
     }
 }
 
+template <> struct fmt::formatter<ptl::StringRefArray> {
+
+    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+        auto it = ctx.begin(), end = ctx.end();
+        if (it != end && *it != '}') throw format_error("invalid format");
+        return it;
+    }
+    template <typename FormatContext>
+    auto format(const ptl::StringRefArray & args, FormatContext & ctx) const -> decltype(ctx.out()) {
+        auto dest = ctx.out();
+        *dest++ = '{';
+        if (auto * str = args.data()) {
+            dest = fmt::format_to(dest, "\"{}\"", *str);
+            for (++str; *str; ++str) {
+                dest = fmt::format_to(dest, ", \"{}\"", *str);
+            }
+        }
+        *dest++ = '}';
+        return dest;
+    }
+};
+
+template<class Sink>
+class LineReader {
+public:
+    LineReader(size_t maxLineSize, Sink sink):
+        m_maxLineSize(maxLineSize),
+        m_sink(sink)
+    {}
+
+    void consume(const ptl::FileDescriptor & fd) {
+        std::vector<char> buf;
+        buf.reserve(m_maxLineSize);
+        bool ignore = false;
+        while(true) {
+            auto offset = buf.size();
+            const size_t addition = std::min(m_maxLineSize - offset, m_maxLineSize);
+            assert(addition > 0);
+            buf.resize(offset + addition);
+            auto read_count = ptl::readFile(fd, buf.data() + offset, addition);
+            buf.resize(offset + read_count);
+            bool done = (read_count == 0);
+            
+            auto processed_end = buf.begin();
+            for(auto cur = processed_end, end = buf.end(); cur != end; ) {
+                if (*cur == '\n') {
+                    if (!ignore)
+                        m_sink(std::string_view(processed_end, cur));
+                    ignore = false;
+                    processed_end = ++cur;
+                } else {
+                    ++cur;
+                }
+            }
+            buf.erase(buf.begin(), processed_end);
+            if (buf.size() == m_maxLineSize) {
+                WSDLOG_WARN("read line is overly long, ignored");
+                ignore = true;
+                buf.clear();
+            }
+
+            if (done) {
+                if (!buf.empty())
+                    m_sink(std::string_view(buf.data(), buf.size()));
+                break;
+            }
+        }
+    }
+private:
+    size_t m_maxLineSize;
+    Sink m_sink;
+};
+
+template<class Reader>
+void shell(const ptl::StringRefArray & args, bool suppressStdErr, Reader && reader) {
+    auto [read, write] = ptl::Pipe::create();
+    ptl::SpawnAttr spawnAttr;
+    spawnAttr.setFlags(POSIX_SPAWN_SETSIGDEF);
+    auto sigs = ptl::SignalSet::all();
+    sigs.del(SIGKILL);
+    sigs.del(SIGSTOP);
+    spawnAttr.setSigDefault(sigs);
+    
+    ptl::SpawnFileActions act;
+    act.addDuplicateTo(write, stdout);
+    act.addClose(read);
+    if (suppressStdErr) {
+       act.addOpen(stderr, "/dev/null", O_WRONLY, 0);
+    }
+    auto proc = spawn(args, ptl::SpawnSettings().fileActions(act).usePath());
+    write.close();
+
+    std::forward<Reader>(reader).consume(read);
+
+    auto stat = proc.wait().value();
+    if (WIFEXITED(stat)) {
+        auto res = WEXITSTATUS(stat);
+        if (res == 0)
+            return;
+
+        throw std::runtime_error(fmt::format("`{} exited with code {}`", args, res));
+    }
+    if (WIFSIGNALED(stat)) {
+        throw std::runtime_error(fmt::format("`{} exited due to signal {}`", args, WTERMSIG(stat)));
+    }
+    throw std::runtime_error(fmt::format("`{} finished with status 0x{:X}`", args, stat));
+}
+
 
 #endif

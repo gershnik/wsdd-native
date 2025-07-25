@@ -27,6 +27,13 @@ public:
         sys_string hostDescription;
         MemberOf memberOf;
     };
+
+    struct SambaParams {
+        std::optional<sys_string> workgroup;
+        std::optional<sys_string> security;
+        std::optional<sys_string> hostName;
+        std::optional<sys_string> hostDescription;
+    };
 public:
     static refcnt_ptr<Config> make(const CommandLine & cmdline) {
         return refcnt_attach(new Config(cmdline));
@@ -54,9 +61,10 @@ private:
 
 #if HAVE_APPLE_SAMBA
     auto detectWinNetInfo(bool useNetbiosHostName) -> std::optional<WinNetInfo>;
+#else
+    auto detectWinNetInfo(std::optional<std::filesystem::path> smbConf, bool useNetbiosHostName) -> std::optional<WinNetInfo>;
 #endif
-    auto findSmbConf() -> std::optional<std::filesystem::path>;
-    auto readSmbConf(const std::filesystem::path & path, bool useNetbiosHostName) -> std::optional<WinNetInfo>;
+    auto sambaParamsToWinNetInfo(const SambaParams & params, bool useNetbiosHostName) -> WinNetInfo;
     
     auto getHostName() const -> sys_string;
     

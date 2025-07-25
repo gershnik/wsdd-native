@@ -546,19 +546,24 @@ void CommandLine::setConfigValue(bool isSet, std::string_view keyName, const tom
 void CommandLine::mergeConfigFile(const std::filesystem::path & path) {
  
     std::error_code ec;
-    auto fp = StdIoFile(path.c_str(), "r", ec);
+    auto file = ptl::FileDescriptor::open(path.c_str(), O_RDONLY, ec);
     if (ec) {
         WSDLOG_WARN("Cannot open config file {}, error: {}", path.c_str(), ec.message());
         return;
     }
     
     std::string content;
-    auto readRes = readAll(fp, [&](char c) {
-        content += c; //should we watch for overly long file here?
-    });
-    if (!readRes) {
-        WSDLOG_ERROR("Cannot read config file {}, error: {}", path.c_str(), readRes.assume_error().message());
-        return;
+    for ( ; ; ) {
+        char buf[4096];
+        auto read = ptl::readFile(file, buf, sizeof(buf), ec);
+        if (ec) {
+            WSDLOG_ERROR("Cannot read config file {}, error: {}", path.c_str(), ec.message());
+            return;
+        }
+        //should we watch for overly long file here?
+        content.append(buf, size_t(read));
+        if (read == 0)
+            break;
     }
     
     try {
