@@ -4,22 +4,12 @@
 #ifndef HEADER_SYS_UTIL_H_INCLUDED
 #define HEADER_SYS_UTIL_H_INCLUDED
 
-inline sys_string to_urn(const Uuid & val) {
-    std::array<char, 36> buf;
-    val.to_chars(buf, Uuid::lowercase);
+#include "util.h"
 
-    sys_string_builder builder;
-    builder.reserve_storage(46);
-    builder.append(S("urn:uuid:"));
-    builder.append(buf.data(), buf.size());
-    return builder.build();
-}
+/*
+ OS-dependent (or potentially OS-dependant) utilities
+ */
 
-inline sys_string to_sys_string(const Uuid & val) {
-    std::array<char, 36> buf;
-    val.to_chars(buf, Uuid::lowercase);
-    return sys_string(buf.data(), buf.size());
-}
 
 class Identity {
 public:
@@ -159,28 +149,6 @@ inline void createMissingDirs(const std::filesystem::path & path, mode_t mode,
             ptl::changeOwner(start, owner->uid(), owner->gid());
     }
 }
-
-template <> struct fmt::formatter<ptl::StringRefArray> {
-
-    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
-        auto it = ctx.begin(), end = ctx.end();
-        if (it != end && *it != '}') throw format_error("invalid format");
-        return it;
-    }
-    template <typename FormatContext>
-    auto format(const ptl::StringRefArray & args, FormatContext & ctx) const -> decltype(ctx.out()) {
-        auto dest = ctx.out();
-        *dest++ = '{';
-        if (auto * str = args.data()) {
-            dest = fmt::format_to(dest, "\"{}\"", *str);
-            for (++str; *str; ++str) {
-                dest = fmt::format_to(dest, ", \"{}\"", *str);
-            }
-        }
-        *dest++ = '}';
-        return dest;
-    }
-};
 
 template<class Sink>
 class LineReader {

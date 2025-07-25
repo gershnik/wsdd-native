@@ -110,6 +110,46 @@ inline auto makeHttpUrl(const ip::tcp::endpoint & endp) -> sys_string {
     }
 }
 
+inline sys_string to_urn(const Uuid & val) {
+    std::array<char, 36> buf;
+    val.to_chars(buf, Uuid::lowercase);
+
+    sys_string_builder builder;
+    builder.reserve_storage(46);
+    builder.append(S("urn:uuid:"));
+    builder.append(buf.data(), buf.size());
+    return builder.build();
+}
+
+inline sys_string to_sys_string(const Uuid & val) {
+    std::array<char, 36> buf;
+    val.to_chars(buf, Uuid::lowercase);
+    return sys_string(buf.data(), buf.size());
+}
+
+
+template <> struct fmt::formatter<ptl::StringRefArray> {
+
+    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+        auto it = ctx.begin(), end = ctx.end();
+        if (it != end && *it != '}') throw format_error("invalid format");
+        return it;
+    }
+    template <typename FormatContext>
+    auto format(const ptl::StringRefArray & args, FormatContext & ctx) const -> decltype(ctx.out()) {
+        auto dest = ctx.out();
+        *dest++ = '[';
+        if (auto * str = args.data()) {
+            dest = fmt::format_to(dest, "\"{}\"", *str);
+            for (++str; *str; ++str) {
+                dest = fmt::format_to(dest, ", \"{}\"", *str);
+            }
+        }
+        *dest++ = ']';
+        return dest;
+    }
+};
+
 template<class T, class Arg>
 constexpr decltype(auto) makeDependentOn(Arg && arg) {
     return std::forward<Arg>(arg);
