@@ -105,7 +105,7 @@ static auto paramsFromSmbConf(const std::filesystem::path & path) -> std::option
             continue;
         }
 
-        std::string_view line(processed_end, cur);
+        std::string_view line(processed_end, cur - processed_end);
         processed_end = ++cur;
 
         std::match_results<std::string_view::const_iterator> m;
