@@ -60,7 +60,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 * Can be configured via a configuration file, not just command line.
 * Discovers Samba/macOS SMB configuration on its own. (This can be overridden, if desired)
 * Can present the Unix host as something other than "Computer" in Windows Explorer.
-* Integrates well with `systemd` and `launchd`. Of course it can also run as a classical Unix daemon for other init systems.
+* Integrates well with `systemd` and `launchd`. Of course, it can also run as a classical Unix daemon for other init systems.
 * Friendly to various log rotation methods like `newsyslogd` and `logrotate`. Supports standard reload semantics via SIGHUP.
 * Written with security in mind first and foremost. 
 * Will never run any network code as root. Designated user account to run under is created automatically, if needed.
@@ -607,8 +607,8 @@ Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via
 * Git
 * C++20 capable compiler. Minimal compilers known to work are GCC 10.2, Clang 13 and Xcode 13.
 * CMake 3.25 or greater. If your distribution CMake is older than that you can download a newer version from https://cmake.org/download/
-* `patch` tool. Most operating system distributions have it available by default by some minimalistic ones might not.
-* Optional: On Linux if you wish to enable `systemd` integration make sure you have `libsystemd` library and headers installed on your system. On APT systems use:
+* `patch` tool. Most operating system distributions have it available by default but some minimalistic ones might not.
+* _Optional_: On Linux if you wish to enable `systemd` integration make sure you have `libsystemd` library and headers installed on your system. On APT systems use:
   ```bash
   sudo apt install libsystemd-dev
   ```
@@ -622,8 +622,8 @@ Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via
 ```bash
 git clone https://github.com/gershnik/wsdd-native.git
 cd wsdd-native
-cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFETCHCONTENT_QUIET=OFF ..
-cmake --build  out
+cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
+cmake --build out
 sudo cmake --install out --strip
 ```
 
