@@ -30,7 +30,7 @@ Config::Config(const CommandLine & cmdline):
         
     std::optional<WinNetInfo> systemWinNetInfo;
 #if HAVE_APPLE_SAMBA
-    systemWinNetInfo = detectWinNetInfo(useNetbiosHostName);
+    systemWinNetInfo = detectAppleWinNetInfo(useNetbiosHostName);
 #elif CAN_HAVE_SAMBA
     systemWinNetInfo = detectWinNetInfo(cmdline.smbConf, useNetbiosHostName);
 #endif

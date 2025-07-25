@@ -60,10 +60,9 @@ private:
     ~Config() {};
 
 #if HAVE_APPLE_SAMBA
-    auto detectWinNetInfo(bool useNetbiosHostName) -> std::optional<WinNetInfo>;
-#else
-    auto detectWinNetInfo(std::optional<std::filesystem::path> smbConf, bool useNetbiosHostName) -> std::optional<WinNetInfo>;
+    auto detectAppleWinNetInfo(bool useNetbiosHostName) -> std::optional<WinNetInfo>;
 #endif
+    auto detectWinNetInfo(std::optional<std::filesystem::path> smbConf, bool useNetbiosHostName) -> std::optional<WinNetInfo>;
     auto sambaParamsToWinNetInfo(const SambaParams & params, bool useNetbiosHostName) -> WinNetInfo;
     
     auto getHostName() const -> sys_string;

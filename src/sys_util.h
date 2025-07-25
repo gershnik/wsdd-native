@@ -206,8 +206,10 @@ public:
             auto processed_end = buf.begin();
             for(auto cur = processed_end, end = buf.end(); cur != end; ) {
                 if (*cur == '\n') {
-                    if (!ignore)
-                        m_sink(std::string_view(processed_end, cur));
+                    if (!ignore) {
+                        std::string_view line(buf.data() + (processed_end - buf.begin()), cur - processed_end);
+                        m_sink(line);
+                    }
                     ignore = false;
                     processed_end = ++cur;
                 } else {
