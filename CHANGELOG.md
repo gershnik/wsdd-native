@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+- Samba config is now correctly detected on OpenBSD. Samba detection is also improved
+  on other platforms (#17) 
+
 ## [1.20] - 2025-07-19
 
 ### Fixed
