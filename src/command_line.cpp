@@ -546,23 +546,28 @@ void CommandLine::setConfigValue(bool isSet, std::string_view keyName, const tom
 void CommandLine::mergeConfigFile(const std::filesystem::path & path) {
  
     std::error_code ec;
-    auto fp = StdIoFile(path.c_str(), "r", ec);
+    auto file = ptl::FileDescriptor::open(path.c_str(), O_RDONLY, ec);
     if (ec) {
         WSDLOG_WARN("Cannot open config file {}, error: {}", path.c_str(), ec.message());
         return;
     }
-    
-    std::string content;
-    auto readRes = readAll(fp, [&](char c) {
-        content += c; //should we watch for overly long file here?
-    });
-    if (!readRes) {
-        WSDLOG_ERROR("Cannot read config file {}, error: {}", path.c_str(), readRes.assume_error().message());
+
+    struct ::stat st;
+    getStatus(file, st, ec);
+    if (ec) {
+        WSDLOG_WARN("Cannot stat config file {}, error: {}", path.c_str(), ec.message());
+        return;
+    }
+
+    void * content = mmap(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, c_fd(file), 0);
+    if (content == MAP_FAILED) {
+        ec = std::error_code(errno, std::system_category());
+        WSDLOG_WARN("Cannot map config file {}, error: {}", path.c_str(), ec.message());
         return;
     }
     
     try {
-        auto cfg = toml::parse(content, path.string());
+        auto cfg = toml::parse(std::string_view((const char *)content, st.st_size), path.string());
         
         for (auto && [key, value] : cfg) {
             

@@ -99,105 +99,6 @@ private:
 };
 
 
-class StdIoFileBase {
-public:
-    FILE * get() const noexcept {
-        return m_fp;
-    }
-    operator bool() const noexcept {
-        return m_fp != nullptr;
-    }
-protected:
-    StdIoFileBase(FILE * fp) : m_fp(fp) {}
-    StdIoFileBase(StdIoFileBase && src) noexcept {
-        m_fp = src.m_fp;
-        src.m_fp = nullptr;
-    }
-    StdIoFileBase(const StdIoFileBase &) = delete;
-    StdIoFileBase & operator=(const StdIoFileBase &) = delete;
-    StdIoFileBase & operator=(StdIoFileBase &&) = delete;
-    ~StdIoFileBase() noexcept {}
-
-    FILE * m_fp;
-};
-
-class StdIoFile : public StdIoFileBase {
-public:
-    StdIoFile(const char * path, const char * mode, std::error_code & ec) noexcept:
-        StdIoFileBase(fopen(path, mode)) {
-        
-        if (!m_fp) {
-            int err = errno;
-            ec = std::make_error_code(static_cast<std::errc>(err));
-        }
-    }
-    StdIoFile(StdIoFile && src) noexcept = default;
-    auto operator=(StdIoFile && src) noexcept -> StdIoFile & {
-        this->~StdIoFile();
-        new (this) StdIoFile(std::move(src));
-        return *this;
-    }
-    ~StdIoFile() noexcept {
-        if (m_fp)
-            fclose(m_fp);
-    }
-};
-
-class StdIoPipe : public StdIoFileBase {
-public:
-    StdIoPipe(const char * command, const char * mode, std::error_code & ec):
-        StdIoFileBase(popen(command, mode)) {
-        if (!m_fp) {
-            int err = errno;
-            ec = std::make_error_code(static_cast<std::errc>(err));
-        }
-    }
-    StdIoPipe(StdIoPipe && src) noexcept = default;
-    auto operator=(StdIoPipe && src) noexcept -> StdIoPipe & {
-        this->~StdIoPipe();
-        new (this) StdIoPipe(std::move(src));
-        return *this;
-    }
-    ~StdIoPipe() noexcept {
-        if (m_fp)
-            pclose(m_fp);
-    }
-};
-
-template<class Sink>
-auto readLine(const StdIoFileBase & file, Sink sink) -> outcome::result<bool> {
-
-    for ( ; ; ) {
-
-        int res = fgetc(file.get());
-        if (res == EOF) {
-            if (ferror(file.get())) 
-                return std::make_error_code(static_cast<std::errc>(errno));
-            return false;
-        }
-        auto c = char(res);
-        if (c == '\n')
-            break;
-        sink(c); 
-    }
-    return true;
-}
-
-template<class Sink>
-auto readAll(const StdIoFileBase & file, Sink sink) -> outcome::result<void> {
-    for ( ; ; ) {
-
-        int res = fgetc(file.get());
-        if (res == EOF) {
-            if (ferror(file.get()))
-                return std::make_error_code(static_cast<std::errc>(errno));
-            return outcome::success();
-        }
-        sink(char(res));
-    }
-    return outcome::success();
-}
-
 inline auto makeHttpUrl(const ip::tcp::endpoint & endp) -> sys_string {
     auto addr = endp.address();
     if (addr.is_v4()) {
@@ -208,6 +109,46 @@ inline auto makeHttpUrl(const ip::tcp::endpoint & endp) -> sys_string {
         return fmt::format("http://[{0}]:{1}", addr6.to_string(), endp.port());
     }
 }
+
+inline sys_string to_urn(const Uuid & val) {
+    std::array<char, 36> buf;
+    val.to_chars(buf, Uuid::lowercase);
+
+    sys_string_builder builder;
+    builder.reserve_storage(46);
+    builder.append(S("urn:uuid:"));
+    builder.append(buf.data(), buf.size());
+    return builder.build();
+}
+
+inline sys_string to_sys_string(const Uuid & val) {
+    std::array<char, 36> buf;
+    val.to_chars(buf, Uuid::lowercase);
+    return sys_string(buf.data(), buf.size());
+}
+
+
+template <> struct fmt::formatter<ptl::StringRefArray> {
+
+    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+        auto it = ctx.begin(), end = ctx.end();
+        if (it != end && *it != '}') throw format_error("invalid format");
+        return it;
+    }
+    template <typename FormatContext>
+    auto format(const ptl::StringRefArray & args, FormatContext & ctx) const -> decltype(ctx.out()) {
+        auto dest = ctx.out();
+        *dest++ = '[';
+        if (auto * str = args.data()) {
+            dest = fmt::format_to(dest, "\"{}\"", *str);
+            for (++str; *str; ++str) {
+                dest = fmt::format_to(dest, ", \"{}\"", *str);
+            }
+        }
+        *dest++ = ']';
+        return dest;
+    }
+};
 
 template<class T, class Arg>
 constexpr decltype(auto) makeDependentOn(Arg && arg) {

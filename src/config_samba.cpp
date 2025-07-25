@@ -3,10 +3,11 @@
 
 #include "config.h"
 #include "util.h"
+#include "sys_util.h"
 
 using namespace std::literals;
 
-static auto startsWithAndHasMore(const std::vector<char> & buf, std::string_view str) -> bool {
+static auto startsWithAndHasMore(const std::string_view & buf, std::string_view str) -> bool {
     if (buf.size() < str.size() + 1)
         return false;
     if (memcmp(buf.data(), str.data(), str.size()) != 0)
@@ -15,96 +16,27 @@ static auto startsWithAndHasMore(const std::vector<char> & buf, std::string_view
     return true;
 }
 
-static auto tryToRunSambaToGetConfig(const char * path) -> std::optional<std::filesystem::path> {
-    std::error_code ec;
-    if (!std::filesystem::is_regular_file(path, ec)) {
-        WSDLOG_TRACE("path '{}' is not a regular file", path);
-        return std::nullopt;
-    }
-
-    std::string command(path);
-    command += " --show-build";
-
-    StdIoPipe pipe(command.c_str(), "r", ec);
-    if (!pipe) {
-        WSDLOG_TRACE("'{}' cannot be run, error {}", command, strerror(errno));
-        return std::nullopt;
-    }
-
-    auto prefix = "   CONFIGFILE: "sv;
-    std::vector<char> buf;
-    buf.reserve(1024);
-    for (bool eof = false; !eof; ) {
-        buf.clear();
-        bool truncated = false;
-        auto res = readLine(pipe, [&](char c){
-            if (buf.size() < 1024) {
-                buf.push_back(c);
-            } else {
-                WSDLOG_WARN("'{}' produced an overly long line", command);
-                truncated = false;
-            }
-        });
-        if (!res) {
-            WSDLOG_WARN("failed to read output of '{}', error {}", command, res.assume_error().message());
-            break;
-        }
-        eof = !res.assume_value();
-        if (truncated)
-            continue;
-        if (!startsWithAndHasMore(buf, prefix))
-            continue;
-        return std::filesystem::path(buf.data() + prefix.size(), buf.data() + buf.size());
-    }
-    return std::nullopt;
-}
 
 static auto findSmbConfViaSamba() -> std::optional<std::filesystem::path> {
-    auto prefix = "samba: "sv;
 
     WSDLOG_DEBUG("trying to locate samba");
-    std::error_code ec;
-    const char command[] = "whereis -b samba";
-    StdIoPipe pipe(command, "r", ec);
-    if (!pipe) {
-        WSDLOG_ERROR("'{}' cannot be run, error {}", command, strerror(errno));
-        return std::nullopt;
-    }
-    std::vector<char> buf;
-    buf.reserve(1024);
-    auto res = readLine(pipe, [&](char c) {
-        if (buf.size() < 1024) {
-            buf.push_back(c);
-        } else {
-            WSDLOG_WARN("'{}' output is overly long, truncated", command);
-        }
-    });
-    if (!res) {
-        WSDLOG_ERROR("failed to read output of '{}', error {}", command, res.assume_error().message());
-        return std::nullopt;
-    }
-    if (!startsWithAndHasMore(buf, prefix)) {
-        WSDLOG_WARN("output of '{}' does not match '{}<more chars>'", command, prefix);
-        WSDLOG_DEBUG("output: {}", std::string_view(buf.data(), buf.size()));
-        return std::nullopt;
-    }
-    
-    buf.push_back(' '); //ensure we have clean termination
-    char * pathStart = buf.data() + prefix.size();
-    char * bufEnd = buf.data() + buf.size();
-    char * pathEnd = pathStart;
-    for (; pathEnd != bufEnd; ++pathEnd) {
-        if (*pathEnd == ' ') {
-            *pathEnd = '\0';
-            WSDLOG_DEBUG("trying '{}' as samba", pathStart);
-            auto res = tryToRunSambaToGetConfig(pathStart);
-            if (res) {
-                WSDLOG_INFO("found samba config at '{}'", res->c_str());
-                return res;
+
+    std::filesystem::path conf;
+
+    try {
+        auto prefix = "   CONFIGFILE: "sv;
+        shell({"samba", "--show-build"}, false, LineReader(1024, [&](std::string_view line) {
+            if (startsWithAndHasMore(line, prefix)) {
+                conf = std::filesystem::path(line.substr(prefix.size()));
             }
-            pathStart = pathEnd + 1;
-        }
+        }));
+
+        WSDLOG_INFO("found samba config at '{}'", conf.c_str());
+        return conf;
+    } catch(std::exception & ex) {
+        WSDLOG_DEBUG("`samba --show-build` failed: {}", ex.what());
     }
+
     return {};
 }
 
@@ -127,7 +59,7 @@ static auto findKsmbConf() -> std::optional<std::filesystem::path> {
 }
 #endif
 
-auto Config::findSmbConf() -> std::optional<std::filesystem::path> {
+static auto findSmbConf() -> std::optional<std::filesystem::path> {
 
     if (auto res = findSmbConfViaSamba())
         return res;
@@ -138,45 +70,47 @@ auto Config::findSmbConf() -> std::optional<std::filesystem::path> {
     #endif
 }
 
- auto Config::readSmbConf(const std::filesystem::path & path, bool useNetbiosHostName) -> std::optional<WinNetInfo> {
+static auto paramsFromSmbConf(const std::filesystem::path & path) -> std::optional<Config::SambaParams> {
 
     std::error_code ec;
-    auto file = StdIoFile(path.c_str(), "r", ec);
+    auto file = ptl::FileDescriptor::open(path.c_str(), O_RDONLY, ec);
     if (!file)
-        return std::nullopt;
+        return {};
+
+    struct ::stat st;
+    getStatus(file, st, ec);
+    if (ec)
+        return {};
+
+    void * bytes = mmap(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, c_fd(file), 0);
+    if (bytes == MAP_FAILED)
+        return {};
+    
+
+    WSDLOG_TRACE("reading smb.conf");
+
+    std::string_view content((const char *)bytes, st.st_size);
 
     std::regex sectionRe(R"##(\s*\[([^\]]*)\].*)##", std::regex_constants::ECMAScript);
     std::regex entryRe(R"##(\s*([^ \t#;=][^=#;]*)\s*=\s*((?:[^ \t#;][^#;]*)?).*)##", std::regex_constants::ECMAScript);
 
-    std::optional<sys_string> workgroup;
-    std::optional<sys_string> hostName;
-    std::optional<sys_string> hostDescription;
-    bool isDomain = false;
+    Config::SambaParams ret;
     bool inGlobalSection = false;
+    
+    auto processed_end = content.begin();
+    for(auto cur = processed_end, end = content.end(); cur != end; ) {
 
-    std::vector<char> buf;
-    buf.reserve(1024);
-    for (bool eof = false; !eof; ) {
-        buf.clear();
-        bool truncated = false;
-        auto res = readLine(file, [&](char c) {
-            if (buf.size() < 1024)
-                buf.push_back(c);
-            else
-                truncated = true;
-        });
-        if (!res)
-            break;
-        eof = !res.assume_value();
-        
-        if (truncated)
+        if (*cur != '\n') {
+            ++cur;
             continue;
+        }
 
-        buf.push_back('\0');
+        std::string_view line(processed_end, cur - processed_end);
+        processed_end = ++cur;
 
-        std::cmatch m;
+        std::match_results<std::string_view::const_iterator> m;
 
-        if (std::regex_match(buf.data(), m, sectionRe)) {
+        if (std::regex_match(line.begin(), line.end(), m, sectionRe)) {
             if (inGlobalSection) {
                 WSDLOG_TRACE("smb.conf global section has ended");
                 break;
@@ -189,7 +123,7 @@ auto Config::findSmbConf() -> std::optional<std::filesystem::path> {
         if (!inGlobalSection)
             continue;
 
-        if (!std::regex_match(buf.data(), m, entryRe))
+        if (!std::regex_match(line.begin(), line.end(), m, entryRe))
             continue;
         std::string_view key(m[1].first, m[1].length());
         while(!key.empty() && (key.back() == ' ' || key.back() == '\t'))
@@ -200,48 +134,94 @@ auto Config::findSmbConf() -> std::optional<std::filesystem::path> {
 
         if (key == "workgroup"sv) {
             WSDLOG_TRACE("smb.conf workgroup is: {}", value);
-            workgroup.emplace(value);
+            ret.workgroup.emplace(value);
         } else if (key == "security"sv) {
             WSDLOG_TRACE("smb.conf security is: {}", value);
-            isDomain = (value == "domain"sv || value == "ads"sv);
+            ret.security.emplace(value);
         } else if (key == "netbios name"sv) {
             WSDLOG_TRACE("smb.conf netbios name is: {}", value);
-            hostName.emplace(value);
+            ret.hostName.emplace(value);
         } else if (key == "server string"sv) {
             WSDLOG_TRACE("smb.conf server string is: {}", value);
-            hostDescription.emplace(value);
+            ret.hostDescription.emplace(value);
         }
     }
-    WSDLOG_TRACE("smb.conf reading done");
 
+    WSDLOG_TRACE("smb.conf reading done");
+    return ret;
+}
+
+static auto runTestParm(std::string_view name) -> std::optional<sys_string> {
+
+    std::string arg = "--parameter-name=";
+    arg += name;
+
+    std::optional<sys_string> ret;
+
+    shell({"testparm", "-sl", arg.c_str()}, true, LineReader(1024, [&](std::string_view line) {
+        ret = line;
+    }));
+
+    return ret;
+}
+
+auto paramsFromTestParm() -> std::optional<Config::SambaParams> {
+
+    WSDLOG_DEBUG("trying to use testparm to detect samba config");
+
+    try {
+        Config::SambaParams ret;
+        ret.workgroup = runTestParm("workgroup"sv);
+        WSDLOG_TRACE("testparm workgroup is: {}", ret.workgroup.value_or(S("")));
+        ret.security = runTestParm("security"sv);
+        WSDLOG_TRACE("testparm security is: {}", ret.security.value_or(S("")));
+        ret.hostName = runTestParm("netbios name"sv);
+        WSDLOG_TRACE("testparm netbios name is: {}", ret.hostName.value_or(S("")));
+        ret.hostDescription = runTestParm("server string"sv);
+        WSDLOG_TRACE("testparm server string is: {}", ret.hostDescription.value_or(S("")));
+
+        WSDLOG_INFO("found samba config via testparm tool");
+        return ret;
+
+    } catch(std::exception & ex) {
+        WSDLOG_DEBUG("testparm detection failed: {}", ex.what());
+    }
+
+    return {};
+}
+
+auto Config::sambaParamsToWinNetInfo(const SambaParams & params, bool useNetbiosHostName) -> WinNetInfo {
+    
+    bool isDomain = (params.security == S("domain") || params.security == S("ads"));
+    
     WinNetInfo ret;
 
-    if (workgroup && !workgroup->empty()) {
+    if (params.workgroup && !params.workgroup->empty()) {
         if (isDomain)
-            ret.memberOf.emplace<WindowsDomain>(*workgroup);
+            ret.memberOf.emplace<WindowsDomain>(*params.workgroup);
         else
-            ret.memberOf.emplace<WindowsWorkgroup>(*workgroup);
+            ret.memberOf.emplace<WindowsWorkgroup>(*params.workgroup);
     } else {
-        WSDLOG_WARN("smb.conf indicates membership of a domain but contains no domain name, assuming workgroup");
+        WSDLOG_WARN("Samba config indicates membership in a domain but contains no domain name, assuming workgroup");
         ret.memberOf.emplace<WindowsWorkgroup>(S("WORKGROUP"));
     }
 
     if (useNetbiosHostName) {
-        if (hostName && !hostName->empty())
-            ret.hostName = *hostName;
+        if (params.hostName && !params.hostName->empty())
+            ret.hostName = *params.hostName;
         else
             ret.hostName = m_simpleHostName.to_upper();
     } else {
         ret.hostName = m_simpleHostName;
     }
 
-    if (hostDescription && !hostDescription->empty()) {
-        auto desc = *hostDescription;
+    if (params.hostDescription && !params.hostDescription->empty()) {
+        auto desc = *params.hostDescription;
         desc = desc.replace(S("%h"), m_simpleHostName);
         if (!desc.contains(U'%')) {
             ret.hostDescription = desc;
         } else {
-            WSDLOG_WARN("smb.conf server string contains unsppported % tokens, using host name as description");
+            WSDLOG_WARN("Samba config server string contains unsppported % tokens, using host name as description");
             ret.hostDescription = m_simpleHostName;
         }
     } else {
@@ -250,4 +230,20 @@ auto Config::findSmbConf() -> std::optional<std::filesystem::path> {
 
     
     return ret;
+}
+
+auto Config::detectWinNetInfo(std::optional<std::filesystem::path> smbConf, bool useNetbiosHostName) -> std::optional<WinNetInfo> {
+
+    if (!smbConf)
+        smbConf = findSmbConf();
+    
+    std::optional<Config::SambaParams> params;
+    if (smbConf)
+        params = paramsFromSmbConf(*smbConf);
+    if (!params)
+        params = paramsFromTestParm();
+    if (params)
+        return sambaParamsToWinNetInfo(*params, useNetbiosHostName);
+
+    return {};
 }

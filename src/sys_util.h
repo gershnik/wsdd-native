@@ -4,22 +4,12 @@
 #ifndef HEADER_SYS_UTIL_H_INCLUDED
 #define HEADER_SYS_UTIL_H_INCLUDED
 
-inline sys_string to_urn(const Uuid & val) {
-    std::array<char, 36> buf;
-    val.to_chars(buf, Uuid::lowercase);
+#include "util.h"
 
-    sys_string_builder builder;
-    builder.reserve_storage(46);
-    builder.append(S("urn:uuid:"));
-    builder.append(buf.data(), buf.size());
-    return builder.build();
-}
+/*
+ OS-dependent (or potentially OS-dependant) utilities
+ */
 
-inline sys_string to_sys_string(const Uuid & val) {
-    std::array<char, 36> buf;
-    val.to_chars(buf, Uuid::lowercase);
-    return sys_string(buf.data(), buf.size());
-}
 
 class Identity {
 public:
@@ -159,6 +149,60 @@ inline void createMissingDirs(const std::filesystem::path & path, mode_t mode,
             ptl::changeOwner(start, owner->uid(), owner->gid());
     }
 }
+
+template<class Sink>
+class LineReader {
+public:
+    LineReader(size_t maxLineSize, Sink sink):
+        m_maxLineSize(maxLineSize),
+        m_sink(sink)
+    {}
+
+    void operator()(const ptl::FileDescriptor & fd) const {
+        std::vector<char> buf;
+        buf.reserve(m_maxLineSize);
+        bool ignore = false;
+        while(true) {
+            auto offset = buf.size();
+            const size_t addition = std::min(m_maxLineSize - offset, m_maxLineSize);
+            assert(addition > 0);
+            buf.resize(offset + addition);
+            auto read_count = ptl::readFile(fd, buf.data() + offset, addition);
+            buf.resize(offset + read_count);
+            bool done = (read_count == 0);
+            
+            auto processed_end = buf.begin();
+            for(auto cur = processed_end, end = buf.end(); cur != end; ) {
+                if (*cur == '\n') {
+                    if (!ignore) {
+                        std::string_view line(buf.data() + (processed_end - buf.begin()), cur - processed_end);
+                        m_sink(line);
+                    }
+                    ignore = false;
+                    processed_end = ++cur;
+                } else {
+                    ++cur;
+                }
+            }
+            buf.erase(buf.begin(), processed_end);
+            if (buf.size() == m_maxLineSize) {
+                WSDLOG_WARN("read line is overly long, ignored");
+                ignore = true;
+                buf.clear();
+            }
+
+            if (done)
+                break;
+        }
+        if (!buf.empty() && !ignore)
+            m_sink(std::string_view(buf.data(), buf.size()));
+    }
+private:
+    size_t m_maxLineSize;
+    Sink m_sink;
+};
+
+void shell(const ptl::StringRefArray & args, bool suppressStdErr, std::function<void (const ptl::FileDescriptor & fd)> reader);
 
 
 #endif

@@ -30,13 +30,9 @@ Config::Config(const CommandLine & cmdline):
         
     std::optional<WinNetInfo> systemWinNetInfo;
 #if HAVE_APPLE_SAMBA
-    systemWinNetInfo = detectWinNetInfo(useNetbiosHostName);
+    systemWinNetInfo = detectAppleWinNetInfo(useNetbiosHostName);
 #elif CAN_HAVE_SAMBA
-    auto smbConf = cmdline.smbConf;
-    if (!smbConf)
-        smbConf = findSmbConf();
-    if (smbConf)
-        systemWinNetInfo = readSmbConf(*smbConf, useNetbiosHostName);
+    systemWinNetInfo = detectWinNetInfo(cmdline.smbConf, useNetbiosHostName);
 #endif
        
     if (cmdline.memberOf) {
@@ -62,10 +58,13 @@ Config::Config(const CommandLine & cmdline):
         
     if (systemWinNetInfo)
         m_winNetInfo.hostDescription = systemWinNetInfo->hostDescription;
-    if (cmdline.hostname && !cmdline.hostname->empty())
-        m_winNetInfo.hostDescription = *cmdline.hostname;
-    else
-        m_winNetInfo.hostDescription = m_simpleHostName;
+    
+    if (m_winNetInfo.hostDescription.empty()) {
+        if (cmdline.hostname && !cmdline.hostname->empty())
+            m_winNetInfo.hostDescription = *cmdline.hostname;
+        else
+            m_winNetInfo.hostDescription = m_simpleHostName;
+    }
     
     
     auto [memberOfType, memberOfName] = std::visit([](auto & val) {

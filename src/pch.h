@@ -95,6 +95,8 @@
 
 #include <stdio.h>
 
+#include <sys/mman.h>
+
 #if WSDDN_PLATFORM_APPLE
 
 #include <CoreFoundation/CoreFoundation.h>

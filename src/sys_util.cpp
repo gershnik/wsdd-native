@@ -27,3 +27,37 @@ auto Identity::createDaemonUser(const sys_string & name) -> Identity {
 }
 
 #endif
+
+void shell(const ptl::StringRefArray & args, bool suppressStdErr, std::function<void (const ptl::FileDescriptor & fd)> reader) {
+    auto [read, write] = ptl::Pipe::create();
+    ptl::SpawnAttr spawnAttr;
+    spawnAttr.setFlags(POSIX_SPAWN_SETSIGDEF);
+    auto sigs = ptl::SignalSet::all();
+    sigs.del(SIGKILL);
+    sigs.del(SIGSTOP);
+    spawnAttr.setSigDefault(sigs);
+    
+    ptl::SpawnFileActions act;
+    act.addDuplicateTo(write, stdout);
+    act.addClose(read);
+    if (suppressStdErr) {
+       act.addOpen(stderr, "/dev/null", O_WRONLY, 0);
+    }
+    auto proc = spawn(args, ptl::SpawnSettings().fileActions(act).usePath());
+    write.close();
+
+    reader(read);
+
+    auto stat = proc.wait().value();
+    if (WIFEXITED(stat)) {
+        auto res = WEXITSTATUS(stat);
+        if (res == 0)
+            return;
+
+        throw std::runtime_error(fmt::format("`{} exited with code {}`", args, res));
+    }
+    if (WIFSIGNALED(stat)) {
+        throw std::runtime_error(fmt::format("`{} exited due to signal {}`", args, WTERMSIG(stat)));
+    }
+    throw std::runtime_error(fmt::format("`{} finished with status 0x{:X}`", args, stat));
+}

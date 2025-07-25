@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-auto Config::detectWinNetInfo(bool useNetbiosHostName) -> std::optional<WinNetInfo> {
+auto Config::detectAppleWinNetInfo(bool useNetbiosHostName) -> std::optional<WinNetInfo> {
 
     cf_ptr<SCDynamicStoreRef> store = cf_attach(SCDynamicStoreCreate(nullptr, CFSTR("detectWinNetInfo"), nullptr, nullptr));
     if (!store) {
