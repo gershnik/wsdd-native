@@ -77,37 +77,54 @@ static auto paramsFromSmbConf(const std::filesystem::path & path) -> std::option
     if (!file)
         return {};
 
+    struct ::stat st;
+    getStatus(file, st, ec);
+    if (ec)
+        return {};
+
+    void * bytes = mmap(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, c_fd(file), 0);
+    if (bytes == MAP_FAILED)
+        return {};
+    
+
     WSDLOG_TRACE("reading smb.conf");
+
+    std::string_view content((const char *)bytes, st.st_size);
 
     std::regex sectionRe(R"##(\s*\[([^\]]*)\].*)##", std::regex_constants::ECMAScript);
     std::regex entryRe(R"##(\s*([^ \t#;=][^=#;]*)\s*=\s*((?:[^ \t#;][^#;]*)?).*)##", std::regex_constants::ECMAScript);
 
     Config::SambaParams ret;
     bool inGlobalSection = false;
-    bool done = false;
+    
+    auto processed_end = content.begin();
+    for(auto cur = processed_end, end = content.end(); cur != end; ) {
 
-    LineReader(1024, [&](std::string_view line) {
-        if (done)
-            return;
+        if (*cur != '\n') {
+            ++cur;
+            continue;
+        }
+
+        std::string_view line(processed_end, cur);
+        processed_end = ++cur;
 
         std::match_results<std::string_view::const_iterator> m;
 
         if (std::regex_match(line.begin(), line.end(), m, sectionRe)) {
             if (inGlobalSection) {
                 WSDLOG_TRACE("smb.conf global section has ended");
-                done = true;
-                return;
+                break;
             }
             inGlobalSection = (std::string_view(m[1].first, m[1].length()) == "global"sv);
             WSDLOG_TRACE("found smb.conf global section");
-            return;
+            continue;
         }
 
         if (!inGlobalSection)
-            return;
+            continue;
 
         if (!std::regex_match(line.begin(), line.end(), m, entryRe))
-            return;
+            continue;
         std::string_view key(m[1].first, m[1].length());
         while(!key.empty() && (key.back() == ' ' || key.back() == '\t'))
             key.remove_suffix(1);
@@ -128,7 +145,7 @@ static auto paramsFromSmbConf(const std::filesystem::path & path) -> std::option
             WSDLOG_TRACE("smb.conf server string is: {}", value);
             ret.hostDescription.emplace(value);
         }
-    })(file);
+    }
 
     WSDLOG_TRACE("smb.conf reading done");
     return ret;
