@@ -190,7 +190,7 @@ public:
         m_sink(sink)
     {}
 
-    void consume(const ptl::FileDescriptor & fd) {
+    void operator()(const ptl::FileDescriptor & fd) const {
         std::vector<char> buf;
         buf.reserve(m_maxLineSize);
         bool ignore = false;
@@ -223,52 +223,18 @@ public:
                 buf.clear();
             }
 
-            if (done) {
-                if (!buf.empty())
-                    m_sink(std::string_view(buf.data(), buf.size()));
+            if (done)
                 break;
-            }
         }
+        if (!buf.empty() && !ignore)
+            m_sink(std::string_view(buf.data(), buf.size()));
     }
 private:
     size_t m_maxLineSize;
     Sink m_sink;
 };
 
-template<class Reader>
-void shell(const ptl::StringRefArray & args, bool suppressStdErr, Reader && reader) {
-    auto [read, write] = ptl::Pipe::create();
-    ptl::SpawnAttr spawnAttr;
-    spawnAttr.setFlags(POSIX_SPAWN_SETSIGDEF);
-    auto sigs = ptl::SignalSet::all();
-    sigs.del(SIGKILL);
-    sigs.del(SIGSTOP);
-    spawnAttr.setSigDefault(sigs);
-    
-    ptl::SpawnFileActions act;
-    act.addDuplicateTo(write, stdout);
-    act.addClose(read);
-    if (suppressStdErr) {
-       act.addOpen(stderr, "/dev/null", O_WRONLY, 0);
-    }
-    auto proc = spawn(args, ptl::SpawnSettings().fileActions(act).usePath());
-    write.close();
-
-    std::forward<Reader>(reader).consume(read);
-
-    auto stat = proc.wait().value();
-    if (WIFEXITED(stat)) {
-        auto res = WEXITSTATUS(stat);
-        if (res == 0)
-            return;
-
-        throw std::runtime_error(fmt::format("`{} exited with code {}`", args, res));
-    }
-    if (WIFSIGNALED(stat)) {
-        throw std::runtime_error(fmt::format("`{} exited due to signal {}`", args, WTERMSIG(stat)));
-    }
-    throw std::runtime_error(fmt::format("`{} finished with status 0x{:X}`", args, stat));
-}
+void shell(const ptl::StringRefArray & args, bool suppressStdErr, std::function<void (const ptl::FileDescriptor & fd)> reader);
 
 
 #endif

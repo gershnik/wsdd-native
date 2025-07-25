@@ -128,7 +128,7 @@ static auto paramsFromSmbConf(const std::filesystem::path & path) -> std::option
             WSDLOG_TRACE("smb.conf server string is: {}", value);
             ret.hostDescription.emplace(value);
         }
-    }).consume(file);
+    })(file);
 
     WSDLOG_TRACE("smb.conf reading done");
     return ret;
@@ -163,7 +163,7 @@ auto paramsFromTestParm() -> std::optional<Config::SambaParams> {
         ret.hostDescription = runTestParm("server string"sv);
         WSDLOG_TRACE("testparm server string is: {}", ret.hostDescription.value_or(S("")));
 
-        WSDLOG_INFO("testparm detection succeeded");
+        WSDLOG_INFO("found samba config via testparm tool");
         return ret;
 
     } catch(std::exception & ex) {
