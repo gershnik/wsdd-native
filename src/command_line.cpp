@@ -559,15 +559,14 @@ void CommandLine::mergeConfigFile(const std::filesystem::path & path) {
         return;
     }
 
-    void * content = mmap(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, c_fd(file), 0);
-    if (content == MAP_FAILED) {
-        ec = std::error_code(errno, std::system_category());
+    ptl::MemoryMap content(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, file, 0, ec);
+    if (ec) {
         WSDLOG_WARN("Cannot map config file {}, error: {}", path.c_str(), ec.message());
         return;
     }
     
     try {
-        auto cfg = toml::parse(std::string_view((const char *)content, st.st_size), path.string());
+        auto cfg = toml::parse(std::string_view((const char *)content.data(), content.size()), path.string());
         
         for (auto && [key, value] : cfg) {
             

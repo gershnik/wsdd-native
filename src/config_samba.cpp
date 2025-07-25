@@ -82,14 +82,14 @@ static auto paramsFromSmbConf(const std::filesystem::path & path) -> std::option
     if (ec)
         return {};
 
-    void * bytes = mmap(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, c_fd(file), 0);
-    if (bytes == MAP_FAILED)
+    ptl::MemoryMap bytes(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, c_fd(file), 0, ec);
+    if (ec)
         return {};
     
 
     WSDLOG_TRACE("reading smb.conf");
 
-    std::string_view content((const char *)bytes, st.st_size);
+    std::string_view content((const char *)bytes.data(), bytes.size());
 
     std::regex sectionRe(R"##(\s*\[([^\]]*)\].*)##", std::regex_constants::ECMAScript);
     std::regex entryRe(R"##(\s*([^ \t#;=][^=#;]*)\s*=\s*((?:[^ \t#;][^#;]*)?).*)##", std::regex_constants::ECMAScript);
