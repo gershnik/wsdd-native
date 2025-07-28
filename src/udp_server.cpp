@@ -51,7 +51,7 @@ public:
     }
     
      void broadcast(XmlCharBuffer && data, std::function<void (asio::error_code)> continuation) override {
-         write(std::move(data), &UdpServerImpl::m_multicastSendSocket, m_multicastDest, continuation);
+         write(std::move(data), &UdpServerImpl::m_multicastSendSocket, m_multicastDest, false, continuation);
      }
 
 private:
@@ -157,13 +157,13 @@ private:
             }
 
             if (maybeReply)
-                write(std::move(*maybeReply), &UdpServerImpl::m_unicastSendSocket, m_recvSender);
+                write(std::move(*maybeReply), &UdpServerImpl::m_unicastSendSocket, m_recvSender, true);
             read();
         });
     }
 
     void write(XmlCharBuffer && data, ip::udp::socket UdpServerImpl::*socketPtr, ip::udp::endpoint dest,
-               std::function<void (asio::error_code)> continuation = nullptr) {
+               bool isUnicast, std::function<void (asio::error_code)> continuation = nullptr) {
         int repeatCount = (socketPtr == &UdpServerImpl::m_multicastSendSocket ? 4 : 2);
         RefCountedContainerBuffer buffer(std::move(data));
         auto & socket = this->*socketPtr;
@@ -173,14 +173,25 @@ private:
             RefCountedContainerBuffer<XmlCharBuffer> buffer;
             ip::udp::socket & socket;
             ip::udp::endpoint dest;
+            bool isUnicast;
             int repeatCount;
             std::function<void (asio::error_code)> continuation;
 
-            void operator()(const asio::error_code & ec, size_t /*bytesSent, ip::udp::socket * socket*/) {
+            void operator()(asio::error_code ec, size_t /*bytesSent, ip::udp::socket * socket*/) {
                 
                 if (!me->m_handler)
                     return;
                 
+            #ifdef __OpenBSD__
+                //On OpenBSD unicast send_to can fail with EACCESS when firewall
+                //blocks it. This isn't fatal and shouldn't be an error at all, so let's
+                //log it and treat it as success
+                if (isUnicast && ec == asio::error::access_denied) {
+                    WSDLOG_DEBUG("UDP server on {}, error writing: blocked by firewall", me->m_iface);
+                    ec = asio::error_code{};
+                }
+            #endif
+
                 if (ec) {
                     if (ec != asio::error::operation_aborted) {
                         WSDLOG_ERROR("UDP server on {}, error writing: {}", me->m_iface, ec.message());
@@ -219,7 +230,7 @@ private:
         else
             WSDLOG_DEBUG("UDP on {}, sending {} bytes to {}", m_iface, buffer.begin()->size(), dest.address().to_string());
         
-        socket.async_send_to(buffer, dest, Callback{refcnt_retain(this), buffer, socket, dest, repeatCount, continuation});
+        socket.async_send_to(buffer, dest, Callback{refcnt_retain(this), buffer, socket, dest, isUnicast, repeatCount, continuation});
     }
 
 private:
