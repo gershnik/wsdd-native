@@ -5,6 +5,8 @@
 #include "sys_socket.h"
 #include "exc_handling.h"
 
+#include <net/if_dl.h>
+
 static constexpr size_t g_wsdMaxDatagramLength = 32767;
 
 class UdpServerImpl : public UdpServer {
@@ -18,18 +20,21 @@ public:
         m_recvSocket(ctxt),
         m_multicastSendSocket(ctxt),
         m_unicastSendSocket(ctxt),
-        m_recvBuffer(g_wsdMaxDatagramLength) {
+        m_recvBuffer(g_wsdMaxDatagramLength),
+        m_isV4(addr.is_v4()) {
 
-        auto prot = addr.is_v4() ? ip::udp::v4() : ip::udp::v6();
+        auto prot = m_isV4 ? ip::udp::v4() : ip::udp::v6();
 
         m_recvSocket.open(prot);
         m_multicastSendSocket.open(prot);
         m_unicastSendSocket.open(prot);
+        
+        m_recvSocket.non_blocking();
 
         m_recvSocket.set_option(ip::udp::socket::reuse_address(true));
         m_unicastSendSocket.set_option(ip::udp::socket::reuse_address(true));
 
-        if (addr.is_v4()) 
+        if (m_isV4)
             initAddresses(addr.to_v4(), iface);
         else 
             initAddresses(addr.to_v6(), iface);
@@ -77,10 +82,15 @@ private:
 
         setSocketOption(m_recvSocket, ptl::SockOptIPv4AddMembership, multicastGroupRequest);
 
-        #ifdef __linux__
+        #if defined(__linux__)
             setSocketOption(m_recvSocket, ptl::SockOptIPv4MulticastAll, false);
+        #elif defined(IP_RECVIF)
+            {
+                int val = 1;
+                ptl::setSocketOption(m_recvSocket, IPPROTO_IP, IP_RECVIF, &val, sizeof(val));
+            }
         #endif
-
+            
         m_recvSocket.bind(ip::udp::endpoint(multicastGroupAddress, g_WsdUdpPort));
         m_unicastSendSocket.bind(ip::udp::endpoint(addr, g_WsdUdpPort));
         
@@ -122,12 +132,23 @@ private:
             m_multicastSendSocket.bind(ip::udp::endpoint(ip::udp::endpoint(ip::address_v6(addr.to_bytes(), iface.index), m_config->sourcePort())));
 
     }
+    
+    auto getV4IfIndex(msghdr & msg) -> std::optional<int> {
+        
+        if (msg.msg_controllen >= sizeof(struct cmsghdr)) {
+            for (struct cmsghdr * cmptr = CMSG_FIRSTHDR(&msg); cmptr; cmptr = CMSG_NXTHDR(&msg, cmptr)) {
+                if (cmptr->cmsg_level == IPPROTO_IP && cmptr->cmsg_type == IP_RECVIF) {
+                    auto sdl = (struct sockaddr_dl *)CMSG_DATA(cmptr);
+                    return sdl->sdl_index;
+                }
+            }
+        }
+        return {};
+    }
 
     void read() {
-        asio::mutable_buffer buffer(m_recvBuffer.data(), m_recvBuffer.size());
-
-        m_recvSocket.async_receive_from(buffer, m_recvSender, 
-            [this, holder = refcnt_retain(this)](const asio::error_code & ec, size_t bytesRecvd) {
+        m_recvSocket.async_receive_from(asio::null_buffers(), m_recvSender, 
+            [this, holder = refcnt_retain(this)](asio::error_code ec, size_t bytesRecvd) {
 
             if (!m_handler)
                 return;
@@ -140,12 +161,74 @@ private:
                 
                 return;
             }
+            
+            sockaddr_storage from{};
+            
+            iovec iov[] = {{m_recvBuffer.data(), m_recvBuffer.size()}};
+            
+            struct control : cmsghdr {
+                union {
+                    sockaddr_dl addr;
+                };
+            } cmsg;
+            
+            msghdr msg{};
+            msg.msg_name = &from;
+            msg.msg_namelen = sizeof(from);
+            msg.msg_iov = iov;
+            msg.msg_iovlen = std::size(iov);
+            msg.msg_control = &cmsg;
+            msg.msg_controllen = sizeof(cmsg);
+            
+            for ( ; ; ) {
+                bytesRecvd = ptl::receiveSocket(m_recvSocket, &msg, 0, ec);
+                if (!ec)
+                    break;
+                if (ec == std::errc::interrupted)
+                    continue;
+                if (ec == std::errc::operation_would_block || ec == std::errc::resource_unavailable_try_again)
+                    return;
+                    
+                WSDLOG_ERROR("UDP server on {}, error reading: {}", m_iface, ec.message());
+                m_handler->onFatalUdpError();
+                return;
+            }
+            
+            if (from.ss_family == AF_INET) {
+                auto from4 = (const sockaddr_in *)&from;
+                m_recvSender = ip::udp::endpoint(makeAddress(*from4), ntohs(from4->sin_port));
+            } else if (from.ss_family == AF_INET6) {
+                auto from6 = (const sockaddr_in6 *)&from;
+                m_recvSender = ip::udp::endpoint(makeAddress(*from6), ntohs(from6->sin6_port));
+            } else {
+                WSDLOG_DEBUG("UDP on {}, received invalid source address, ignoring");
+                read();
+                return;
+            }
+            
+            if (msg.msg_flags & MSG_TRUNC)
+                WSDLOG_ERROR("UDP server on {}, read data truncated");
+            
+        #if !defined(__linux__) && defined(IP_RECVIF)
+            if (m_isV4) {
+                if (!(msg.msg_flags & MSG_CTRUNC)) {
+                    if (auto ifindex = getV4IfIndex(msg)) {
+                        if (*ifindex != m_iface.index) {
+                            read();
+                            return;
+                        }
+                    }
+                } else {
+                    WSDLOG_ERROR("UDP server on {}, control info is truncated");
+                }
+            }
+        #endif
 
             if (spdlog::should_log(spdlog::level::trace))
-                WSDLOG_TRACE("UDP on {}, received from {}: {}", m_iface, m_recvSender.address().to_string(),
+                WSDLOG_TRACE("UDP on {}, received from {}:{}: {}", m_iface, m_recvSender.address().to_string(), m_recvSender.port(),
                               std::string_view((const char *)m_recvBuffer.data(), bytesRecvd));
             else
-                WSDLOG_DEBUG("UDP on {}, received {} bytes from {}", m_iface, bytesRecvd, m_recvSender.address().to_string());
+                WSDLOG_DEBUG("UDP on {}, received {} bytes from {}:{}", m_iface, bytesRecvd, m_recvSender.address().to_string(), m_recvSender.port());
 
             std::optional<XmlCharBuffer> maybeReply;
             try {
@@ -225,10 +308,10 @@ private:
         };
 
         if (spdlog::should_log(spdlog::level::trace))
-            WSDLOG_TRACE("UDP on {}, sending to {}: {}", m_iface, dest.address().to_string(),
+            WSDLOG_TRACE("UDP on {}, sending to {}:{}: {}", m_iface, dest.address().to_string(), m_recvSender.port(),
                           std::string_view((const char *)buffer.begin()->data(), buffer.begin()->size()));
         else
-            WSDLOG_DEBUG("UDP on {}, sending {} bytes to {}", m_iface, buffer.begin()->size(), dest.address().to_string());
+            WSDLOG_DEBUG("UDP on {}, sending {} bytes to {}:{}", m_iface, buffer.begin()->size(), dest.address().to_string(), m_recvSender.port());
         
         socket.async_send_to(buffer, dest, Callback{refcnt_retain(this), buffer, socket, dest, isUnicast, repeatCount, continuation});
     }
@@ -246,6 +329,7 @@ private:
     std::vector<std::byte> m_recvBuffer;
     ip::udp::endpoint m_recvSender;
 
+    bool m_isV4;
 };
 
 refcnt_ptr<UdpServer> createUdpServer(asio::io_context & ctxt, 

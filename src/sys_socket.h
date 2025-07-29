@@ -16,6 +16,31 @@ namespace ptl {
 
 }
 
+#define    IN6_IS_SCOPE_LINKLOCAL(a)    \
+    ((IN6_IS_ADDR_LINKLOCAL(a)) ||    \
+    (IN6_IS_ADDR_MC_LINKLOCAL(a)))
+
+inline auto makeAddress(const sockaddr_in & addr) -> ip::address_v4 {
+    return ip::address_v4(ntohl(addr.sin_addr.s_addr));
+}
+
+inline auto makeAddress(const sockaddr_in6 & addr) -> ip::address_v6 {
+    union {
+        ip::address_v6::bytes_type asio;
+        in6_addr raw;
+    } clearAddr;
+    memcpy(&clearAddr.raw, addr.sin6_addr.s6_addr, sizeof(clearAddr.raw));
+    uint32_t scope = addr.sin6_scope_id;
+    if (IN6_IS_SCOPE_LINKLOCAL(&clearAddr.raw)) {
+        uint16_t * words = (uint16_t *)&clearAddr.raw.s6_addr;
+        if (uint32_t embeddedScope = htons(words[1])) {
+            scope = embeddedScope;
+        }
+        words[1] = 0;
+    }
+    return ip::address_v6(clearAddr.asio, scope);
+}
+
 
 template<unsigned long Name, class T>
 class SocketIOControl {
