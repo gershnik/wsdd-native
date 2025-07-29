@@ -5,7 +5,9 @@
 #include "sys_socket.h"
 #include "exc_handling.h"
 
-#include <net/if_dl.h>
+#if defined(IP_RECVIF)
+    #include <net/if_dl.h>
+#endif
 
 static constexpr size_t g_wsdMaxDatagramLength = 32767;
 
@@ -133,6 +135,7 @@ private:
 
     }
     
+#if defined(IP_RECVIF)
     auto getV4IfIndex(msghdr & msg) -> std::optional<int> {
         
         if (msg.msg_controllen >= sizeof(struct cmsghdr)) {
@@ -145,6 +148,7 @@ private:
         }
         return {};
     }
+#endif
 
     void read() {
         m_recvSocket.async_receive_from(asio::null_buffers(), m_recvSender, 
