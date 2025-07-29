@@ -170,9 +170,9 @@ private:
         static constexpr size_t size() noexcept { return 0; }
         static cmsghdr * data() const noexcept { return nullptr; }
         
-        static bool checkInterfaceIndexV4(msghdr & msg, int ifIndex) { return true; }
+        static bool checkInterfaceIndexV4(msghdr & /*msg*/, int /*ifIndex*/) { return true; }
         
-        static void applyV4(ip::udp::socket & sock) {}
+        static void applyV4(ip::udp::socket & /*sock*/) {}
     };
 #endif
 
