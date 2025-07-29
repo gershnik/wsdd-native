@@ -170,7 +170,7 @@ private:
         static constexpr size_t size() noexcept { return 0; }
         static cmsghdr * data() const noexcept { return nullptr; }
         
-        static auto checkInterfaceIndexV4(bool isV4, msghdr & msg, int ifIndex) -> std::optional<int> { return true; }
+        static bool checkInterfaceIndexV4(msghdr & msg, int ifIndex) { return true; }
         
         static void applyV4(ip::udp::socket & sock) {}
     };
