@@ -11,6 +11,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - OpenBSD: UDP writes blocked by firewall no longer stop all processing on an 
   interface (#18)
 
+### Changed
+- To optimize network traffic `wsddn` now sends resolving address directly in the WSD Hello message
+  rather than wating for a call from Windows. This is similar to what `wsdd` does. There appears to
+  be no real security benenfit in not doing so and it reduces startup traffic significantly.
+
 ## [1.20] - 2025-07-19
 
 ### Fixed

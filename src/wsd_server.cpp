@@ -38,6 +38,8 @@ public:
 
     struct Hello {
         sys_string endpointIdentifier;
+        ip::tcp::endpoint httpEndpoint;
+        sys_string httpPath;
     };
     struct Bye {
         sys_string endpointIdentifier;
@@ -141,6 +143,8 @@ private:
     void fill(const Hello & val, XmlNode & bodyNode, const Namespaces & ns) {
         auto & hello = bodyNode.newChild(ns.wsd, u8"Hello");
         addEndpointReference(ns, hello, val.endpointIdentifier);
+        auto xaddr = makeHttpUrl(val.httpEndpoint) + S("/") + val.httpPath;
+        hello.newTextChild(ns.wsd, u8"XAddrs", xml_str(xaddr));
         addMetadataVersion(ns, hello);
     }
     
@@ -405,7 +409,9 @@ private:
             .messageNumber = m_messageNumber++
         });
         builder.setBody(WSDResponseBuilder::Hello{
-            .endpointIdentifier = m_config->endpointIdentifier()
+            .endpointIdentifier = m_config->endpointIdentifier(),
+            .httpEndpoint = m_httpAddress,
+            .httpPath = m_config->httpPath()
         });
         
         auto doc = builder.build();
