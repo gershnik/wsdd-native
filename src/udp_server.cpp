@@ -13,7 +13,7 @@ static constexpr size_t g_wsdMaxDatagramLength = 32767;
 
 class UdpServerImpl : public UdpServer {
 public:
-    UdpServerImpl(asio::io_context & ctxt, 
+    UdpServerImpl(asio::io_context & ctxt,
                   const refcnt_ptr<Config> & config,
                   const NetworkInterface & iface,
                   const ip::address & addr):
@@ -38,7 +38,7 @@ public:
 
         if (m_isV4)
             initAddresses(addr.to_v4(), iface);
-        else 
+        else
             initAddresses(addr.to_v6(), iface);
 
     }
@@ -151,7 +151,7 @@ private:
 #endif
 
     void read() {
-        m_recvSocket.async_receive_from(asio::null_buffers(), m_recvSender, 
+        m_recvSocket.async_receive_from(asio::null_buffers(), m_recvSender,
             [this, holder = refcnt_retain(this)](asio::error_code ec, size_t bytesRecvd) {
 
             if (!m_handler)
@@ -171,9 +171,9 @@ private:
             iovec iov[] = {{m_recvBuffer.data(), m_recvBuffer.size()}};
             
             struct control : cmsghdr {
-                union {
-                    sockaddr_dl addr;
-                };
+        #if defined(IP_RECVIF)
+                char data[CMSG_SPACE(sizeof(sockaddr_dl))];
+        #endif
             } cmsg;
             
             msghdr msg{};
@@ -205,13 +205,13 @@ private:
                 auto from6 = (const sockaddr_in6 *)&from;
                 m_recvSender = ip::udp::endpoint(makeAddress(*from6), ntohs(from6->sin6_port));
             } else {
-                WSDLOG_DEBUG("UDP on {}, received invalid source address, ignoring");
+                WSDLOG_DEBUG("UDP on {}, received invalid source address, ignoring", m_iface);
                 read();
                 return;
             }
             
             if (msg.msg_flags & MSG_TRUNC)
-                WSDLOG_ERROR("UDP server on {}, read data truncated");
+                WSDLOG_ERROR("UDP server on {}, read data truncated", m_iface);
             
         #if !defined(__linux__) && defined(IP_RECVIF)
             if (m_isV4) {
@@ -223,7 +223,7 @@ private:
                         }
                     }
                 } else {
-                    WSDLOG_ERROR("UDP server on {}, control info is truncated");
+                    WSDLOG_ERROR("UDP server on {}, control info is truncated", m_iface);
                 }
             }
         #endif
@@ -336,7 +336,7 @@ private:
     bool m_isV4;
 };
 
-refcnt_ptr<UdpServer> createUdpServer(asio::io_context & ctxt, 
+refcnt_ptr<UdpServer> createUdpServer(asio::io_context & ctxt,
                                       const refcnt_ptr<Config> & config,
                                       const NetworkInterface & iface,
                                       const ip::address & addr) {
