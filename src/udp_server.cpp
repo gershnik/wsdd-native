@@ -86,12 +86,9 @@ private:
 
         #if defined(__linux__)
             setSocketOption(m_recvSocket, ptl::SockOptIPv4MulticastAll, false);
-        #elif defined(IP_RECVIF)
-            {
-                int val = 1;
-                ptl::setSocketOption(m_recvSocket, IPPROTO_IP, IP_RECVIF, &val, sizeof(val));
-            }
         #endif
+        
+        ReadMessageControl::applyV4(m_recvSocket);
             
         m_recvSocket.bind(ip::udp::endpoint(multicastGroupAddress, g_WsdUdpPort));
         m_unicastSendSocket.bind(ip::udp::endpoint(addr, g_WsdUdpPort));
@@ -135,19 +132,48 @@ private:
 
     }
     
-#if defined(IP_RECVIF)
-    auto getV4IfIndex(msghdr & msg) -> std::optional<int> {
+#if !defined(__linux__) && defined(IP_RECVIF)
+    class ReadMessageControl {
+    private:
+        alignas(cmsghdr) uint8_t m_data[sizeof(cmsghdr) + CMSG_SPACE(sizeof(sockaddr_dl))];
+    public:
+        static constexpr size_t size() noexcept { return sizeof(m_data); }
+        cmsghdr * data() noexcept { return reinterpret_cast<cmsghdr *>(m_data); }
         
-        if (msg.msg_controllen >= sizeof(struct cmsghdr)) {
+        static bool checkInterfaceIndexV4(msghdr & msg, int ifIndex) {
+            if (msg.msg_flags & MSG_CTRUNC) {
+                WSDLOG_ERROR("UDP server on {}, control info is truncated", ifIndex);
+                return true;
+            }
+            
+            if (msg.msg_controllen < sizeof(struct cmsghdr))
+                return true;
+            
             for (struct cmsghdr * cmptr = CMSG_FIRSTHDR(&msg); cmptr; cmptr = CMSG_NXTHDR(&msg, cmptr)) {
                 if (cmptr->cmsg_level == IPPROTO_IP && cmptr->cmsg_type == IP_RECVIF) {
                     auto sdl = (struct sockaddr_dl *)CMSG_DATA(cmptr);
-                    return sdl->sdl_index;
+                    return sdl->sdl_index == ifIndex;
                 }
             }
+            
+            return true;
         }
-        return {};
-    }
+        
+        static void applyV4(ip::udp::socket & sock) {
+            int val = 1;
+            ptl::setSocketOption(sock, IPPROTO_IP, IP_RECVIF, &val, sizeof(val));
+        }
+    };
+#else
+    class ReadMessageControl {
+    public:
+        static constexpr size_t size() noexcept { return 0; }
+        static cmsghdr * data() const noexcept { return nullptr; }
+        
+        static auto checkInterfaceIndexV4(bool isV4, msghdr & msg, int ifIndex) -> std::optional<int> { return true; }
+        
+        static void applyV4(ip::udp::socket & sock) {}
+    };
 #endif
 
     void read() {
@@ -170,19 +196,15 @@ private:
             
             iovec iov[] = {{m_recvBuffer.data(), m_recvBuffer.size()}};
             
-            struct control : cmsghdr {
-        #if defined(IP_RECVIF)
-                char data[CMSG_SPACE(sizeof(sockaddr_dl))];
-        #endif
-            } cmsg;
+            ReadMessageControl control;
             
             msghdr msg{};
             msg.msg_name = &from;
             msg.msg_namelen = sizeof(from);
             msg.msg_iov = iov;
             msg.msg_iovlen = std::size(iov);
-            msg.msg_control = &cmsg;
-            msg.msg_controllen = sizeof(cmsg);
+            msg.msg_control = control.data();
+            msg.msg_controllen = control.size();
             
             for ( ; ; ) {
                 bytesRecvd = ptl::receiveSocket(m_recvSocket, &msg, 0, ec);
@@ -213,20 +235,10 @@ private:
             if (msg.msg_flags & MSG_TRUNC)
                 WSDLOG_ERROR("UDP server on {}, read data truncated", m_iface);
             
-        #if !defined(__linux__) && defined(IP_RECVIF)
-            if (m_isV4) {
-                if (!(msg.msg_flags & MSG_CTRUNC)) {
-                    if (auto ifindex = getV4IfIndex(msg)) {
-                        if (*ifindex != m_iface.index) {
-                            read();
-                            return;
-                        }
-                    }
-                } else {
-                    WSDLOG_ERROR("UDP server on {}, control info is truncated", m_iface);
-                }
+            if (m_isV4 && !ReadMessageControl::checkInterfaceIndexV4(msg, m_iface.index)) {
+                read();
+                return;
             }
-        #endif
 
             if (spdlog::should_log(spdlog::level::trace))
                 WSDLOG_TRACE("UDP on {}, received from {}:{}: {}", m_iface, m_recvSender.address().to_string(), m_recvSender.port(),
