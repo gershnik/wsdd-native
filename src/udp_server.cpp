@@ -168,7 +168,7 @@ private:
     class ReadMessageControl {
     public:
         static constexpr size_t size() noexcept { return 0; }
-        static cmsghdr * data() const noexcept { return nullptr; }
+        static cmsghdr * data() noexcept { return nullptr; }
         
         static bool checkInterfaceIndexV4(msghdr & /*msg*/, int /*ifIndex*/) { return true; }
         
