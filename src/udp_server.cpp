@@ -135,7 +135,7 @@ private:
 #if !defined(__linux__) && defined(IP_RECVIF)
     class ReadMessageControl {
     private:
-        alignas(cmsghdr) uint8_t m_data[sizeof(cmsghdr) + CMSG_SPACE(sizeof(sockaddr_dl))];
+        alignas(cmsghdr) uint8_t m_data[CMSG_SPACE(sizeof(sockaddr_dl))];
     public:
         static constexpr size_t size() noexcept { return sizeof(m_data); }
         cmsghdr * data() noexcept { return reinterpret_cast<cmsghdr *>(m_data); }
@@ -149,10 +149,11 @@ private:
             if (msg.msg_controllen < sizeof(struct cmsghdr))
                 return true;
             
-            for (struct cmsghdr * cmptr = CMSG_FIRSTHDR(&msg); cmptr; cmptr = CMSG_NXTHDR(&msg, cmptr)) {
+            for (cmsghdr * cmptr = CMSG_FIRSTHDR(&msg); cmptr; cmptr = CMSG_NXTHDR(&msg, cmptr)) {
                 if (cmptr->cmsg_level == IPPROTO_IP && cmptr->cmsg_type == IP_RECVIF) {
-                    auto sdl = (struct sockaddr_dl *)CMSG_DATA(cmptr);
-                    return sdl->sdl_index == ifIndex;
+                    sockaddr_dl sdl;
+                    memcpy(&sdl, CMSG_DATA(cmptr), sizeof(sdl));
+                    return sdl.sdl_index == ifIndex;
                 }
             }
             
