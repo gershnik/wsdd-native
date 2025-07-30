@@ -25,6 +25,14 @@
     #define WSDDN_DEFAULT_USER_NAME "_wsddn"
     #define WSDDN_DEFAULT_CHROOT_DIR "/var/empty"
     #define WSDDN_BUNDLE_IDENTIFIER "@WSDDN_BUNDLE_IDENTIFIER@"
+#elif defined(__OpenBSD__)
+    #define WSDDN_PLATFORM_APPLE 0
+    #define WSDDN_DEFAULT_USER_NAME "_wsddn"
+    #define WSDDN_DEFAULT_CHROOT_DIR "/var/empty"
+#elif defined(__NetBSD__)
+    #define WSDDN_PLATFORM_APPLE 0
+    #define WSDDN_DEFAULT_USER_NAME "_wsddn"
+    #define WSDDN_DEFAULT_CHROOT_DIR "/var/chroot/wsddn"
 #else
     #define WSDDN_PLATFORM_APPLE 0
     #define WSDDN_DEFAULT_USER_NAME "wsddn"
