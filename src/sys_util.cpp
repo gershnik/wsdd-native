@@ -15,7 +15,12 @@ const char * OsLogHandle::s_category = "main";
 auto Identity::createDaemonUser(const sys_string & name) -> Identity {
 
 #if HAVE_USERADD
-    sys_string command = S("useradd -r -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false '") + name + S("'");
+    #ifdef __linux__
+        sys_string command = S("useradd -r -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false '") + name + S("'");
+    #else
+        sys_string command = S("useradd -L daemon -g =uid -d " WSDDN_DEFAULT_CHROOT_DIR " -s /sbin/nologin '") + name + S("'");
+        createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
+    #endif
 #elif HAVE_PW
     sys_string command = S("pw adduser '") + name + S("' -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false -c \"WS-Discovery Daemon User\"");
 #endif
