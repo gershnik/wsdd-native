@@ -6,15 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## Unreleased
 
 ### Fixed
-- OpenBSD: Samba config is now correctly detected. Samba detection is also improved
-  on other platforms (#17) 
+- Samba config detection now works properly when `samba` tool is not present. Detection is also
+  no longer depends on `whereis` tool. This is particularly an issue on OpenBSD but can be a problem 
+  on other platforms too (#17) 
 - OpenBSD: UDP writes blocked by firewall no longer stop all processing on an 
   interface (#18)
+- OpenBSD and potentially other less common BSD variants: `wsddn` now properly handles
+  older BSD behavior where reading from multicast IPv4 sockets surfaces packets sent to
+  all interfaces, not the one the socket is restricted to (#19)
 
 ### Changed
 - To optimize network traffic `wsddn` now sends resolving address directly in the WSD Hello message
-  rather than wating for a call from Windows. This is similar to what `wsdd` does. There appears to
-  be no real security benenfit in not doing so and it reduces startup traffic significantly.
+  rather than waiting for a call from Windows. This is similar to what `wsdd` does. There appears to
+  be no real security benefit in not doing so and it reduces startup traffic significantly.
 
 ## [1.20] - 2025-07-19
 

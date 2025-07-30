@@ -16,11 +16,6 @@
 
 using namespace asio::generic;
 
-#define    IN6_IS_SCOPE_LINKLOCAL(a)    \
-    ((IN6_IS_ADDR_LINKLOCAL(a)) ||    \
-    (IN6_IS_ADDR_MC_LINKLOCAL(a)))
-
-
 static inline auto alignedRtMessageLength(const sockaddr * sa) -> size_t {
     constexpr size_t salign = (alignof(rt_msghdr) - 1);
     #if HAVE_SOCKADDR_SA_LEN
@@ -73,26 +68,6 @@ public:
     }
 
 private:
-    auto readAddress(const sockaddr_in & addr) -> ip::address_v4 {
-        return ip::address_v4(ntohl(addr.sin_addr.s_addr));
-    }
-    auto readAddress(const sockaddr_in6 & addr) -> ip::address_v6 {
-        union {
-            ip::address_v6::bytes_type asio;
-            in6_addr raw;
-        } clearAddr;
-        memcpy(&clearAddr.raw, addr.sin6_addr.s6_addr, sizeof(clearAddr.raw));
-        uint32_t scope = addr.sin6_scope_id;
-        if (IN6_IS_SCOPE_LINKLOCAL(&clearAddr.raw)) {
-            uint16_t * words = (uint16_t *)&clearAddr.raw.s6_addr;
-            if (uint32_t embeddedScope = htons(words[1])) {
-                scope = embeddedScope;
-            }
-            words[1] = 0;
-        }
-        return ip::address_v6(clearAddr.asio, scope);
-    }
-
     #if HAVE_SYSCTL_PF_ROUTE
 
     void loadInitial() {
@@ -127,12 +102,12 @@ private:
                 if (!m_config->enableIPv4())
                     continue;
                 auto addr4 = (const sockaddr_in *)&req.lifr_addr;
-                addr = readAddress(*addr4);
+                addr = makeAddress(*addr4);
             } else if (req.lifr_addr.ss_family == AF_INET6) {
                 if (!m_config->enableIPv6())
                     continue;
                 auto addr6 = (const sockaddr_in6 *)&req.lifr_addr;
-                auto cppAddr = readAddress(*addr6);
+                auto cppAddr = makeAddress(*addr6);
                 if (!cppAddr.is_link_local()) 
                     continue;    
                 addr = cppAddr;
@@ -267,12 +242,12 @@ private:
                             if (addr->sa_family == AF_INET) {
                                 if (m_config->enableIPv4()) {
                                     auto addr4 = (const sockaddr_in *)addr;
-                                    result.addr.emplace(readAddress(*addr4));
+                                    result.addr.emplace(makeAddress(*addr4));
                                 }
                             } else if (addr->sa_family == AF_INET6) {
                                 if (m_config->enableIPv6()) {
                                     auto addr6 = (const sockaddr_in6 *)addr;
-                                    auto cppAddr = readAddress(*addr6);
+                                    auto cppAddr = makeAddress(*addr6);
                                     if (cppAddr.is_link_local()) 
                                         result.addr.emplace(cppAddr);
                                 }
