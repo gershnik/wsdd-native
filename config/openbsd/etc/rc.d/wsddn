@@ -1,0 +1,8 @@
+#!/bin/ksh
+
+daemon="/usr/local/bin/wsddn --unixd"
+daemon_flags="--config /etc/wsddn/wsddn.conf --pid-file=/var/run/wsddn.pid --log-file=/var/log/wsddn.log"
+
+. /etc/rc.d/rc.subr
+
+rc_cmd $1
