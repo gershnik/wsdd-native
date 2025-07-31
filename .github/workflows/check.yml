@@ -141,7 +141,6 @@ jobs:
       matrix:
         remote_host: 
           - centos-9
-          - openbsd-7-5
           - alpine-3
           - archlinux
           - netbsd-10

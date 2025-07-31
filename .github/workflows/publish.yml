@@ -36,6 +36,8 @@ jobs:
           installer: bsd
         - remote_host: freebsd-14
           installer: bsd
+        - remote_host: openbsd-7-5
+          installer: openbsd
         
     steps:
     - name: Run remote build

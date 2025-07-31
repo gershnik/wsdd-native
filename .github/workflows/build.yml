@@ -36,6 +36,8 @@ jobs:
           installer: bsd
         - remote_host: freebsd-14
           installer: bsd
+        - remote_host: openbsd-7-5
+          installer: openbsd
         
     steps:
     - name: Run remote build
@@ -63,6 +65,10 @@ jobs:
           cmake -S . -B out/arm64 -DCMAKE_TOOLCHAIN_FILE=out/toolchain-arm64/toolchain.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo
           installers/bsd/build.py --arch=aarch64 . out/arm64
           echo "::endgroup::"
+        elif [[ '${{ matrix.installer }}' == 'openbsd' ]]; then
+          [ -d "out" ] && tools/uncache out
+          cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
+          installers/${{ matrix.installer }}/build.py . out
         else
           [ -d "out" ] && tools/uncache out
           cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
