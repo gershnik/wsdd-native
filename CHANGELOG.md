@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Added
+- A binary package is now available for OpenBSD. Look for `wsddn-x.y-OpenBSD-amd64.tgz` under Releases
+- Configuration file samples for OpenBSD have been provided under `config/openbsd`
+
 ### Fixed
 - Samba config detection now works properly when `samba` tool is not present. Detection is also
   no longer depends on `whereis` tool. This is particularly an issue on OpenBSD but can be a problem 
@@ -14,11 +18,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - OpenBSD and potentially other less common BSD variants: `wsddn` now properly handles
   older BSD behavior where reading from multicast IPv4 sockets surfaces packets sent to
   all interfaces, not the one the socket is restricted to (#19)
+- OpenBSD and NetBSD: automatic daemon user creation now works properly. The default expected daemon user name
+  is now "_wsddn" on both systems.
+- CMake build: build is now correctly reconfigures itself when `sys_config.h.in` changes 
 
 ### Changed
 - To optimize network traffic `wsddn` now sends resolving address directly in the WSD Hello message
   rather than waiting for a call from Windows. This is similar to what `wsdd` does. There appears to
   be no real security benefit in not doing so and it reduces startup traffic significantly.
+- FreeBSD config files now live under `config/freebsd` instead of `config/bsd` (all BSDs are not the
+  same unfortunately)
 
 ## [1.20] - 2025-07-19
 
