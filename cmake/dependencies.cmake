@@ -12,9 +12,7 @@ set(DEPENDECIES_JSON "")
 set(ARGUM_REPO gershnik/argum)
 set(ARGUM_VER v2.6)
 FetchContent_Declare(argum
-    GIT_REPOSITORY  https://github.com/${ARGUM_REPO}.git
-    GIT_TAG         ${ARGUM_VER}
-    GIT_SHALLOW     TRUE
+    URL              https://github.com/${ARGUM_REPO}/tarball/${ARGUM_VER}
 )
 list(APPEND DECLARED_DEPENDENCIES argum)
 list(APPEND DEPENDECIES_JSON "\"argum\": \"pkg:github/${ARGUM_REPO}@${ARGUM_VER}\"")
@@ -24,9 +22,7 @@ list(APPEND DEPENDECIES_JSON "\"argum\": \"pkg:github/${ARGUM_REPO}@${ARGUM_VER}
 set(SYS_STRING_REPO gershnik/sys_string)
 set(SYS_STRING_VER v2.20)
 FetchContent_Declare(sys_string
-    GIT_REPOSITORY  https://github.com/${SYS_STRING_REPO}.git
-    GIT_TAG         ${SYS_STRING_VER}
-    GIT_SHALLOW     TRUE
+    URL              https://github.com/${SYS_STRING_REPO}/tarball/${SYS_STRING_VER}
 )
 list(APPEND DECLARED_DEPENDENCIES sys_string)
 list(APPEND DEPENDECIES_JSON "\"sys_string\": \"pkg:github/${SYS_STRING_REPO}@${SYS_STRING_VER}\"")
@@ -36,9 +32,7 @@ list(APPEND DEPENDECIES_JSON "\"sys_string\": \"pkg:github/${SYS_STRING_REPO}@${
 set(ISPTR_REPO gershnik/intrusive_shared_ptr)
 set(ISPTR_VER v1.9)
 FetchContent_Declare(isptr
-    GIT_REPOSITORY  https://github.com/${ISPTR_REPO}.git
-    GIT_TAG         ${ISPTR_VER}
-    GIT_SHALLOW     TRUE
+    URL              https://github.com/${ISPTR_REPO}/tarball/${ISPTR_VER}
 )
 list(APPEND DECLARED_DEPENDENCIES isptr)
 list(APPEND DEPENDECIES_JSON "\"isptr\": \"pkg:github/${ISPTR_REPO}@${ISPTR_VER}\"")
@@ -48,9 +42,7 @@ list(APPEND DEPENDECIES_JSON "\"isptr\": \"pkg:github/${ISPTR_REPO}@${ISPTR_VER}
 set(PTL_REPO gershnik/ptl)
 set(PTL_VER v1.6)
 FetchContent_Declare(ptl
-    GIT_REPOSITORY  https://github.com/${PTL_REPO}.git
-    GIT_TAG         ${PTL_VER}
-    GIT_SHALLOW     TRUE
+    URL              https://github.com/${PTL_REPO}/tarball/${PTL_VER}
 )
 list(APPEND DECLARED_DEPENDENCIES ptl)
 list(APPEND DEPENDECIES_JSON "\"ptl\": \"pkg:github/${PTL_REPO}@${PTL_VER}\"")
@@ -77,11 +69,9 @@ if (NOT LibXml2_FOUND)
     set(LIBXML2_WITH_MODULES OFF)
     set(LIBXML2_WITH_PROGRAMS OFF)
 
-    set(LIBXML_VER v2.14.4)
+    set(LIBXML_VER v2.14.5)
     FetchContent_Declare(libxml2
-        GIT_REPOSITORY  https://gitlab.gnome.org/GNOME/libxml2.git
-        GIT_TAG         ${LIBXML_VER}
-        GIT_SHALLOW     TRUE
+        URL https://gitlab.gnome.org/GNOME/libxml2/-/archive/${LIBXML_VER}/libxml2-${LIBXML_VER}.tar.gz
     )
     list(APPEND DECLARED_DEPENDENCIES libxml2)
     list(APPEND DEPENDECIES_JSON "\"libxml2\": \"pkg:generic/libxml2@${LIBXML_VER}\"")
@@ -93,9 +83,7 @@ endif()
 set(MUUID_REPO gershnik/modern-uuid)
 set(MUUID_VER v1.8)
 FetchContent_Declare(modern-uuid
-    GIT_REPOSITORY  https://github.com/${MUUID_REPO}.git
-    GIT_TAG         ${MUUID_VER}
-    GIT_SHALLOW     TRUE
+    URL              https://github.com/${MUUID_REPO}/tarball/${MUUID_VER}
 )
 list(APPEND DECLARED_DEPENDENCIES modern-uuid)
 list(APPEND DEPENDECIES_JSON "\"modern-uuid\": \"pkg:github/${MUUID_REPO}@${MUUID_VER}\"")
@@ -107,10 +95,7 @@ set(FMT_INSTALL OFF)
 set(FMT_REPO fmtlib/fmt)
 set(FMT_VER 11.2.0)
 FetchContent_Declare(fmt
-    GIT_REPOSITORY  https://github.com/${FMT_REPO}
-    GIT_TAG         ${FMT_VER}
-    GIT_SHALLOW     TRUE
-    GIT_SUBMODULES_RECURSE FALSE
+    URL              https://github.com/${FMT_REPO}/tarball/${FMT_VER}
 )
 list(APPEND DECLARED_DEPENDENCIES fmt)
 list(APPEND DEPENDECIES_JSON "\"fmt\": \"pkg:github/${FMT_REPO}@${FMT_VER}\"")
@@ -124,13 +109,7 @@ set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt library instead of bundl
 set(SPDLOG_REPO gabime/spdlog)
 set(SPDLOG_VER v1.15.3)
 FetchContent_Declare(spdlog
-    # GIT_REPOSITORY  https://github.com/${SPDLOG_REPO}
-    # GIT_TAG         ${SPDLOG_VER}
-    # GIT_SHALLOW     TRUE
-
     URL              https://github.com/${SPDLOG_REPO}/tarball/${SPDLOG_VER}
-
-    LOG_PATCH        ON
 )
 list(APPEND DECLARED_DEPENDENCIES spdlog)
 list(APPEND DEPENDECIES_JSON "\"spdlog\": \"pkg:github/${SPDLOG_REPO}@${SPDLOG_VER}\"")
@@ -139,12 +118,6 @@ list(APPEND DEPENDECIES_JSON "\"spdlog\": \"pkg:github/${SPDLOG_REPO}@${SPDLOG_V
 
 set(TOMPLUSPLUS_REPO marzer/tomlplusplus)
 set(TOMPLUSPLUS_VER v3.4.0)
-# FetchContent_Declare(tomlplusplus
-#     GIT_REPOSITORY  https://github.com/${TOMPLUSPLUS_REPO}.git
-#     GIT_TAG         ${TOMPLUSPLUS_VER}
-#     GIT_SHALLOW     TRUE
-#     GIT_SUBMODULES_RECURSE FALSE
-# )
 FetchContent_Declare(tomlplusplus
     URL             https://github.com/${TOMPLUSPLUS_REPO}/tarball/${TOMPLUSPLUS_VER}
 )
@@ -155,12 +128,6 @@ list(APPEND DEPENDECIES_JSON "\"tomlplusplus\": \"pkg:github/${TOMPLUSPLUS_REPO}
 
 set(OUTCOME_REPO ned14/outcome)
 set(OUTCOME_VER v2.2.12)
-# FetchContent_Declare(outcome
-#     GIT_REPOSITORY  https://github.com/${OUTCOME_REPO}
-#     GIT_TAG         ${OUTCOME_VER}
-#     GIT_SHALLOW     TRUE
-#     SOURCE_SUBDIR   include #we don't really want to build it
-# )
 FetchContent_Declare(outcome
     URL             https://github.com/${OUTCOME_REPO}/tarball/${OUTCOME_VER}
     SOURCE_SUBDIR   include #we don't really want to build it
