@@ -50,14 +50,14 @@ if not args.arch is None:
 else:
     VERSION = getVersion(builddir)
 
-workdir = builddir / 'stage/bsd'
+workdir = builddir / 'stage/freebsd'
 stagedir = workdir / 'root'
 shutil.rmtree(workdir, ignore_errors=True)
 stagedir.mkdir(parents=True)
 
 installCode(builddir, stagedir / 'usr/local')
 
-shutil.copytree(srcdir / 'config/bsd/usr', stagedir / 'usr', dirs_exist_ok=True)
+shutil.copytree(srcdir / 'config/freebsd/usr', stagedir / 'usr', dirs_exist_ok=True)
 
 copyTemplated(mydir.parent / 'wsddn.conf', stagedir / 'usr/local/etc/wsddn.conf.sample', {
     'SAMPLE_IFACE_NAME': "hn0",
@@ -82,7 +82,7 @@ desc: Allows your  machine to be discovered by Windows 10 and above systems and 
 prefix: /
 """.lstrip())
 
-with open(workdir / 'plist', 'w') as plist:
+with open(workdir / 'plist', 'w', encoding='utf-8') as plist:
     for item in stagedir.glob('**/*'):
         if not item.is_dir():
     	    print(str(item.relative_to(stagedir)), file=plist)
