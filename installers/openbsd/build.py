@@ -43,7 +43,7 @@ installCode(builddir, stagedir / 'usr/local')
 
 shutil.copytree(srcdir / 'config/openbsd', stagedir, dirs_exist_ok=True)
 
-copyTemplated(mydir.parent / 'wsddn.conf', stagedir / 'etc/wsddn.conf.sample', {
+copyTemplated(mydir.parent / 'wsddn.conf', stagedir / 'etc/wsddn/wsddn.conf.sample', {
     'SAMPLE_IFACE_NAME': "em0",
     'RELOAD_INSTRUCTIONS': """
 # sudo rcctl reload wsddn
@@ -76,7 +76,8 @@ LOGCONF = '/var/log/wsddn.log                      644  5     1000 *     Z      
 
 (workdir / 'packinglist').write_text(
 f"""
-@mode go-w
+@owner 0
+@group 0
 
 @unexec         if rcctl check wsddn > /dev/null 2>&1; then rcctl stop wsddn; fi
 @unexec-delete  rm -rf /var/run/wsddn.pid
@@ -84,12 +85,13 @@ f"""
 
 @mode 755
 @bin            usr/local/bin/wsddn
+@rcscript       etc/rc.d/wsddn
+@dir            etc/wsddn
 
 @mode 644
 @man            usr/local/man/man8/wsddn.8.gz
-@file           etc/wsddn.conf.sample
-@sample         etc/wsddn.conf
-@rcscript       etc/rc.d/wsddn
+@file           etc/wsddn/wsddn.conf.sample
+@sample         etc/wsddn/wsddn.conf
 
 @newgroup       _wsddn:
 @newuser        _wsddn::_wsddn:daemon:WS-Discovery Daemon:/var/empty:/sbin/nologin
