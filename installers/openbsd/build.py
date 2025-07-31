@@ -66,7 +66,6 @@ for line in iter(ldd_out.splitlines()):
         continue
     libs += ['-W', f'{m.group(1)}.{m.group(2)}']
     
-print(libs)
 
 COMMENT = 'WS-Discovery Host Daemon'
 DESC = 'Allows your  machine to be discovered by Windows 10 and above systems and displayed by their Explorer "Network" views.'
@@ -104,6 +103,7 @@ subprocess.run(['pkg_create', '-v',
                      '-A', ARCH,
                      '-d', f'-{DESC}',
                      '-f', 'packinglist',
+                     '-D', 'FULLPKGPATH=net/wsddn',
                      '-D', f'COMMENT={COMMENT}',
                      '-D', f'MAINTAINER={MAINTAINER}',
                      '-D', f'HOMEPAGE={HOMEPAGE}',
@@ -111,3 +111,14 @@ subprocess.run(['pkg_create', '-v',
                      '-p', '/'] + 
                      libs + [
                      f'wsddn-{VERSION}.tgz'], cwd=workdir, check=True)
+                     
+subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
+
+if args.uploadResults:
+    subprocess.run(['aws', 's3', 'cp', workdir / f'wsddn-{VERSION}.tgz', f's3://gershnik-builds/openbsd/wsddn-{VERSION}-{ARCH}.tgz'], 
+                   check=True)
+    subprocess.run(['aws', 's3', 'cp', builddir / 'wsddn.gz', f's3://wsddn-symbols/wsddn-openbsd-{VERSION}-{ARCH}.tgz'], check=True)
+    
+    shutil.move(workdir / f'wsddn-{VERSION}.tgz', workdir / f'wsddn-{VERSION}-OpenBSD-{ARCH}.tgz')
+    subprocess.run(['gh', 'release', 'upload', f'v{VERSION}', workdir / f'wsddn-{VERSION}-OpenBSD-{ARCH}.tgz'], check=True)
+    
