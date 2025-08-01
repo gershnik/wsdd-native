@@ -1,0 +1,65 @@
+#! /usr/bin/env -S python3 -u
+
+import argparse
+import json
+import hashlib
+
+from pathlib import Path
+from urllib.request import urlretrieve
+from urllib.error import HTTPError
+
+MYDIR = Path(__file__).parent
+
+
+
+def hash_url(url):
+    try:
+        path, _ = urlretrieve(url)
+    except HTTPError as err:
+        raise RuntimeError(f'Unable to download {url}: {err}') from err
+    try:
+        sha256 = hashlib.sha256()
+        md5 = hashlib.md5()
+        buffer = bytearray(4096)
+        view = memoryview(buffer)
+        with open(path, 'rb') as f:
+            while True:
+                size = f.readinto(buffer)
+                if size == 0:
+                    break
+                sha256.update(view[:size])
+                md5.update(view[:size])
+        return sha256.hexdigest(), md5.hexdigest()
+    finally:
+        Path(path).unlink()
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('name', nargs='*', type=str)
+    args = parser.parse_args()
+
+    names = set(args.name)
+
+    with open(MYDIR.parent / 'dependencies.json', 'rt', encoding='utf-8') as f:
+        deps = json.load(f)
+    changed = False
+    for dep, data in deps.items():
+        if not len(names) == 0 and not dep in names:
+            continue
+        version = data['version']
+        url: str = data['url']
+        url = url.replace('${version}', version)
+        sha256, md5 = hash_url(url)
+        if data.get('sha256', '') != sha256:
+            data['sha256'] = sha256
+            changed = True
+        if data.get('md5', '') != md5:
+            data['md5'] = md5
+            changed = True
+    if changed:
+        with open(MYDIR.parent / 'dependencies.json', 'wt', encoding='utf-8') as f:
+            json.dump(deps, f, indent=4)
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,79 @@
+{
+    "argum": {
+        "version": "v2.6",
+        "url": "https://github.com/gershnik/argum/tarball/${version}",
+        "homepage": "https://github.com/gershnik/argum",
+        "sha256": "72b2b6805da7bf022e8111f3c2f3ed08ae6c23daa0ad336de56f2bd133d653c4",
+        "md5": "59141e9e95b75097b0cf6d9d36fc6304"
+    },
+    "asio": {
+        "version": "1.30.2",
+        "url": "https://sourceforge.net/projects/asio/files/asio/${version}%20%28Stable%29/asio-${version}.tar.gz/download",
+        "homepage": "https://think-async.com/Asio/",
+        "sha256": "12e7bb4dada8bc1191de9d550a59ee658ce4e645ffc97c911c099ab4e8699d55",
+        "md5": "c1643d3eddd45b210b760acc7ec25d59"
+    },
+    "fmt": {
+        "version": "11.2.0",
+        "url": "https://github.com/fmtlib/fmt/tarball/${version}",
+        "homepage": "https://github.com/fmtlib/fmt",
+        "sha256": "15b7d9723d16e6ecbf83438a1611a2910879eaa5bc8d0e0fd8197c2f18f993be",
+        "md5": "f040663ed1085fff0055481247fcde63"
+    },
+    "isptr": {
+        "version": "v1.9",
+        "url": "https://github.com/gershnik/intrusive_shared_ptr/tarball/${version}",
+        "homepage": "https://github.com/gershnik/intrusive_shared_ptr",
+        "sha256": "f9095609a2226f3aa6dbfcd4726a8521a56f4fd2f426b0898d92acd1f133aa6d",
+        "md5": "574eb3ad0a8e5685cdc9e7712804900f"
+    },
+    "libxml2": {
+        "version": "v2.14.5",
+        "url": "https://gitlab.gnome.org/GNOME/libxml2/-/archive/${version}/libxml2-${version}.tar.gz",
+        "homepage": "https://gitlab.gnome.org/GNOME/libxml2",
+        "sha256": "54968c8ab8723c2d75a38fc45810e8cf60d44991e0887661bf9905a4042ad108",
+        "md5": "2da0f9e59d6ce8d4f9d8460a8341b135"
+    },
+    "modern-uuid": {
+        "version": "v1.8",
+        "url": "https://github.com/gershnik/modern-uuid/tarball/${version}",
+        "homepage": "https://github.com/gershnik/modern-uuid",
+        "sha256": "bb3fb3e53b45cd7e6b977835cfc7ef25680e92b68daf709b1f494f46697dae02",
+        "md5": "b8b5ba4e4fa9a104eff3121fe571f186"
+    },
+    "outcome": {
+        "version": "v2.2.12",
+        "url": "https://github.com/ned14/outcome/tarball/${version}",
+        "homepage": "https://github.com/ned14/outcome",
+        "sha256": "838ed35d1bdedcfe9cee2186b51d023404274418f2868798fefac5a54e8bb403",
+        "md5": "4757c54b97d015c66b6431ba75de90a3"
+    },
+    "ptl": {
+        "version": "v1.6",
+        "url": "https://github.com/gershnik/ptl/tarball/${version}",
+        "homepage": "https://github.com/gershnik/ptl",
+        "sha256": "4ba354ef8615b758dbdd0faf7638a9fb4607ee55c0028a5a6ae87b3bdf005f3a",
+        "md5": "6bc4c78819bed298786efdd0ee4e1585"
+    },
+    "spdlog": {
+        "version": "v1.15.3",
+        "url": "https://github.com/gabime/spdlog/tarball/${version}",
+        "homepage": "https://github.com/gabime/spdlog",
+        "sha256": "2f33b90dee78e9a910abbba1a294398277d4608831c6b8161ac74a7ca5493b49",
+        "md5": "fff8a896dce461edf0402c2589526a46"
+    },
+    "sys_string": {
+        "version": "v2.20",
+        "url": "https://github.com/gershnik/sys_string/tarball/${version}",
+        "homepage": "https://github.com/gershnik/sys_string",
+        "sha256": "d2a0aa64e3e20e8f01ece30fa618393401d78bc9065b034aecf96814c0389c6f",
+        "md5": "1ecc6165c86085c8aa158e0203824127"
+    },
+    "tomlplusplus": {
+        "version": "v3.4.0",
+        "url": "https://github.com/marzer/tomlplusplus/tarball/${version}",
+        "homepage": "https://github.com/marzer/tomlplusplus",
+        "sha256": "8874014da21de8d1414d9914c8f3c6b5f315c23a75951b33df46048c13dda12f",
+        "md5": "562036440b3283550d508ef5dd85a839"
+    }
+}

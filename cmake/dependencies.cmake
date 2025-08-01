@@ -2,52 +2,40 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 include(FetchContent)
-include(ExternalProject)
+
+file(READ dependencies.json DEPENDECIES_JSON)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS dependencies.json)
+
 
 set(DECLARED_DEPENDENCIES "")
-set(DEPENDECIES_JSON "")
 
-#################################################
-
-set(ARGUM_REPO gershnik/argum)
-set(ARGUM_VER v2.6)
-FetchContent_Declare(argum
-    URL              https://github.com/${ARGUM_REPO}/tarball/${ARGUM_VER}
+function(fetch_dependency name #extras for FetchContent_Declare
 )
-list(APPEND DECLARED_DEPENDENCIES argum)
-list(APPEND DEPENDECIES_JSON "\"argum\": \"pkg:github/${ARGUM_REPO}@${ARGUM_VER}\"")
+    string(JSON version GET "${DEPENDECIES_JSON}" ${name} version)
+    string(JSON url GET "${DEPENDECIES_JSON}" ${name} url)
+    string(JSON md5 GET "${DEPENDECIES_JSON}" ${name} md5)
+    string(REPLACE "\$\{version\}" ${version} url "${url}")
+    set(extras "")
+    foreach(i RANGE 1 ${ARGC})
+        list(APPEND extras ${ARGV${i}})
+    endforeach()
+    FetchContent_Declare(${name}
+        URL         ${url}
+        URL_HASH    MD5=${md5}
+        ${extras}
+    )
+    set(deplist ${DECLARED_DEPENDENCIES})
+    list(APPEND deplist ${name})
+    set(DECLARED_DEPENDENCIES ${deplist} PARENT_SCOPE)
+endfunction()
 
 #################################################
 
-set(SYS_STRING_REPO gershnik/sys_string)
-set(SYS_STRING_VER v2.20)
-FetchContent_Declare(sys_string
-    URL              https://github.com/${SYS_STRING_REPO}/tarball/${SYS_STRING_VER}
-)
-list(APPEND DECLARED_DEPENDENCIES sys_string)
-list(APPEND DEPENDECIES_JSON "\"sys_string\": \"pkg:github/${SYS_STRING_REPO}@${SYS_STRING_VER}\"")
-
-#################################################
-
-set(ISPTR_REPO gershnik/intrusive_shared_ptr)
-set(ISPTR_VER v1.9)
-FetchContent_Declare(isptr
-    URL              https://github.com/${ISPTR_REPO}/tarball/${ISPTR_VER}
-)
-list(APPEND DECLARED_DEPENDENCIES isptr)
-list(APPEND DEPENDECIES_JSON "\"isptr\": \"pkg:github/${ISPTR_REPO}@${ISPTR_VER}\"")
-
-#################################################
-
-set(PTL_REPO gershnik/ptl)
-set(PTL_VER v1.6)
-FetchContent_Declare(ptl
-    URL              https://github.com/${PTL_REPO}/tarball/${PTL_VER}
-)
-list(APPEND DECLARED_DEPENDENCIES ptl)
-list(APPEND DEPENDECIES_JSON "\"ptl\": \"pkg:github/${PTL_REPO}@${PTL_VER}\"")
-
-#################################################
+fetch_dependency(argum)
+fetch_dependency(sys_string)
+fetch_dependency(isptr)
+fetch_dependency(ptl)
+fetch_dependency(modern-uuid)
 
 if (WSDDN_PREFER_SYSTEM)
     find_package(LibXml2)
@@ -69,83 +57,24 @@ if (NOT LibXml2_FOUND)
     set(LIBXML2_WITH_MODULES OFF)
     set(LIBXML2_WITH_PROGRAMS OFF)
 
-    set(LIBXML_VER v2.14.5)
-    FetchContent_Declare(libxml2
-        URL https://gitlab.gnome.org/GNOME/libxml2/-/archive/${LIBXML_VER}/libxml2-${LIBXML_VER}.tar.gz
-    )
-    list(APPEND DECLARED_DEPENDENCIES libxml2)
-    list(APPEND DEPENDECIES_JSON "\"libxml2\": \"pkg:generic/libxml2@${LIBXML_VER}\"")
-
+    fetch_dependency(libxml2)
+    
 endif()
 
-#################################################
-
-set(MUUID_REPO gershnik/modern-uuid)
-set(MUUID_VER v1.8)
-FetchContent_Declare(modern-uuid
-    URL              https://github.com/${MUUID_REPO}/tarball/${MUUID_VER}
-)
-list(APPEND DECLARED_DEPENDENCIES modern-uuid)
-list(APPEND DEPENDECIES_JSON "\"modern-uuid\": \"pkg:github/${MUUID_REPO}@${MUUID_VER}\"")
-
-#################################################
 
 set(FMT_INSTALL OFF)
-
-set(FMT_REPO fmtlib/fmt)
-set(FMT_VER 11.2.0)
-FetchContent_Declare(fmt
-    URL              https://github.com/${FMT_REPO}/tarball/${FMT_VER}
-)
-list(APPEND DECLARED_DEPENDENCIES fmt)
-list(APPEND DEPENDECIES_JSON "\"fmt\": \"pkg:github/${FMT_REPO}@${FMT_VER}\"")
-
-#################################################
+fetch_dependency(fmt)
 
 set(SPDLOG_NO_ATOMIC_LEVELS ON CACHE BOOL "prevent spdlog from using of std::atomic log levels (use only if your code never modifies log levels concurrently)")
 set(SPDLOG_NO_TLS ON CACHE BOOL "prevent spdlog from using thread local storage")
 set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt library instead of bundled")
+fetch_dependency(spdlog)
 
-set(SPDLOG_REPO gabime/spdlog)
-set(SPDLOG_VER v1.15.3)
-FetchContent_Declare(spdlog
-    URL              https://github.com/${SPDLOG_REPO}/tarball/${SPDLOG_VER}
-)
-list(APPEND DECLARED_DEPENDENCIES spdlog)
-list(APPEND DEPENDECIES_JSON "\"spdlog\": \"pkg:github/${SPDLOG_REPO}@${SPDLOG_VER}\"")
-
-#################################################
-
-set(TOMPLUSPLUS_REPO marzer/tomlplusplus)
-set(TOMPLUSPLUS_VER v3.4.0)
-FetchContent_Declare(tomlplusplus
-    URL             https://github.com/${TOMPLUSPLUS_REPO}/tarball/${TOMPLUSPLUS_VER}
-)
-list(APPEND DECLARED_DEPENDENCIES tomlplusplus)
-list(APPEND DEPENDECIES_JSON "\"tomlplusplus\": \"pkg:github/${TOMPLUSPLUS_REPO}@${TOMPLUSPLUS_VER}\"")
-
-#################################################
-
-set(OUTCOME_REPO ned14/outcome)
-set(OUTCOME_VER v2.2.12)
-FetchContent_Declare(outcome
-    URL             https://github.com/${OUTCOME_REPO}/tarball/${OUTCOME_VER}
+fetch_dependency(tomlplusplus)
+fetch_dependency(outcome
     SOURCE_SUBDIR   include #we don't really want to build it
 )
-list(APPEND DECLARED_DEPENDENCIES outcome)
-list(APPEND DEPENDECIES_JSON "\"outcome\": \"pkg:github/${OUTCOME_REPO}@${OUTCOME_VER}\"")
-
-#################################################
-
-set(ASIO_VER 1.30.2)
-set(ASIO_URL https://sourceforge.net/projects/asio/files/asio/${ASIO_VER}%20%28Stable%29/asio-${ASIO_VER}.tar.gz/download)
-set(ASIO_CHECKSUM c1643d3eddd45b210b760acc7ec25d59)
-FetchContent_Declare(asio
-    URL             ${ASIO_URL}
-    URL_HASH        MD5=${ASIO_CHECKSUM}
-)
-list(APPEND DECLARED_DEPENDENCIES asio)
-list(APPEND DEPENDECIES_JSON "\"asio\": \"pkg:generic/asio@${ASIO_VER}?download_url=${ASIO_URL}&checksum=md5:${ASIO_CHECKSUM}\"")
+fetch_dependency(asio)
 
 #################################################
 
@@ -166,13 +95,4 @@ foreach(dir ${KNOWN_SUBDIRECTORIES})
     endif()
 endforeach()
 
-list(JOIN DEPENDECIES_JSON ",\n  " DEPENDECIES_JSON)
-cmake_path(RELATIVE_PATH CMAKE_CURRENT_LIST_FILE OUTPUT_VARIABLE JSON_SRC_PATH)
-set(DEPENDECIES_JSON "{
-\"version\": \"1.0\",
-\"src\": \"${JSON_SRC_PATH}\",
-\"dependencies\": {
-  ${DEPENDECIES_JSON}
-}}")
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/dependencies.json ${DEPENDECIES_JSON})
 
