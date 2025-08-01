@@ -89,13 +89,6 @@ jobs:
       id: system-info
       uses: kenchan0130/actions-system-info@master
 
-    - name: Cache Build Dir
-      id: cache-build-dir
-      uses: actions/cache@v4
-      with:
-        path: out
-        key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-out
-
     - name: Configure
       run: |
           [ -d "out" ] && tools/uncache out
