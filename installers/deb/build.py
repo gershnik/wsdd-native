@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import sys
-import os
 import subprocess
 import shutil
 from pathlib import Path
@@ -83,7 +82,8 @@ shutil.copy(mydir / 'copyright',    debiandir / 'copyright')
 /etc/wsddn.conf
 """.lstrip())
 
-deps = subprocess.run(['dpkg-shlibdeps', '-O', '-eusr/bin/wsddn'], check=True, cwd=stagedir, stdout=subprocess.PIPE, encoding="utf-8").stdout.strip()
+deps = subprocess.run(['dpkg-shlibdeps', '-O', '-eusr/bin/wsddn'], 
+                      check=True, cwd=stagedir, stdout=subprocess.PIPE, encoding="utf-8").stdout.strip()
 key, val = deps.split('=', 1)
 key = key.replace(':', "_")
 control.write_text(control.read_text().format_map({key: val}))

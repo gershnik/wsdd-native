@@ -85,14 +85,15 @@ prefix: /
 with open(workdir / 'plist', 'w', encoding='utf-8') as plist:
     for item in stagedir.glob('**/*'):
         if not item.is_dir():
-    	    print(str(item.relative_to(stagedir)), file=plist)
+            print(str(item.relative_to(stagedir)), file=plist)
 
 shutil.copy(mydir / 'pre',            workdir / '+PRE_INSTALL')
 shutil.copy(mydir / 'post_install',   workdir / '+POST_INSTALL')
 shutil.copy(mydir / 'pre',            workdir / '+PRE_DEINSTALL')
 shutil.copy(mydir / 'post_deinstall', workdir / '+POST_DEINSTALL')
 
-subprocess.run(['pkg', 'create', '--verbose', '-m', workdir, '-r',  stagedir, '-p', workdir/'plist', '-o', workdir], check=True)
+subprocess.run(['pkg', 'create', '--verbose',
+                '-m', workdir, '-r',  stagedir, '-p', workdir/'plist', '-o', workdir], check=True)
 
 
 subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
@@ -101,9 +102,15 @@ if args.uploadResults:
     ostype, oslevel, osarch = ABI.split(':')
     abiMarker = '-'.join((ostype, oslevel, osarch))
 
-    subprocess.run(['aws', 's3', 'cp', workdir / f'wsddn-{VERSION}.pkg', f's3://gershnik-builds/freebsd/wsddn-{VERSION}-{ARCH}-{oslevel}.pkg'], 
+    subprocess.run(['aws', 's3', 'cp',
+                    workdir / f'wsddn-{VERSION}.pkg',
+                    f's3://gershnik-builds/freebsd/wsddn-{VERSION}-{ARCH}-{oslevel}.pkg'],
                    check=True)
-    subprocess.run(['aws', 's3', 'cp', builddir / 'wsddn.gz', f's3://wsddn-symbols/wsddn-{VERSION}-{abiMarker}.gz'], check=True)
-    
+    subprocess.run(['aws', 's3', 'cp',
+                    builddir / 'wsddn.gz',
+                    f's3://wsddn-symbols/wsddn-{VERSION}-{abiMarker}.gz'],
+                   check=True)
+
     shutil.move(workdir / f'wsddn-{VERSION}.pkg', workdir / f'wsddn-{VERSION}-{abiMarker}.pkg')
-    subprocess.run(['gh', 'release', 'upload', f'v{VERSION}', workdir / f'wsddn-{VERSION}-{abiMarker}.pkg'], check=True)
+    subprocess.run(['gh', 'release', 'upload', f'v{VERSION}', workdir / f'wsddn-{VERSION}-{abiMarker}.pkg'], 
+                   check=True)

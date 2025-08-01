@@ -28,7 +28,7 @@ buildCode(builddir)
 VERSION = getVersion(builddir)
 
 workdir = builddir / 'stage/mac'
-stagedir = workdir / f'root'
+stagedir = workdir / 'root'
 shutil.rmtree(workdir, ignore_errors=True)
 stagedir.mkdir(parents=True)
 
@@ -145,8 +145,12 @@ if args.sign:
         sys.exit(1)
 
 if args.uploadResults:
-    subprocess.run(['tar', '-C', builddir, '-czf', workdir.absolute() / f'wsddn-macos-{VERSION}.dSYM.tgz', 'wsddn.dSYM'], check=True)
-    subprocess.run(['tar', '-C', builddir / 'wrapper', '-czf', workdir.absolute() / f'wsdd-native-macos-{VERSION}.app.dSYM.tgz', 'wsdd-native.app.dSYM'], check=True)
-    subprocess.run(['aws', 's3', 'cp', workdir / f'wsddn-macos-{VERSION}.dSYM.tgz', 's3://wsddn-symbols/'], check=True)
-    subprocess.run(['aws', 's3', 'cp', workdir / f'wsdd-native-macos-{VERSION}.app.dSYM.tgz', 's3://wsddn-symbols/'], check=True)
+    subprocess.run(['tar', '-C', builddir, '-czf', 
+                    workdir.absolute() / f'wsddn-macos-{VERSION}.dSYM.tgz', 'wsddn.dSYM'], check=True)
+    subprocess.run(['tar', '-C', builddir / 'wrapper', '-czf', 
+                    workdir.absolute() / f'wsdd-native-macos-{VERSION}.app.dSYM.tgz', 'wsdd-native.app.dSYM'], check=True)
+    subprocess.run(['aws', 's3', 'cp', 
+                    workdir / f'wsddn-macos-{VERSION}.dSYM.tgz', 's3://wsddn-symbols/'], check=True)
+    subprocess.run(['aws', 's3', 'cp', 
+                    workdir / f'wsdd-native-macos-{VERSION}.app.dSYM.tgz', 's3://wsddn-symbols/'], check=True)
     subprocess.run(['gh', 'release', 'upload', f'v{VERSION}', installer], check=True)

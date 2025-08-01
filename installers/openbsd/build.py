@@ -16,7 +16,7 @@ mydir = Path(sys.argv[0]).parent
 
 sys.path.append(str(mydir.absolute().parent))
 
-from common import getVersion, getSrcVersion, buildCode, installCode, copyTemplated
+from common import getSrcVersion, buildCode, installCode, copyTemplated
 
 parser = argparse.ArgumentParser()
 
@@ -53,7 +53,8 @@ copyTemplated(mydir.parent / 'wsddn.conf', stagedir / 'etc/wsddn/wsddn.conf.samp
 })
 
 libs = []
-ldd_out = subprocess.run(['ldd', stagedir / 'usr/local/bin/wsddn'], stdout=subprocess.PIPE, encoding='utf-8', check=True).stdout
+ldd_out = subprocess.run(['ldd', stagedir / 'usr/local/bin/wsddn'],
+                         stdout=subprocess.PIPE, encoding='utf-8', check=True).stdout
 for line in iter(ldd_out.splitlines()):
     m = re.match(r'^\t[0-9a-f]+ [0-9a-f]+ ([^ ]+) +[^ ]+ +[^ ]+ +[^ ]+ +(.*)$', line)
     if not m:
@@ -117,10 +118,13 @@ subprocess.run(['pkg_create', '-v',
 subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
 
 if args.uploadResults:
-    subprocess.run(['aws', 's3', 'cp', workdir / f'wsddn-{VERSION}.tgz', f's3://gershnik-builds/openbsd/wsddn-{VERSION}-{ARCH}.tgz'], 
+    subprocess.run(['aws', 's3', 'cp', 
+                    workdir / f'wsddn-{VERSION}.tgz', f's3://gershnik-builds/openbsd/wsddn-{VERSION}-{ARCH}.tgz'], 
                    check=True)
-    subprocess.run(['aws', 's3', 'cp', builddir / 'wsddn.gz', f's3://wsddn-symbols/wsddn-openbsd-{VERSION}-{ARCH}.tgz'], check=True)
+    subprocess.run(['aws', 's3', 'cp', 
+                    builddir / 'wsddn.gz', f's3://wsddn-symbols/wsddn-openbsd-{VERSION}-{ARCH}.tgz'], check=True)
     
     shutil.move(workdir / f'wsddn-{VERSION}.tgz', workdir / f'wsddn-{VERSION}-OpenBSD-{ARCH}.tgz')
-    subprocess.run(['gh', 'release', 'upload', f'v{VERSION}', workdir / f'wsddn-{VERSION}-OpenBSD-{ARCH}.tgz'], check=True)
+    subprocess.run(['gh', 'release', 'upload', f'v{VERSION}', workdir / f'wsddn-{VERSION}-OpenBSD-{ARCH}.tgz'], 
+                   check=True)
     
