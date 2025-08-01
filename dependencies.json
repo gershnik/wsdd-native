@@ -49,11 +49,11 @@
         "md5": "4757c54b97d015c66b6431ba75de90a3"
     },
     "ptl": {
-        "version": "v1.6",
+        "version": "v1.7",
         "url": "https://github.com/gershnik/ptl/tarball/${version}",
         "homepage": "https://github.com/gershnik/ptl",
-        "sha256": "4ba354ef8615b758dbdd0faf7638a9fb4607ee55c0028a5a6ae87b3bdf005f3a",
-        "md5": "6bc4c78819bed298786efdd0ee4e1585"
+        "sha256": "e3efb37f71846ba7d10165bef7f62a581dd3e7c8f4ac185bb86d4069bc4ec9ed",
+        "md5": "f4c503429bd1fa9c8db8823a64590a4b"
     },
     "spdlog": {
         "version": "v1.15.3",
