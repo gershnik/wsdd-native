@@ -8,7 +8,7 @@ URL:            https://github.com/gershnik/wsdd-native
 
 Source:         https://github.com/gershnik/wsdd-native/tarball/v%{version}#/wsddn.tgz
 Source:         https://github.com/gershnik/argum/tarball/v2.6#/argum.tgz
-Source:         https://sourceforge.net/projects/asio/files/asio/1.30.2%20%28Stable%29/asio-1.30.2.tar.gz/download#/asio.tgz
+Source:         https://downloads.sourceforge.net/asio/asio-1.30.2.tar.gz#/asio.tgz
 Source:         https://github.com/fmtlib/fmt/tarball/11.2.0#/fmt.tgz
 Source:         https://github.com/gershnik/intrusive_shared_ptr/tarball/v1.9#/isptr.tgz
 Source:         https://gitlab.gnome.org/GNOME/libxml2/-/archive/v2.14.5/libxml2-v2.14.5.tar.gz#/libxml2.tgz
