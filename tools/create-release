@@ -3,7 +3,6 @@
 import sys
 import re
 import subprocess
-import datetime
 
 from pathlib import Path
 from datetime import date
@@ -33,12 +32,7 @@ with open(ROOT / "CHANGELOG.md", "wt", encoding="utf-8") as change_log:
 
 (ROOT / "VERSION").write_text(f'{NEW_VER}\n')
 
-rpmSpec = (ROOT / "installers/rpm/wsddn.spec").read_text()
-rpmSpec = re.sub(r'Version:(\s*)\d+(?:\.\d+)*', rf'Version:\g<1>{NEW_VER}', rpmSpec)
-rpmSpec = re.sub(r'Release:(\s*)\d+%\{\?dist\}', r'Release:\g<1>1%{?dist}', rpmSpec)
-today = datetime.date.today().strftime("%a %b %d %Y")
-rpmSpec = re.sub(r'%changelog\n', f'%changelog\n* {today} gershnik - {NEW_VER}-1\n- Release {NEW_VER}\n\n', rpmSpec)
-(ROOT / "installers/rpm/wsddn.spec").write_text(rpmSpec)
+subprocess.run([ROOT / "installers/rpm/update.py"], check=True)
 
 readme = (ROOT / 'README.md').read_text()
 readme = re.subn(r'https://github.com/gershnik/wsdd-native/releases/download/v(?:\d+(?:\.\d+)+)',
