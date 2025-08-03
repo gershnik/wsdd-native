@@ -34,13 +34,15 @@ Allows your Linux machine to be discovered by Windows 10 and above systems
 and displayed by their Explorer "Network" views.
 
 %global deps argum asio fmt isptr libxml2 modern-uuid outcome ptl spdlog sys_string tomlplusplus
+%global _vpath_srcdir wsddn
+%global _vpath_builddir wsddn/out
 
 %debug_package
 
 %prep
 for comp in wsddn %{deps}
 do
-    [ -d $comp ] || (mkdir $comp && tar -C $comp --strip-components=1 -xzf %{_topdir}/SOURCES/$comp.tgz)
+    [ -d $comp ] || (mkdir $comp && tar -C $comp --strip-components=1 --warning=no-unknown-keyword -xzf %{_topdir}/SOURCES/$comp.tgz)
 done
 
 %build
@@ -52,28 +54,29 @@ do
     fetch_sources+=" -DFETCHCONTENT_SOURCE_DIR_$upcomp=`pwd`/$comp"
 done
 
-cd wsddn
-cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo $fetch_sources
-cmake --build out -- %{?_smp_mflags}
-cp installers/wsddn.conf out/
-sed -i "s/{RELOAD_INSTRUCTIONS}/# sudo systemctl restart wsddn\n/g" out/wsddn.conf
-sed -i "s/{SAMPLE_IFACE_NAME}/eth0/g" out/wsddn.conf
+%cmake $fetch_sources
+%cmake_build -- %{?_smp_mflags}
+
+cp %{_vpath_srcdir}/installers/wsddn.conf %{_vpath_builddir}/
+sed -i "s/{RELOAD_INSTRUCTIONS}/# sudo systemctl restart wsddn\n/g" %{_vpath_builddir}/wsddn.conf
+sed -i "s/{SAMPLE_IFACE_NAME}/eth0/g" %{_vpath_builddir}/wsddn.conf
 
 
 %install
-cd wsddn
-cmake --install out --prefix %{buildroot}/usr
+
+%cmake_install
+
 mkdir -p %{buildroot}/usr/lib/systemd/system
-install -m 0644 config/systemd/usr/lib/systemd/system/%{name}.service \
-                  %{buildroot}/usr/lib/systemd/system/%{name}.service
+install -m 0644 %{_vpath_srcdir}/config/systemd/usr/lib/systemd/system/%{name}.service \
+                %{buildroot}/usr/lib/systemd/system/%{name}.service
 mkdir -p %{buildroot}/%{_sysconfdir}
-install -m 0644 out/wsddn.conf %{buildroot}/%{_sysconfdir}/wsddn.conf
+install -m 0644 %{_vpath_builddir}/wsddn.conf %{buildroot}/%{_sysconfdir}/wsddn.conf
 mkdir -p %{buildroot}/usr/share/licenses/wsddn
-install -m 0644 LICENSE %{buildroot}/usr/share/licenses/wsddn/LICENSE
+install -m 0644 %{_vpath_srcdir}/LICENSE %{buildroot}/usr/share/licenses/wsddn/LICENSE
 mkdir -p %{buildroot}/usr/lib/firewalld/services
-install -m 0644 config/firewalls/etc/firewalld/services/%{name}.xml \
+install -m 0644 %{_vpath_srcdir}/config/firewalls/etc/firewalld/services/%{name}.xml \
                 %{buildroot}/usr/lib/firewalld/services/%{name}.xml
-install -m 0644 config/firewalls/etc/firewalld/services/%{name}-http.xml \
+install -m 0644 %{_vpath_srcdir}/config/firewalls/etc/firewalld/services/%{name}-http.xml \
                 %{buildroot}/usr/lib/firewalld/services/%{name}-http.xml
 
 %files
