@@ -5,9 +5,21 @@ Summary:        WS-Discovery Host Daemon
 
 License:        BSD-3-Clause
 URL:            https://github.com/gershnik/wsdd-native
-Source0:        https://github.com/gershnik/wsdd-native/archive/refs/tags/v%{version}.zip
 
-BuildRequires:  gcc-c++ git make curl unzip systemd-devel systemd-rpm-macros
+Source:         https://github.com/gershnik/wsdd-native/tarball/v%{version}#/wsddn.tgz
+Source:         https://github.com/gershnik/argum/tarball/v2.6#/argum.tgz
+Source:         https://sourceforge.net/projects/asio/files/asio/1.30.2%20%28Stable%29/asio-1.30.2.tar.gz/download#/asio.tgz
+Source:         https://github.com/fmtlib/fmt/tarball/11.2.0#/fmt.tgz
+Source:         https://github.com/gershnik/intrusive_shared_ptr/tarball/v1.9#/isptr.tgz
+Source:         https://gitlab.gnome.org/GNOME/libxml2/-/archive/v2.14.5/libxml2-v2.14.5.tar.gz#/libxml2.tgz
+Source:         https://github.com/gershnik/modern-uuid/tarball/v1.8#/modern-uuid.tgz
+Source:         https://github.com/ned14/outcome/tarball/v2.2.12#/outcome.tgz
+Source:         https://github.com/gershnik/ptl/tarball/v1.7#/ptl.tgz
+Source:         https://github.com/gabime/spdlog/tarball/v1.15.3#/spdlog.tgz
+Source:         https://github.com/gershnik/sys_string/tarball/v2.20#/sys_string.tgz
+Source:         https://github.com/marzer/tomlplusplus/tarball/v3.4.0#/tomlplusplus.tgz
+
+BuildRequires:  gcc-c++ git cmake >= 3.25 make coreutils curl unzip systemd-devel systemd-rpm-macros 
 
 Requires(post): systemd
 Requires(preun): systemd
@@ -21,21 +33,27 @@ Conflicts:      wsdd
 Allows your Linux machine to be discovered by Windows 10 and above systems
 and displayed by their Explorer "Network" views.
 
+%global deps argum asio fmt isptr libxml2 modern-uuid outcome ptl spdlog sys_string tomlplusplus
+
 %debug_package
 
 %prep
-if [ ! -d cmake ]; then
-    curl -sS -L https://github.com/Kitware/CMake/releases/download/v3.27.1/cmake-3.27.1-linux-%{_arch}.sh -o cmake-3.27.1.sh
-    chmod a+x cmake-3.27.1.sh
-    mkdir cmake
-    ./cmake-3.27.1.sh --prefix=cmake --skip-license
-fi
-[ -d wsdd-native-%{version} ] || unzip -qq %{_topdir}/SOURCES/v%{version}.zip
+for comp in wsddn %{deps}
+do
+    [ -d $comp ] || (mkdir $comp && tar -C $comp --strip-components=1 -xzf %{_topdir}/SOURCES/$comp.tgz)
+done
 
 %build
-export PATH=`pwd`/cmake/bin:$PATH
-cd wsdd-native-%{version}
-cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+fetch_sources='-DFETCHCONTENT_FULLY_DISCONNECTED=ON'
+for comp in %{deps}
+do
+    upcomp=$(echo $comp | tr 'a-z' 'A-Z')
+    fetch_sources+=" -DFETCHCONTENT_SOURCE_DIR_$upcomp=`pwd`/$comp"
+done
+
+cd wsddn
+cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo $fetch_sources
 cmake --build out -- %{?_smp_mflags}
 cp installers/wsddn.conf out/
 sed -i "s/{RELOAD_INSTRUCTIONS}/# sudo systemctl restart wsddn\n/g" out/wsddn.conf
@@ -43,8 +61,7 @@ sed -i "s/{SAMPLE_IFACE_NAME}/eth0/g" out/wsddn.conf
 
 
 %install
-export PATH=`pwd`/cmake/bin:$PATH
-cd wsdd-native-%{version}
+cd wsddn
 cmake --install out --prefix %{buildroot}/usr
 mkdir -p %{buildroot}/usr/lib/systemd/system
 install -m 0644 config/systemd/usr/lib/systemd/system/%{name}.service \
