@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.21] - 2025-08-04
+
 ### Added
 - A binary package is now available for OpenBSD. Look for `wsddn-x.y-OpenBSD-amd64.tgz` under Releases
 - Configuration file samples for OpenBSD have been provided under `config/openbsd`
@@ -190,3 +192,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.18]: https://github.com/gershnik/wsdd-native/releases/v1.18
 [1.19]: https://github.com/gershnik/wsdd-native/releases/v1.19
 [1.20]: https://github.com/gershnik/wsdd-native/releases/v1.20
+[1.21]: https://github.com/gershnik/wsdd-native/releases/v1.21

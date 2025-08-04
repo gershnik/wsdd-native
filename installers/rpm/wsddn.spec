@@ -1,5 +1,5 @@
 Name:           wsddn
-Version:        1.20
+Version:        1.21
 Release:        1%{?dist}
 Summary:        WS-Discovery Host Daemon
 
@@ -113,6 +113,9 @@ if [ $1 -eq 0 ] ; then
 fi
 
 %changelog
+* Mon Aug 04 2025 gershnik - 1.21-1
+- Release 1.21
+
 * Sat Jul 19 2025 gershnik - 1.20-1
 - Release 1.20
 
