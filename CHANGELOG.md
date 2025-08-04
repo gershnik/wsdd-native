@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   be no real security benefit in not doing so and it reduces startup traffic significantly.
 - FreeBSD config files now live under `config/freebsd` instead of `config/bsd` (all BSDs are not the
   same unfortunately)
+- Arch AUR: package build no longer requires network access during build step
 
 ## [1.20] - 2025-07-19
 
