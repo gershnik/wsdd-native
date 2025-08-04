@@ -32,7 +32,7 @@ def main():
     for line in spec.splitlines():
         if not sources_seen:
             if re.match(r"pkgver='\d+(?:\.\d+)*'", line):
-                new_spec += f'pkgver={version}\n'
+                new_spec += f"pkgver='{version}'\n"
             elif re.match(r'pkgrel=(\d+)', line):
                 new_spec += 'pkgrel=1\n'
             elif re.match(r'source=\(', line):
