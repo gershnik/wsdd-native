@@ -38,7 +38,9 @@ unpack() {
 	for u in $source; do
 		local tgz="$SRCDEST/$(filename_from_uri $u)"
 		local comp=$(basename $tgz | rev | cut -d- -f2- | rev)
-		mkdir "$srcdir/$comp" && tar -C "$srcdir/$comp" --strip-components=1 --warning=no-unknown-keyword -xzf $tgz
+		[ -d "$comp" ] && rm -rf "$comp"
+		mkdir "$srcdir/$comp"
+		tar -C "$srcdir/$comp" --strip-components=1 --warning=no-unknown-keyword -xzf $tgz
 		if [ $comp != "wsddn" ]; then
 			_fetched_deps="$_fetched_deps $comp"
 		fi
@@ -50,7 +52,7 @@ build() {
 	local comp
 	for comp in $_fetched_deps
 	do
-		upcomp=$(echo $comp | tr 'a-z' 'A-Z')
+		local upcomp=$(echo $comp | tr 'a-z' 'A-Z')
 		fetch_sources="$fetch_sources -DFETCHCONTENT_SOURCE_DIR_$upcomp=$srcdir/$comp"
 	done
 
