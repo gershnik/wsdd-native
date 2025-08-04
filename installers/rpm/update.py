@@ -12,10 +12,7 @@ from pathlib import Path
 MYPATH = Path(__file__).parent
 ROOT = MYPATH.parent.parent
 
-def write_sources(gap: str):
-    with open(ROOT / 'dependencies.json', 'rt', encoding='utf-8') as f:
-        deps = json.load(f)
-
+def write_sources(deps: dict, gap: str):
     ret = ''
     for dep, data in deps.items():
         version = data['version']
@@ -28,6 +25,9 @@ def main():
     version = (ROOT / "VERSION").read_text().splitlines()[0]
 
     today = datetime.date.today().strftime("%a %b %d %Y")
+
+    with open(ROOT / 'dependencies.json', 'rt', encoding='utf-8') as f:
+        deps: dict = json.load(f)
     
 
     spec = (ROOT / "installers/rpm/wsddn.spec").read_text()
@@ -41,8 +41,11 @@ def main():
         elif (m := re.match(r'Source:(\s*)\S+', line)):
             if not sources_written:
                 new_spec += line + '\n'
-                new_spec += write_sources(m.group(1))
+                new_spec += write_sources(deps, m.group(1))
                 sources_written = True
+        elif (m := re.match(r'%global\s+deps\s+', line)):
+            line = m.group(0) + ' '.join(deps.keys())
+            new_spec += line + '\n'
         elif (m := re.match(r'^%changelog$', line)):
             new_spec += line + '\n'
             new_spec += f'* {today} gershnik - {version}-1\n- Release {version}\n\n'
