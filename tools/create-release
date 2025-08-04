@@ -33,6 +33,7 @@ with open(ROOT / "CHANGELOG.md", "wt", encoding="utf-8") as change_log:
 (ROOT / "VERSION").write_text(f'{NEW_VER}\n')
 
 subprocess.run([ROOT / "installers/rpm/update.py"], check=True)
+subprocess.run([ROOT / "installers/alpine/update.py"], check=True)
 
 readme = (ROOT / 'README.md').read_text()
 readme = re.subn(r'https://github.com/gershnik/wsdd-native/releases/download/v(?:\d+(?:\.\d+)+)',

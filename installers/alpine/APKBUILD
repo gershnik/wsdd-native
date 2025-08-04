@@ -1,0 +1,73 @@
+# Contributor: Eugene Gershnik <gershnik@hotmail.com>
+# Maintainer: Eugene Gershnik <gershnik@hotmail.com>
+pkgname=wsdd-native
+pkgver=1.21
+pkgrel=0
+pkgdesc="WS-Discovery Host Daemon"
+url="https://github.com/gershnik/wsdd-native"
+arch="all"
+license="BSD-3-Clause"
+depends="!wsdd"
+makedepends="cmake>=3.25 ninja coreutils linux-headers"
+install="$pkgname.pre-install"
+subpackages="$pkgname-doc $pkgname-openrc $pkgname-dbg"
+source="
+wsddn-v$pkgver.tgz::https://github.com/gershnik/wsdd-native/tarball/v$pkgver
+argum-v2.6.tgz::https://github.com/gershnik/argum/tarball/v2.6
+asio-1.30.2.tgz::https://downloads.sourceforge.net/asio/asio-1.30.2.tar.gz
+fmt-11.2.0.tgz::https://github.com/fmtlib/fmt/tarball/11.2.0
+isptr-v1.9.tgz::https://github.com/gershnik/intrusive_shared_ptr/tarball/v1.9
+libxml2-v2.14.5.tgz::https://gitlab.gnome.org/GNOME/libxml2/-/archive/v2.14.5/libxml2-v2.14.5.tar.gz
+modern-uuid-v1.8.tgz::https://github.com/gershnik/modern-uuid/tarball/v1.8
+outcome-v2.2.12.tgz::https://github.com/ned14/outcome/tarball/v2.2.12
+ptl-v1.7.tgz::https://github.com/gershnik/ptl/tarball/v1.7
+spdlog-v1.15.3.tgz::https://github.com/gabime/spdlog/tarball/v1.15.3
+sys_string-v2.20.tgz::https://github.com/gershnik/sys_string/tarball/v2.20
+tomlplusplus-v3.4.0.tgz::https://github.com/marzer/tomlplusplus/tarball/v3.4.0
+"
+
+options="!check"
+
+unpack() {
+	if [ -z "$force" ]; then
+		verify
+		initdcheck
+	fi
+	mkdir -p "$srcdir"
+	local u
+	for u in $source; do
+		local tgz="$SRCDEST/$(filename_from_uri $u)"
+		local comp=$(basename $tgz | rev | cut -d- -f2- | rev)
+		mkdir "$srcdir/$comp" && tar -C "$srcdir/$comp" --strip-components=1 --warning=no-unknown-keyword -xzf $tgz
+		if [ $comp != "wsddn" ]; then
+			_fetched_deps="$_fetched_deps $comp"
+		fi
+	done
+}
+
+build() {
+	local fetch_sources='-DFETCHCONTENT_FULLY_DISCONNECTED=ON'
+	local comp
+	for comp in $_fetched_deps
+	do
+		upcomp=$(echo $comp | tr 'a-z' 'A-Z')
+		fetch_sources="$fetch_sources -DFETCHCONTENT_SOURCE_DIR_$upcomp=$srcdir/$comp"
+	done
+
+	cd "$srcdir"/wsddn
+	cmake -S . -B out -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel $fetch_sources
+	cmake --build out
+	cp installers/wsddn.conf out/
+	sed -i "s%{RELOAD_INSTRUCTIONS}%# sudo rc-service wsddn reload\n%g" out/wsddn.conf
+	sed -i "s/{SAMPLE_IFACE_NAME}/eth0/g" out/wsddn.conf
+}
+
+package() {
+	cd "$srcdir"/wsddn
+	cmake --install out --prefix "$pkgdir"/usr
+	install -Dm 0644 out/wsddn.conf "$pkgdir"/etc/wsddn.conf
+	install -Dm 0644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+	install -Dm 0755 config/openrc/etc/init.d/wsddn "$pkgdir"/etc/init.d/wsddn
+	install -Dm 0644 config/openrc/etc/logrotate.d/wsddn "$pkgdir"/etc/logrotate.d/wsddn
+}
+
