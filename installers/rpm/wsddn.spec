@@ -37,6 +37,12 @@ and displayed by their Explorer "Network" views.
 %global _vpath_srcdir wsddn
 %global _vpath_builddir wsddn/out
 
+#OpenSUSE
+%if 0%{?suse_version}
+%global __sourcedir %{_vpath_srcdir}
+%global __builddir ${_vpath_builddir}
+%endif
+
 %debug_package
 
 %prep
