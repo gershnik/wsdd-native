@@ -1,6 +1,6 @@
 Name:           wsddn
 Version:        1.21
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        WS-Discovery Host Daemon
 
 License:        BSD-3-Clause
@@ -25,7 +25,9 @@ Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
 
+%if 0%{?suse_version} == 0
 Requires: firewalld-filesystem
+%endif
 
 Conflicts:      wsdd
 
@@ -122,6 +124,9 @@ if [ $1 -eq 0 ] ; then
 fi
 
 %changelog
+* Mon Aug 04 2025 gershnik - 1.21-2
+- RPM package portability fixes
+
 * Mon Aug 04 2025 gershnik - 1.21-1
 - Release 1.21
 
