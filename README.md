@@ -620,29 +620,29 @@ To install:
 mv wsddn-1.21-OpenBSD-amd64.tgz wsddn-1.21.tgz
 ```
 * Run
-```sh
-doas pkg_add -D unsigned wsddn-x.y.tgz
+```console
+# pkg_add -D unsigned wsddn-x.y.tgz
 ```
 
 To uninstall:
-```sh
-doas pkg_delete [-c] wsddn
+```console
+# pkg_delete [-c] wsddn
 ```
 
 Use the `-c` flag to also remove `_wsddn` daemon user and group.
 
 As is standard on FreeBSD daemon will not be enabled or started after installation. 
 To enable it call
-```sh
-doas rcctl enable wsddn
+```console
+# rcctl enable wsddn
 ```
 
 To start/stop/reload the daemon use:
 
-```sh
-doas rcctl start wsddn
-doas rcctl stop wsddn
-doas rcctl reload wsddn
+```console
+# rcctl start wsddn
+# rcctl stop wsddn
+# rcctl reload wsddn
 ```
 
 Configuration file will be at `/etc/wsddn/wsddn.conf`. Comments inside indicate available options and their meaning. You can also consult `/etc/wsddn/wsddn.conf.sample` you can consult, that preserves the original configuration.
