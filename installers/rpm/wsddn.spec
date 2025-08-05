@@ -40,7 +40,7 @@ and displayed by their Explorer "Network" views.
 #OpenSUSE
 %if 0%{?suse_version}
 %global __sourcedir %{_vpath_srcdir}
-%global __builddir ${_vpath_builddir}
+%global __builddir %{_vpath_builddir}
 %endif
 
 %debug_package
