@@ -1,7 +1,7 @@
 # Maintainer: Eugene Gershnik <gershnik@hotmail.com>
 pkgname='wsdd-native'
 pkgver='1.21'
-pkgrel=1
+pkgrel=2
 pkgdesc='WS-Discovery Host Daemon. Makes your machine visible in Network view of Windows Explorer'
 arch=('x86_64' 'aarch64')
 url='https://github.com/gershnik/wsdd-native'
@@ -26,30 +26,31 @@ source=(
 )
 noextract=("${source[@]%%::*}")
 
+_fetched_deps=( )
+
 prepare() {
     local u
-	for u in ${source[@]}; do
-		local tgz="$SRCDEST/${u%%::*}"
-		local comp=$(basename ${tgz%-*})
-		[ -d "$comp" ] && rm -rf "$comp"
+    for u in ${source[@]}; do
+        local tgz="$SRCDEST/${u%%::*}"
+        local comp=$(basename ${tgz%-*})
+        [ -d "$comp" ] && rm -rf "$comp"
         mkdir "$comp"
         tar -C "$comp" --strip-components=1 --warning=no-unknown-keyword -xzf $tgz
-		if [ $comp != "wsddn" ]; then
-			_fetched_deps="$_fetched_deps $comp"
-		fi
-	done
+        if [ $comp != "wsddn" ]; then
+            _fetched_deps+=( "$comp" )
+        fi
+    done
 }
 
 build() {
-    local fetch_sources='-DFETCHCONTENT_FULLY_DISCONNECTED=ON'
-	local comp
-	for comp in $_fetched_deps
-	do
-		fetch_sources="$fetch_sources -DFETCHCONTENT_SOURCE_DIR_${comp^^}=$srcdir/$comp"
-	done
+    local fetch_sources=( '-DFETCHCONTENT_FULLY_DISCONNECTED=ON' )
+    local comp
+    for comp in "${_fetched_deps[@]}"; do
+        fetch_sources+=( "-DFETCHCONTENT_SOURCE_DIR_${comp^^}=$srcdir/$comp" )
+    done
 
     cd wsddn
-    cmake -S . -B out -DCMAKE_BUILD_TYPE=None $fetch_sources
+    cmake -S . -B out -DCMAKE_BUILD_TYPE=None "${fetch_sources[@]}"
     cmake --build out
     cp installers/wsddn.conf out/
     sed -i "s/{RELOAD_INSTRUCTIONS}/# sudo systemctl restart wsddn\n/g" out/wsddn.conf
@@ -57,7 +58,7 @@ build() {
 }
 
 package() {
-	cd wsddn
+    cd wsddn
     cmake --install out --prefix $pkgdir/usr 
     install -Dm 0644 config/systemd/usr/lib/systemd/system/wsddn.service \
                             $pkgdir/usr/lib/systemd/system/wsddn.service
