@@ -671,9 +671,8 @@ To run the container do
 docker run --net=host -e WSDDN_HOSTNAME=$(hostname) gershnik/wsddn
 ```
 
-> [!IMPORTANT]  
-> `--net=host` is required. Without it `wsdd-native` cannot send and receive
-> necessary WS-Discovery traffic from your host.
+**Note** that `--net=host` is required. Without it `wsdd-native` cannot send and receive 
+necessary WS-Discovery traffic from your host.
 
 You can also pass `-e WSDDN_WORKGROUP=name` to change workgroup name or 
 `-e WSDDN_DOMAIN=name` to indicate domain membership. There are no other
