@@ -60,8 +60,11 @@ do
     fetch_sources+=" -DFETCHCONTENT_SOURCE_DIR_$upcomp=`pwd`/$comp"
 done
 
+#on some platforms cmake macros mess cwd
+pushd `pwd`
 %cmake $fetch_sources
 %cmake_build
+popd
 
 cp %{_vpath_srcdir}/installers/wsddn.conf %{_vpath_builddir}/
 sed -i "s/{RELOAD_INSTRUCTIONS}/# sudo systemctl restart wsddn\n/g" %{_vpath_builddir}/wsddn.conf
