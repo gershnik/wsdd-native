@@ -61,7 +61,7 @@ do
 done
 
 %cmake $fetch_sources
-%cmake_build -- %{?_smp_mflags}
+%cmake_build
 
 cp %{_vpath_srcdir}/installers/wsddn.conf %{_vpath_builddir}/
 sed -i "s/{RELOAD_INSTRUCTIONS}/# sudo systemctl restart wsddn\n/g" %{_vpath_builddir}/wsddn.conf
