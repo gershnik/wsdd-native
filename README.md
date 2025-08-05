@@ -41,6 +41,8 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
     - [Arch Linux](#arch-linux)
     - [Alpine](#alpine)
     - [FreeBSD](#freebsd)
+    - [OpenBSD](#openbsd)
+    - [Docker](#docker)
 - [Building from sources](#building-from-sources)
     - [Prerequisites](#prerequisites)
     - [Building and installing](#building-and-installing)
@@ -597,6 +599,85 @@ Configuration file will be at `/usr/local/etc/wsddn.conf`. Comments inside indic
 You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
 
 Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsylogd`. To modify rotation settings edit `/usr/local/etc/newsyslog.conf.d/wsddn.conf`
+
+</details>
+
+### OpenBSD
+
+A standalone binary package is available for OpenBSD 7.5 and higher. Only `amd64` (aka `x86_64`) 
+architecture is currently supported. The package is available from [Releases][releases].
+
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
+
+To install:
+
+* Download the installer package
+* **Important:** Rename it to the form `wsddn-x.y.tgz`. For example:
+```sh
+mv wsddn-1.21-OpenBSD-amd64.tgz wsddn-1.21.tgz
+```
+* Run
+```sh
+doas pkg_add -D unsigned wsddn-x.y.tgz
+```
+
+To uninstall:
+```sh
+doas pkg_delete [-c] wsddn
+```
+
+Use the `-c` flag to also remove `_wsddn` daemon user and group.
+
+As is standard on FreeBSD daemon will not be enabled or started after installation. 
+To enable it call
+```sh
+doas rcctl enable wsddn
+```
+
+To start/stop/reload the daemon use:
+
+```sh
+doas rcctl start wsddn
+doas rcctl stop wsddn
+doas rcctl reload wsddn
+```
+
+Configuration file will be at `/etc/wsddn/wsddn.conf`. Comments inside indicate available options and their meaning. You can also consult `/etc/wsddn/wsddn.conf.sample` you can consult, that preserves the original configuration.
+You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+
+Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsylogd`. To modify rotation settings edit `/etc/newsyslog.conf`.
+
+</details>
+
+### Docker
+
+On Linux, if you are loath to install or build anything you also have an option to run
+`wsdd-native` in a Docker container.
+
+> [!WARNING]
+> Docker container will **not** work on macOS.
+
+<details>
+
+<summary>Setup and usage (click to expand)</summary>
+<br>
+
+To run the container do
+
+```bash
+docker run --net=host -e WSDDN_HOSTNAME=$(hostname) gershnik/wsddn
+```
+
+> [!IMPORTANT]  
+> `--net=host` is required. Without it `wsdd-native` cannot send and receive
+> necessary WS-Discovery traffic from your host.
+
+You can also pass `-e WSDDN_WORKGROUP=name` to change workgroup name or 
+`-e WSDDN_DOMAIN=name` to indicate domain membership. There are no other
+configurable settings.
 
 </details>
 
