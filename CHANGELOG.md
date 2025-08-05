@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 - A binary package is now available for OpenBSD. Look for `wsddn-x.y-OpenBSD-amd64.tgz` under Releases
-- Configuration file samples for OpenBSD have been provided under `config/openbsd`
+- Configuration file samples for OpenBSD have been provided under `config/openbsd` (h/t Ron Taylor)
 
 ### Fixed
 - Samba config detection now works properly when `samba` tool is not present. Detection is also
