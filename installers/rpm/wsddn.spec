@@ -1,6 +1,6 @@
 Name:           wsddn
 Version:        1.21
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        WS-Discovery Host Daemon
 
 License:        BSD-3-Clause
@@ -19,7 +19,7 @@ Source:         https://github.com/gabime/spdlog/tarball/v1.15.3#/spdlog.tgz
 Source:         https://github.com/gershnik/sys_string/tarball/v2.20#/sys_string.tgz
 Source:         https://github.com/marzer/tomlplusplus/tarball/v3.4.0#/tomlplusplus.tgz
 
-BuildRequires:  gcc-c++ git cmake >= 3.25 make coreutils curl unzip systemd-devel systemd-rpm-macros 
+BuildRequires:  gcc-c++ git cmake >= 3.25 make coreutils curl unzip bsdtar systemd-devel systemd-rpm-macros 
 
 Requires(post): systemd
 Requires(preun): systemd
@@ -35,7 +35,6 @@ Conflicts:      wsdd
 Allows your Linux machine to be discovered by Windows 10 and above systems
 and displayed by their Explorer "Network" views.
 
-%global deps argum asio fmt isptr libxml2 modern-uuid outcome ptl spdlog sys_string tomlplusplus
 %global _vpath_srcdir wsddn
 %global _vpath_builddir wsddn/out
 
@@ -48,23 +47,44 @@ and displayed by their Explorer "Network" views.
 %debug_package
 
 %prep
-for comp in wsddn %{deps}
-do
-    [ -d $comp ] || (mkdir $comp && tar -C $comp --strip-components=1 --warning=no-unknown-keyword -xzf %{_topdir}/SOURCES/$comp.tgz)
-done
+_unpack_source() {
+    local name=$1
+    local tgz=$2
+
+    [ -d $name ] && rm -rf $name; mkdir -p $name
+    bsdtar -C $name --strip-components=1 -xzf "%{_topdir}/SOURCES/$tgz"
+}
+
+_unpack_source wsddn wsddn.tgz
+_unpack_source wsddn/external/argum argum.tgz
+_unpack_source wsddn/external/asio asio.tgz
+_unpack_source wsddn/external/fmt fmt.tgz
+_unpack_source wsddn/external/isptr isptr.tgz
+_unpack_source wsddn/external/libxml2 libxml2.tgz
+_unpack_source wsddn/external/modern-uuid modern-uuid.tgz
+_unpack_source wsddn/external/outcome outcome.tgz
+_unpack_source wsddn/external/ptl ptl.tgz
+_unpack_source wsddn/external/spdlog spdlog.tgz
+_unpack_source wsddn/external/sys_string sys_string.tgz
+_unpack_source wsddn/external/tomlplusplus tomlplusplus.tgz
 
 %build
 
-fetch_sources='-DFETCHCONTENT_FULLY_DISCONNECTED=ON'
-for comp in %{deps}
-do
-    upcomp=$(echo $comp | tr 'a-z' 'A-Z')
-    fetch_sources+=" -DFETCHCONTENT_SOURCE_DIR_$upcomp=`pwd`/$comp"
-done
-
 #on some platforms cmake macros mess cwd
-pushd `pwd`
-%cmake $fetch_sources
+mydir=`pwd`
+pushd $mydir
+%cmake -DFETCHCONTENT_FULLY_DISCONNECTED=ON \
+    "-DFETCHCONTENT_SOURCE_DIR_ARGUM=$mydir/wsddn/external/argum" \
+    "-DFETCHCONTENT_SOURCE_DIR_ASIO=$mydir/wsddn/external/asio" \
+    "-DFETCHCONTENT_SOURCE_DIR_FMT=$mydir/wsddn/external/fmt" \
+    "-DFETCHCONTENT_SOURCE_DIR_ISPTR=$mydir/wsddn/external/isptr" \
+    "-DFETCHCONTENT_SOURCE_DIR_LIBXML2=$mydir/wsddn/external/libxml2" \
+    "-DFETCHCONTENT_SOURCE_DIR_MODERN-UUID=$mydir/wsddn/external/modern-uuid" \
+    "-DFETCHCONTENT_SOURCE_DIR_OUTCOME=$mydir/wsddn/external/outcome" \
+    "-DFETCHCONTENT_SOURCE_DIR_PTL=$mydir/wsddn/external/ptl" \
+    "-DFETCHCONTENT_SOURCE_DIR_SPDLOG=$mydir/wsddn/external/spdlog" \
+    "-DFETCHCONTENT_SOURCE_DIR_SYS_STRING=$mydir/wsddn/external/sys_string" \
+    "-DFETCHCONTENT_SOURCE_DIR_TOMLPLUSPLUS=$mydir/wsddn/external/tomlplusplus"
 %cmake_build
 popd
 

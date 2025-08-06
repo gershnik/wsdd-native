@@ -13,12 +13,25 @@ MYPATH = Path(__file__).parent
 ROOT = MYPATH.parent.parent
 
 def write_sources(deps: dict, gap: str):
-    ret = ''
+    ret = []
     for dep, data in deps.items():
         version = data['version']
         url: str = data['url']
         url = url.replace('${version}', version)
-        ret += f'Source:{gap}{url}#/{dep}.tgz\n'
+        ret.append(f'Source:{gap}{url}#/{dep}.tgz\n')
+    return ret
+
+def write_unpack(deps: dict):
+    ret = ['_unpack_source wsddn wsddn.tgz\n']
+    for dep in deps.keys():
+        ret.append(f'_unpack_source wsddn/external/{dep} {dep}.tgz\n')
+    return ret
+
+def write_fetch_content(deps: dict):
+    ret = []
+    for idx, dep in enumerate(deps.keys()):
+        ending = ' \\' if idx < len(deps) - 1 else ''
+        ret.append(f'    "-DFETCHCONTENT_SOURCE_DIR_{dep.upper()}=$mydir/wsddn/external/{dep}"{ending}\n')
     return ret
 
 def main():
@@ -31,28 +44,43 @@ def main():
     
 
     spec = (ROOT / "installers/rpm/wsddn.spec").read_text()
-    new_spec = ''
+    new_lines = []
     sources_written = False
-    for line in spec.splitlines():
-        if (m := re.match(r'Version:(\s*)\d+(?:\.\d+)*', line)):
-            new_spec += f'Version:{m.group(1)}{version}\n'
-        elif (m := re.match(r'Release:(\s*)\d+%\{\?dist\}', line)):
-            new_spec += f'Release:{m.group(1)}1%{{?dist}}\n'
-        elif (m := re.match(r'Source:(\s*)\S+', line)):
-            if not sources_written:
-                new_spec += line + '\n'
-                new_spec += write_sources(deps, m.group(1))
-                sources_written = True
-        elif (m := re.match(r'%global\s+deps\s+', line)):
-            line = m.group(0) + ' '.join(deps.keys())
-            new_spec += line + '\n'
-        elif (m := re.match(r'^%changelog$', line)):
-            new_spec += line + '\n'
-            new_spec += f'* {today} gershnik - {version}-1\n- Release {version}\n\n'
+    unpack_seen = False
+    fetch_content_seen = False
+    for line in spec.splitlines(keepends=True):
+        if unpack_seen:
+            if not re.match(r'\s*_unpack_source ', line):
+                new_lines += write_unpack(deps)
+                new_lines.append(line)
+                unpack_seen = False
+        elif fetch_content_seen:
+            if not re.match(r'\s*"-DFETCHCONTENT_SOURCE_DIR_', line):
+                new_lines += write_fetch_content(deps)
+                new_lines.append(line)
+                fetch_content_seen = False
         else:
-            new_spec += line + '\n'
+            if (m := re.match(r'Version:(\s*)\d+(?:\.\d+)*', line)):
+                new_lines.append(f'Version:{m.group(1)}{version}\n')
+            elif (m := re.match(r'Release:(\s*)\d+%\{\?dist\}', line)):
+                new_lines.append(f'Release:{m.group(1)}1%{{?dist}}\n')
+            elif (m := re.match(r'Source:(\s*)\S+', line)):
+                if not sources_written:
+                    new_lines.append(line)
+                    new_lines += write_sources(deps, m.group(1))
+                    sources_written = True
+            elif re.match(r'_unpack_source wsddn', line):
+                unpack_seen = True
+            elif re.match(r'\s*"-DFETCHCONTENT_SOURCE_DIR_', line):
+                fetch_content_seen = True
+            elif (m := re.match(r'^%changelog$', line)):
+                new_lines.append(line)
+                new_lines.append(f'* {today} gershnik - {version}-1\n- Release {version}\n\n')
+            else:
+                new_lines.append(line)
 
-    (ROOT / "installers/rpm/wsddn.spec").write_text(new_spec)
+    with open(ROOT / "installers/rpm/wsddn.spec", 'wt', encoding='utf-8') as f:
+        f.writelines(new_lines)
 
 if __name__ == '__main__':
     main()
