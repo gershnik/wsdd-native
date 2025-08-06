@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   all interfaces, not the one the socket is restricted to (#19)
 - OpenBSD and NetBSD: automatic daemon user creation now works properly. The default expected daemon user name
   is now "_wsddn" on both systems.
+- OpenSUSE: RPM package now installs cleanly without warning about missing `firewalld-filesystem` dependency
 - CMake build: build is now correctly reconfigures itself when `sys_config.h.in` changes 
 
 ### Changed
