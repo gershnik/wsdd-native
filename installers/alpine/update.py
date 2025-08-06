@@ -12,12 +12,26 @@ MYPATH = Path(__file__).parent
 ROOT = MYPATH.parent.parent
 
 def write_sources(deps: dict):
-    ret = 'wsddn-v$pkgver.tgz::https://github.com/gershnik/wsdd-native/tarball/v$pkgver\n'
+    ret = ['wsddn-v$pkgver.tgz::https://github.com/gershnik/wsdd-native/tarball/v$pkgver\n']
     for dep, data in deps.items():
         version = data['version']
         url: str = data['url']
         url = url.replace('${version}', version)
-        ret += f'{dep}-{version}.tgz::{url}\n'
+        ret.append(f'{dep}-{version}.tgz::{url}\n')
+    return ret
+
+def write_unpack(deps: dict):
+    ret = ['    _unpack_source "$srcdir/wsddn" "$SRCDEST/wsddn-v$pkgver.tgz"\n']
+    for dep, data in deps.items():
+        version = data['version']
+        ret.append(f'\t_unpack_source "$srcdir/wsddn/external/{dep}" "$SRCDEST/{dep}-{version}.tgz"\n')
+    return ret
+
+def write_fetch_content(deps: dict):
+    ret = []
+    for idx, dep in enumerate(deps.keys()):
+        ending = ' \\' if idx < len(deps) - 1 else ''
+        ret.append(f'\t\t-DFETCHCONTENT_SOURCE_DIR_{dep.upper()}=external/{dep}{ending}\n')
     return ret
 
 def main():
@@ -27,26 +41,44 @@ def main():
         deps: dict = json.load(f)
 
     spec = (ROOT / "installers/alpine/APKBUILD").read_text()
-    new_spec = ''
+    new_lines = []
     sources_seen = False
-    for line in spec.splitlines():
-        if not sources_seen:
+    unpack_seen = False
+    fetch_content_seen = False
+    for line in spec.splitlines(keepends=True):
+        if sources_seen:
+            if re.match(r'^"', line):
+                new_lines.append('source="\n')
+                new_lines += write_sources(deps)
+                new_lines.append('"\n')
+                sources_seen = False
+        elif unpack_seen:
+            if not re.match(r'\s*_unpack_source ', line):
+                new_lines += write_unpack(deps)
+                new_lines.append(line)
+                unpack_seen = False
+        elif fetch_content_seen:
+            if not re.match(r'\s*-DFETCHCONTENT_SOURCE_DIR_', line):
+                new_lines += write_fetch_content(deps)
+                new_lines.append(line)
+                fetch_content_seen = False
+        else:
             if re.match(r'pkgver=\d+(?:\.\d+)*', line):
-                new_spec += f'pkgver={version}\n'
+                new_lines.append(f'pkgver={version}\n')
             elif re.match(r'pkgrel=(\d+)', line):
-                new_spec += 'pkgrel=0\n'
+                new_lines.append('pkgrel=0\n')
             elif re.match(r'source="', line):
                 sources_seen = True
+            elif re.match(r'\s*_unpack_source "$srcdir/wsddn"', line):
+                unpack_seen = True
+            elif re.match(r'\s*-DFETCHCONTENT_SOURCE_DIR_', line):
+                fetch_content_seen = True
             else:
-                new_spec += line + '\n'
-        else:
-            if re.match(r'^"', line):
-                new_spec += 'source="\n'
-                new_spec += write_sources(deps)
-                new_spec += '"\n'
-                sources_seen = False
+                new_lines.append(line)
+        
     
-    (ROOT / "installers/alpine/APKBUILD").write_text(new_spec)
+    with open(ROOT / "installers/alpine/APKBUILD", 'wt', encoding='utf-8') as f:
+        f.writelines(new_lines)
 
 
 if __name__ == '__main__':
