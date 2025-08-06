@@ -122,11 +122,15 @@ install -m 0644 %{_vpath_srcdir}/config/firewalls/etc/firewalld/services/%{name}
 
 %post
 %systemd_post wsddn.service
-if [ $1 -eq 1 ] ; then
+
+%triggerin -- firewalld
+if [ $1 -eq 1 ] && [ $2 -eq 1 ] ; then
     # Initial installation
-    firewall-cmd --reload > /dev/null 2>&1 || :
-    firewall-cmd --zone=public --add-service=wsddn --permanent > /dev/null 2>&1 || :
-    firewall-cmd --reload > /dev/null 2>&1 || :
+    if [ -x %{_bindir}/firewall-cmd ]; then
+        %{_bindir}/firewall-cmd --reload > /dev/null 2>&1 || :
+        %{_bindir}/firewall-cmd --zone=public --add-service=wsddn --permanent > /dev/null 2>&1 || :
+        %{_bindir}/firewall-cmd --reload > /dev/null 2>&1 || :
+    fi
 fi
 
 %preun
@@ -136,11 +140,13 @@ fi
 %systemd_postun_with_restart wsddn.service
 if [ $1 -eq 0 ] ; then
     # Package removal, not upgrade
-    # Older versions opened ports explicitly without service
-    firewall-cmd --zone=public --remove-port=5357/tcp --permanent > /dev/null 2>&1 || :
-    firewall-cmd --zone=public --remove-port=3702/udp --permanent > /dev/null 2>&1  || :
-    firewall-cmd --zone=public --remove-service=wsddn --permanent > /dev/null 2>&1  || :
-    firewall-cmd --reload > /dev/null 2>&1 || :
+    if [ -x %{_bindir}/firewall-cmd ]; then
+        # Older versions opened ports explicitly without service
+        %{_bindir}/firewall-cmd --zone=public --remove-port=5357/tcp --permanent > /dev/null 2>&1 || :
+        %{_bindir}/firewall-cmd --zone=public --remove-port=3702/udp --permanent > /dev/null 2>&1  || :
+        %{_bindir}/firewall-cmd --zone=public --remove-service=wsddn --permanent > /dev/null 2>&1  || :
+        %{_bindir}/firewall-cmd --reload > /dev/null 2>&1 || :
+    fi
 fi
 
 %changelog
