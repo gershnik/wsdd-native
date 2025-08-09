@@ -27,7 +27,7 @@
         "sha256": "f9095609a2226f3aa6dbfcd4726a8521a56f4fd2f426b0898d92acd1f133aa6d",
         "md5": "574eb3ad0a8e5685cdc9e7712804900f"
     },
-    "libxml2": {
+    "LibXml2": {
         "version": "v2.14.5",
         "url": "https://gitlab.gnome.org/GNOME/libxml2/-/archive/${version}/libxml2-${version}.tar.gz",
         "homepage": "https://gitlab.gnome.org/GNOME/libxml2",

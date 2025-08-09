@@ -713,7 +713,7 @@ The following flags can be passed to CMake configure step:
 
 `-DWSDDN_PREFER_SYSTEM=ON|OFF` 
 
-This controls whether to prefer system version of 3rd party libraries or fetch, build and use static ones. Currently only `libxml2` is affected.
+This controls whether to prefer system version of 3rd party libraries or fetch and use them from sources.
 
 On Linux:
 

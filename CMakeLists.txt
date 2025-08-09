@@ -38,7 +38,7 @@ else()
     set(WSDDN_PREFER_SYSTEM_DEFAULT OFF)
 endif()
 
-option(WSDDN_PREFER_SYSTEM "whether to prefer system versions of dependencies (such as libxm2)" ${WSDDN_PREFER_SYSTEM_DEFAULT})
+option(WSDDN_PREFER_SYSTEM "whether to prefer system versions of dependencies" ${WSDDN_PREFER_SYSTEM_DEFAULT})
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(WSDDN_WITH_SYSTEMD "auto" CACHE STRING "enable systemd scripts and notification support")
@@ -82,8 +82,12 @@ endif()
 if (TARGET modern-uuid-static)
     set_target_properties(modern-uuid-static PROPERTIES FOLDER "Dependencies")
 endif()
-set_target_properties(spdlog PROPERTIES FOLDER "Dependencies")
-set_target_properties(fmt PROPERTIES FOLDER "Dependencies")
+if (TARGET spdlog)
+    set_target_properties(spdlog PROPERTIES FOLDER "Dependencies")
+endif()
+if (TARGET fmt)
+    set_target_properties(fmt PROPERTIES FOLDER "Dependencies")
+endif()
 
 
 set_target_properties(wsddn PROPERTIES

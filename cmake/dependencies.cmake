@@ -3,6 +3,13 @@
 
 include(FetchContent)
 
+if (DEFINED CACHE{libxml2_SOURCE_DIR} AND NOT DEFINED CACHE{WSDDN_DEPENDENCIES_VERSION})
+    message(FATAL_ERROR 
+    "Your existing CMake cache cannot be used due to incompatible changes."
+    "Please delete ${CMAKE_BINARY_DIR}/CMakeCache.txt and rebuild. (sorry!)")
+endif()
+set(WSDDN_DEPENDENCIES_VERSION 1 CACHE INTERNAL "version of dependencies config")
+
 file(READ dependencies.json DEPENDECIES_JSON)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS dependencies.json)
 
@@ -19,10 +26,16 @@ function(fetch_dependency name #extras for FetchContent_Declare
     foreach(i RANGE 1 ${ARGC})
         list(APPEND extras ${ARGV${i}})
     endforeach()
+    if (WSDDN_PREFER_SYSTEM)
+        set(prefer_system FIND_PACKAGE_ARGS)
+    else()
+        set(prefer_system "")
+    endif()
     FetchContent_Declare(${name}
         URL         ${url}
         URL_HASH    MD5=${md5}
         ${extras}
+        ${prefer_system}
     )
     set(deplist ${DECLARED_DEPENDENCIES})
     list(APPEND deplist ${name})
@@ -37,30 +50,20 @@ fetch_dependency(isptr)
 fetch_dependency(ptl)
 fetch_dependency(modern-uuid)
 
-if (WSDDN_PREFER_SYSTEM)
-    find_package(LibXml2)
-endif()
 
-if (NOT LibXml2_FOUND)
+set(LIBXML2_WITH_ICONV OFF)
+set(LIBXML2_WITH_LZMA OFF)
+set(LIBXML2_WITH_HTML OFF)
+set(LIBXML2_WITH_HTTP OFF)
+set(LIBXML2_WITH_FTP OFF)
+set(LIBXML2_WITH_TESTS OFF)
+set(LIBXML2_WITH_ZLIB OFF)
+set(LIBXML2_WITH_PYTHON OFF)
+set(LIBXML2_WITH_LEGACY OFF)
+set(LIBXML2_WITH_MODULES OFF)
+set(LIBXML2_WITH_PROGRAMS OFF)
 
-    message(STATUS "libxm2 will be built from sources and statically linked")
-
-    set(LIBXML2_WITH_ICONV OFF)
-    set(LIBXML2_WITH_LZMA OFF)
-    set(LIBXML2_WITH_HTML OFF)
-    set(LIBXML2_WITH_HTTP OFF)
-    set(LIBXML2_WITH_FTP OFF)
-    set(LIBXML2_WITH_TESTS OFF)
-    set(LIBXML2_WITH_ZLIB OFF)
-    set(LIBXML2_WITH_PYTHON OFF)
-    set(LIBXML2_WITH_LEGACY OFF)
-    set(LIBXML2_WITH_MODULES OFF)
-    set(LIBXML2_WITH_PROGRAMS OFF)
-
-    fetch_dependency(libxml2)
-    
-endif()
-
+fetch_dependency(LibXml2)
 
 set(FMT_INSTALL OFF)
 fetch_dependency(fmt)
@@ -80,19 +83,37 @@ fetch_dependency(asio)
 
 FetchContent_MakeAvailable(${DECLARED_DEPENDENCIES})
 
+foreach(dep ${DECLARED_DEPENDENCIES})
+    string(TOUPPER ${dep} udep)
+    string(TOLOWER ${dep} ldep)
+    if (DEFINED ${ldep}_SOURCE_DIR)
+        message(STATUS "${dep} will be built from sources and statically linked")
+    else()
+        if (DEFINED ${ldep}_VERSION)
+            message(STATUS "${dep} will be used from system (current version: ${${ldep}_VERSION})")
+        else()
+            if (DEFINED ${udep}_VERSION_STRING)
+                message(STATUS "${dep} will be used from system (current version: ${${udep}_VERSION_STRING})")
+            else()
+                message(STATUS "${dep} will be used from system")
+            endif()
+        endif()
+    endif()
+endforeach()
+
 get_directory_property(KNOWN_SUBDIRECTORIES SUBDIRECTORIES)
 foreach(dir ${KNOWN_SUBDIRECTORIES})
     if (IS_DIRECTORY ${dir})
         foreach(dep ${DECLARED_DEPENDENCIES})
-            #check if the subdirectory is "under" the dependency source dir
-            string(FIND ${dir} ${${dep}_SOURCE_DIR} match_pos)
-            if (match_pos EQUAL 0)
-                #and, if so, exclude it from all to prevent installation
-                set_property(DIRECTORY ${dir} PROPERTY EXCLUDE_FROM_ALL YES)
-                break()
+            if (DEFINED ${dep}_SOURCE_DIR)
+                #check if the subdirectory is "under" the dependency source dir
+                string(FIND ${dir} ${${dep}_SOURCE_DIR} match_pos)
+                if (match_pos EQUAL 0)
+                    #and, if so, exclude it from all to prevent installation
+                    set_property(DIRECTORY ${dir} PROPERTY EXCLUDE_FROM_ALL YES)
+                    break()
+                endif()
             endif()
         endforeach()
     endif()
 endforeach()
-
-
