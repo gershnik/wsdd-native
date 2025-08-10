@@ -711,9 +711,13 @@ The `wsddn` executable will be installed into `/usr/local/bin` and manpage added
 
 The following flags can be passed to CMake configure step:
 
-`-DWSDDN_PREFER_SYSTEM=ON|OFF` 
+- `-DWSDDN_PREFER_SYSTEM_LIBXML2=ON|OFF`
+- `-DWSDDN_PREFER_SYSTEM_FMT=ON|OFF`
+- `-DWSDDN_PREFER_SYSTEM_SPDLOG=ON|OFF`
+- `-DWSDDN_PREFER_SYSTEM_TOMLPLUSPLUS=ON|OFF`
 
-This controls whether to prefer system version of 3rd party libraries or fetch and use them from sources.
+This controls whether to prefer system package version of 3rd party libraries or fetch and use them from sources.
+By default all dependencies are fetched and used from sources.
 
 On Linux:
 

@@ -127,7 +127,9 @@ jobs:
           [ -d "out" ] && tools/uncache out
           cmake -S . -B out \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            "-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64" 
+            "-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64" \
+            -DCMAKE_IGNORE_PREFIX_PATH"=/opt/local \
+            -DWSDDN_PREFER_SYSTEM_LIBXML2=ON
 
       - name: Build
         run: |

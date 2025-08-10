@@ -10,6 +10,16 @@ if (DEFINED CACHE{libxml2_SOURCE_DIR} AND NOT DEFINED CACHE{WSDDN_DEPENDENCIES_V
 endif()
 set(WSDDN_DEPENDENCIES_VERSION 1 CACHE INTERNAL "version of dependencies config")
 
+
+if (NOT DEFINED WSDDN_PREFER_SYSTEM_LIBXML2)
+    #By default prefer system libxml2 on Mac and source compiled on other platforms
+    if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+        set(WSDDN_PREFER_SYSTEM_LIBXML2 ON)
+    else()
+        set(WSDDN_PREFER_SYSTEM_LIBXML2 OFF)
+    endif()
+endif()
+
 file(READ dependencies.json DEPENDECIES_JSON)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS dependencies.json)
 
@@ -22,11 +32,35 @@ function(fetch_dependency name #extras for FetchContent_Declare
     string(JSON url GET "${DEPENDECIES_JSON}" ${name} url)
     string(JSON md5 GET "${DEPENDECIES_JSON}" ${name} md5)
     string(REPLACE "\$\{version\}" ${version} url "${url}")
+    string(TOUPPER ${name} uname)
+    string(TOLOWER ${name} lname)
+    
     set(extras "")
     foreach(i RANGE 1 ${ARGC})
         list(APPEND extras ${ARGV${i}})
     endforeach()
-    if (WSDDN_PREFER_SYSTEM)
+
+    if (CACHE{LAST_WSDDN_PREFER_SYSTEM_${uname}})
+        set(old_prefer 1)
+    else()
+        set(old_prefer 0)
+    endif()
+
+    if (WSDDN_PREFER_SYSTEM_${uname})
+        set(new_prefer 1)
+    else()
+        set(new_prefer 0)
+    endif()
+    
+    if (NOT ${new_prefer} EQUAL ${old_prefer})
+        unset(${lname}_POPULATED CACHE)
+        unset(${lname}_SOURCE_DIR CACHE)
+        unset(${lname}_BINARY_DIR CACHE)
+        unset(${name}_FOUND CACHE)
+    endif()
+    set(LAST_WSDDN_PREFER_SYSTEM_${uname} ${WSDDN_PREFER_SYSTEM_${uname}} CACHE INTERNAL "")
+
+    if (WSDDN_PREFER_SYSTEM_${uname})
         set(prefer_system FIND_PACKAGE_ARGS)
     else()
         set(prefer_system "")

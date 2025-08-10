@@ -31,15 +31,6 @@ message(NOTICE WSDDN_VERSION: ${WSDDN_VERSION})
 
 project(wsddn)
 
-#By default prefer system libraries on Mac and source compiled on other platforms
-if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    set(WSDDN_PREFER_SYSTEM_DEFAULT ON)
-else()
-    set(WSDDN_PREFER_SYSTEM_DEFAULT OFF)
-endif()
-
-option(WSDDN_PREFER_SYSTEM "whether to prefer system versions of dependencies" ${WSDDN_PREFER_SYSTEM_DEFAULT})
-
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(WSDDN_WITH_SYSTEMD "auto" CACHE STRING "enable systemd scripts and notification support")
 endif()
