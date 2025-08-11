@@ -30,7 +30,7 @@ else:
     print(f'no platform->arch mapping for {platform}', file=sys.stderr)
     sys.exit(1)
 
-verRes = subprocess.run(['freebsd-version'], capture_output=True, encoding='utf-8')
+verRes = subprocess.run(['freebsd-version'], check=False, capture_output=True, encoding='utf-8')
 if verRes.returncode != 0:
     sys.exit(1)
 fullVersion = verRes.stdout.strip()
@@ -71,7 +71,7 @@ try:
         print(f'{outdir} already contains the requested toolchain')
         sys.exit(0)
     print(f'{outdir} contains non-matching existing toolchain: \n{json.dumps(info, indent=4)}\nwill overwrite')
-except (FileNotFoundError):
+except FileNotFoundError:
     pass
     
 if outdir.exists():
@@ -90,7 +90,7 @@ procCurl.stdout.close()
 procTar.wait()
 procCurl.wait()
 if procTar.returncode != 0 or procCurl.returncode != 0:
-    print(f'unpacking failed', file=sys.stderr)
+    print('unpacking failed', file=sys.stderr)
     sys.exit(1)
 
 

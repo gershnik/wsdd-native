@@ -19,7 +19,7 @@ def parseCommandLine() -> argparse.Namespace :
     return args
 
 def getVersion(builddir: Path):
-    verRes = subprocess.run([builddir/'wsddn', '--version'], capture_output=True, encoding='utf-8')
+    verRes = subprocess.run([builddir/'wsddn', '--version'], check=False, capture_output=True, encoding='utf-8')
     if verRes.returncode != 0:
         sys.exit(1)
     version = verRes.stdout.strip()
@@ -41,6 +41,3 @@ def copyTemplated(src, dst, map):
     dstdir.mkdir(parents=True, exist_ok=True)
     dst.write_text(src.read_text().format_map(map))
 
-# def uploadResults(installer, symfile, version):
-#     subprocess.run(['aws', 's3', 'cp', symfile, f's3://wsddn-symbols/{symfile.name}'], check=True)
-#     subprocess.run(['gh', 'release', 'upload', f'v{version}', installer], check=True)
