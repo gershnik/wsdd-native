@@ -614,8 +614,8 @@ architecture is currently supported. The package is available from [Releases][re
 
 To install:
 
-* Download the installer package
-* **Important:** Rename it to the form `wsddn-x.y.tgz`. For example:
+* Download the [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.21/wsddn-1.21-OpenBSD-amd64.tgz)
+* **Important:** Rename it to `wsddn-1.21.tgz`. For example:
 ```sh
 mv wsddn-1.21-OpenBSD-amd64.tgz wsddn-1.21.tgz
 ```

@@ -44,7 +44,7 @@ shutil.copy(mydir / 'copyright', docdir / 'copyright')
 
 copyTemplated(mydir.parent / 'wsddn.conf', stagedir / "etc/wsddn.conf", {
     'SAMPLE_IFACE_NAME': "eth0",
-    'RELOAD_INSTRUCTIONS': f"""
+    'RELOAD_INSTRUCTIONS': """
 # sudo systemctl reload wsddn
 """.lstrip()
 })

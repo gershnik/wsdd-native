@@ -32,25 +32,21 @@ with open(ROOT / "CHANGELOG.md", "wt", encoding="utf-8") as change_log:
 
 (ROOT / "VERSION").write_text(f'{NEW_VER}\n')
 
-subprocess.run([ROOT / "installers/rpm/update.py"], check=True)
-subprocess.run([ROOT / "installers/alpine/update.py"], check=True)
-subprocess.run([ROOT / "installers/arch/update.py"], check=True)
-
 readme = (ROOT / 'README.md').read_text()
-readme = re.subn(r'https://github.com/gershnik/wsdd-native/releases/download/v(?:\d+(?:\.\d+)+)',
-                 f'https://github.com/gershnik/wsdd-native/releases/download/v{NEW_VER}',
-                 readme)[0]
-readme = re.subn(r'wsddn-macos-(?:\d+(?:\.\d+)+).pkg',
-                 f'wsddn-macos-{NEW_VER}.pkg',
-                 readme)[0]
+readme = re.sub(r'https://github.com/gershnik/wsdd-native/releases/download/v(?:\d+(?:\.\d+)+)',
+                f'https://github.com/gershnik/wsdd-native/releases/download/v{NEW_VER}',
+                readme)
+readme = re.sub(r'wsddn-macos-(?:\d+(?:\.\d+)+)\.pkg',
+                f'wsddn-macos-{NEW_VER}.pkg',
+                readme)
+readme = re.sub(r'wsddn-(?:\d+(?:\.\d+)+)([-A-Za-z0-9]*)\.tgz',
+                fr'wsddn-{NEW_VER}\1.tgz',
+                readme)
 (ROOT / 'README.md').write_text(readme)
 
 subprocess.run(['git', 'add',
                 ROOT / "README.md",
                 ROOT / "CHANGELOG.md",
-                ROOT / "VERSION",
-                ROOT / "installers/rpm/wsddn.spec",
-                ROOT / "installers/alpine/APKBUILD",
-                ROOT / "installers/arch/PKGBUILD"], check=True)
+                ROOT / "VERSION"], check=True)
 subprocess.run(['git', 'commit', '-m', f'chore: creating version {NEW_VER}'], check=True)
 subprocess.run(['git', 'tag', f'v{NEW_VER}'], check=True)
