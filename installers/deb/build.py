@@ -6,6 +6,7 @@
 import sys
 import subprocess
 import shutil
+import hashlib
 from pathlib import Path
 
 RELEASE = '1'
@@ -49,10 +50,39 @@ copyTemplated(mydir.parent / 'wsddn.conf', stagedir / "etc/wsddn.conf", {
 """.lstrip()
 })
 
+
+def calc_sizes():
+    md5sums = ''
+    total_size = 0
+    buffer = bytearray(4096)
+    view = memoryview(buffer)
+    for item in stagedir.rglob('*'):
+        if not item.is_file():
+            continue
+        relpath = item.relative_to(stagedir)
+        if not relpath.parts[0] == 'etc':
+            md5 = hashlib.md5()
+            with open(item, "rb") as f:
+                while True:
+                    size = f.readinto(buffer)
+                    if size == 0:
+                        break
+                    total_size += size
+                    md5.update(view[:size])
+                md5sums += f'{md5.hexdigest()} {item.relative_to(stagedir)}\n'
+        else:
+            total_size += item.stat().st_size
+    total_size = int(round(total_size / 1024.))
+    return total_size, md5sums
+
+total_size, md5sums = calc_sizes()
+
 debiandir = stagedir/ 'DEBIAN'
 debiandir.mkdir()
 
-(stagedir/ 'debian').symlink_to(debiandir.absolute())
+# on case insensitive filesystem we don't need and cannot create lowercase 'debian'
+if not (stagedir / 'debian').exists():
+    (stagedir / 'debian').symlink_to(debiandir.absolute())
 
 control = debiandir / 'control'
 
@@ -62,6 +92,7 @@ Package: wsddn
 Source: wsddn
 Version: {VERSION}
 Architecture: {ARCH}
+Installed-Size: {total_size}
 Depends: {{shlibs_Depends}}
 Conflicts: wsdd
 Replaces: wsdd
@@ -72,15 +103,19 @@ Description: WS-Discovery Host Daemon
 
 """.lstrip())
 
-#shutil.copy(mydir / 'pre',          debiandir / 'preinst')
+shutil.copy(mydir / 'preinst',      debiandir / 'preinst')
 shutil.copy(mydir / 'prerm',        debiandir / 'prerm')
 shutil.copy(mydir / 'postinst',     debiandir / 'postinst')
 shutil.copy(mydir / 'postrm',       debiandir / 'postrm')
 shutil.copy(mydir / 'copyright',    debiandir / 'copyright')
 
 (debiandir / 'conffiles').write_text("""
+/etc/init.d/wsddn
+/etc/ufw/applications.d/wsddn
 /etc/wsddn.conf
 """.lstrip())
+
+(debiandir / 'md5sums').write_text(md5sums)
 
 deps = subprocess.run(['dpkg-shlibdeps', '-O', '-eusr/bin/wsddn'], 
                       check=True, cwd=stagedir, stdout=subprocess.PIPE, encoding="utf-8").stdout.strip()
@@ -88,7 +123,9 @@ key, val = deps.split('=', 1)
 key = key.replace(':', "_")
 control.write_text(control.read_text().format_map({key: val}))
 
-(stagedir/ 'debian').unlink()
+if (stagedir / 'debian').is_symlink():
+    (stagedir / 'debian').unlink()
+
 subprocess.run(['dpkg-deb', '--build', '--root-owner-group', stagedir, workdir], check=True)
 
 subprocess.run(['gzip', '--keep', '--force', builddir / 'wsddn'], check=True)
