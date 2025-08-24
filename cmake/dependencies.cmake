@@ -146,9 +146,10 @@ get_directory_property(KNOWN_SUBDIRECTORIES SUBDIRECTORIES)
 foreach(dir ${KNOWN_SUBDIRECTORIES})
     if (IS_DIRECTORY ${dir})
         foreach(dep ${DECLARED_DEPENDENCIES})
-            if (DEFINED ${dep}_SOURCE_DIR)
+            string(TOLOWER ${dep} ldep)
+            if (DEFINED ${ldep}_SOURCE_DIR)
                 #check if the subdirectory is "under" the dependency source dir
-                string(FIND ${dir} ${${dep}_SOURCE_DIR} match_pos)
+                string(FIND ${dir} ${${ldep}_SOURCE_DIR} match_pos)
                 if (match_pos EQUAL 0)
                     #and, if so, exclude it from all to prevent installation
                     set_property(DIRECTORY ${dir} PROPERTY EXCLUDE_FROM_ALL YES)
