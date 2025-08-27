@@ -7,6 +7,7 @@ import sys
 import subprocess
 import shutil
 import hashlib
+import gzip
 from pathlib import Path
 
 RELEASE = '1'
@@ -42,6 +43,10 @@ shutil.copytree(srcdir / 'config/sysv/etc',                stagedir / 'etc', dir
 docdir = stagedir / 'usr/share/doc/wsddn'
 docdir.mkdir(parents=True)
 shutil.copy(mydir / 'copyright', docdir / 'copyright')
+shutil.copy(srcdir / 'Acknowledgements.md', docdir / 'Acknowledgements.md')
+with open(srcdir / 'CHANGELOG.md', 'rb') as f_in:
+    with gzip.open(docdir / 'changelog.gz', 'wb') as f_out:
+        shutil.copyfileobj(f_in, f_out)
 
 copyTemplated(mydir.parent / 'wsddn.conf', stagedir / "etc/wsddn.conf", {
     'SAMPLE_IFACE_NAME': "eth0",
