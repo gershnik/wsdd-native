@@ -42,6 +42,10 @@ stagedir.mkdir(parents=True)
 installCode(builddir, stagedir / 'usr/local')
 
 shutil.copytree(srcdir / 'config/openbsd', stagedir, dirs_exist_ok=True)
+docdir = stagedir / 'usr/local/share/doc/wsddn'
+docdir.mkdir(parents=True)
+shutil.copy(srcdir / 'LICENSE', docdir / 'LICENSE')
+shutil.copy(srcdir / 'Acknowledgements.md', docdir / 'Acknowledgements.md')
 
 copyTemplated(mydir.parent / 'wsddn.conf', stagedir / 'etc/wsddn/wsddn.conf.sample', {
     'SAMPLE_IFACE_NAME': "em0",
