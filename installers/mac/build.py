@@ -46,6 +46,8 @@ subprocess.run(['/usr/bin/strip', '-u', '-r', '-no_code_signature_warning',
 (supdir/'wsdd-native.app/Contents/Resources').mkdir(parents=True, exist_ok=True)
 (stagedir / 'usr/local/bin/wsddn').rename(supdir/'wsdd-native.app/Contents/Resources/wsddn')
 (stagedir / 'usr/local/bin/wsddn').symlink_to('/Library/Application Support/wsdd-native/wsdd-native.app/Contents/Resources/wsddn')
+shutil.copy(srcdir / 'LICENSE', supdir / 'LICENSE')
+shutil.copy(srcdir / 'Acknowledgements.md', supdir / 'Acknowledgements.md')
 
 
 shutil.copytree(srcdir / 'config/mac', stagedir, dirs_exist_ok=True, ignore=ignoreCrap)
