@@ -1,19 +1,18 @@
 FROM alpine:latest
 
-RUN apk --no-cache add wget
-
-RUN wget -qO-  https://www.gershnik.com/alpine-repo/gershnik@hotmail.com-6643812b.rsa.pub \
+RUN <<EOF
+set -ex
+apk --no-cache add wget
+wget -qO-  https://www.gershnik.com/alpine-repo/gershnik@hotmail.com-6643812b.rsa.pub \
         > /etc/apk/keys/gershnik@hotmail.com-6643812b.rsa.pub
-
-RUN mkdir -p /etc/apk/repositories.d && \
-    echo "https://www.gershnik.com/alpine-repo/main" \
+mkdir -p /etc/apk/repositories.d 
+echo "https://www.gershnik.com/alpine-repo/main" \
       > /etc/apk/repositories.d/www.gershnik.com.list 
+apk del wget
+apk update
+apk --no-cache add wsdd-native
 
-RUN apk del wget
-
-RUN apk update
-
-RUN apk --no-cache add wsdd-native
+EOF
 
 COPY run-wsddn ./
 

@@ -12,5 +12,5 @@ if  [ ! -z "${WSDDN_WORKGROUP}" ]; then
 elif  [ ! -z "${WSDDN_DOMAIN}" ]; then
     exec wsddn --user wsddn --hostname "${WSDDN_HOSTNAME}" --domain "${WSDDN_DOMAIN}"
 else
-    exec wsddn --user wsddn --hostname "${WSDDN_HOSTNAME}" --log-level=5
+    exec wsddn --user wsddn --hostname "${WSDDN_HOSTNAME}"
 fi
