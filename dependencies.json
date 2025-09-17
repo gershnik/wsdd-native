@@ -7,11 +7,11 @@
         "md5": "59141e9e95b75097b0cf6d9d36fc6304"
     },
     "asio": {
-        "version": "1.30.2",
+        "version": "1.36.0",
         "url": "https://downloads.sourceforge.net/asio/asio-${version}.tar.gz",
         "homepage": "https://think-async.com/Asio/",
-        "sha256": "12e7bb4dada8bc1191de9d550a59ee658ce4e645ffc97c911c099ab4e8699d55",
-        "md5": "c1643d3eddd45b210b760acc7ec25d59"
+        "sha256": "55d5c64e78b1bedd0004423e695c2cfc191fc71914eaaa7f042329ff99ee6155",
+        "md5": "a3fc4f4ebd5baac595a7b3fea90f2117"
     },
     "fmt": {
         "version": "11.2.0",
@@ -28,18 +28,18 @@
         "md5": "574eb3ad0a8e5685cdc9e7712804900f"
     },
     "LibXml2": {
-        "version": "v2.14.5",
+        "version": "v2.15.0",
         "url": "https://gitlab.gnome.org/GNOME/libxml2/-/archive/${version}/libxml2-${version}.tar.gz",
         "homepage": "https://gitlab.gnome.org/GNOME/libxml2",
-        "sha256": "54968c8ab8723c2d75a38fc45810e8cf60d44991e0887661bf9905a4042ad108",
-        "md5": "2da0f9e59d6ce8d4f9d8460a8341b135"
+        "sha256": "027e302d24e0d136393a24e02938046cda72281a3e3620d56cbc0995524658bc",
+        "md5": "6d29889f41d024c5b8b561067aee89fa"
     },
     "modern-uuid": {
-        "version": "v1.8",
+        "version": "v2.0",
         "url": "https://github.com/gershnik/modern-uuid/tarball/${version}",
         "homepage": "https://github.com/gershnik/modern-uuid",
-        "sha256": "bb3fb3e53b45cd7e6b977835cfc7ef25680e92b68daf709b1f494f46697dae02",
-        "md5": "b8b5ba4e4fa9a104eff3121fe571f186"
+        "sha256": "10ba7b7393d5e727bbd92f3bfa0be3643bea1d6f23212fad9685ea221c71b68f",
+        "md5": "aa6703b57bea1d182182f41c68a3814b"
     },
     "outcome": {
         "version": "v2.2.12",
