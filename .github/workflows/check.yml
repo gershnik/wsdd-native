@@ -39,6 +39,7 @@ jobs:
         - {os: ubuntu-24.04, compiler: clang, version: 18 }
         - {os: ubuntu-24.04, compiler: clang, version: 19 }
         - {os: ubuntu-24.04, compiler: clang, version: 20 }
+        - {os: ubuntu-24.04, compiler: clang, version: 21 }
     steps:
       - name: Checkout
         uses: actions/checkout@v4
