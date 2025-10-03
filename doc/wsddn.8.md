@@ -49,9 +49,9 @@ Unless otherwise specified options cannot be repeated. The options are as follow
 
     * If invoked without any daemon flags: to standard output
     * If invoked with --systemd: to standard output, with systemd severity prefixes
-    * If invoked with --unixd or --launchd: to /var/log/wsddn.log 
+    * If invoked with --launchd: to standard output
+    * If invoked with --unixd: to /dev/null (no logging)
 
-    If --user option is used, the directory of the logfile must allow the specified user to create and delete files. 
     The equivalent config file option is `log-file`
 
 `--log-os-log`
