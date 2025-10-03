@@ -79,7 +79,7 @@ jobs:
   mac:
     runs-on: macos-15
     env: 
-      DEVELOPER_DIR: /Applications/Xcode_16.4.app
+      DEVELOPER_DIR: /Applications/Xcode_16.4.0.app
      
     steps:
     - name: Checkout
