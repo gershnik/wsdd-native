@@ -118,7 +118,7 @@ private:
             sys_string name(req.lifr_name);
             
             auto interfaceFlags = ioctlSocket<GetLInterfaceFlags>(m_socket, name).value();
-            if ((interfaceFlags & IFF_LOOPBACK) || !(interfaceFlags & IFF_MULTICAST))
+            if (isUnusableInterface(interfaceFlags))
                 continue;
             auto index = ioctlSocket<GetLInterfaceIndex>(m_socket, name).value();
             m_handler->addAddress(NetworkInterface(index, name), addr);
@@ -204,7 +204,7 @@ private:
                 }
                 
                 if (header->rtm_type == RTM_IFINFO) {
-                    knownIfaces[result.iface->index] = (interfaceFlags & IFF_LOOPBACK) || !(interfaceFlags & IFF_MULTICAST);
+                    knownIfaces[result.iface->index] = isUnusableInterface(interfaceFlags);
                 } else {
                     if (auto it = knownIfaces.find(result.iface->index); it == knownIfaces.end()) {
                         #if HAVE_SIOCGLIFCONF
@@ -214,7 +214,7 @@ private:
                         #endif
                         if (auto flagsRes = ioctlSocket<GetInterfaceFlagsType>(m_socket, result.iface->name)) {
                             interfaceFlags = flagsRes.assume_value();
-                            bool ignore = (interfaceFlags & IFF_LOOPBACK) || !(interfaceFlags & IFF_MULTICAST);
+                            bool ignore = isUnusableInterface(interfaceFlags);
                             knownIfaces.emplace(result.iface->index, ignore);
                         }
                     }
@@ -288,15 +288,27 @@ private:
                 ignore = it->second;
             }
             
-            if (!ignore)
+            if (!ignore) {
                 m_handler->addAddress(iface, addr);
-            else
+            } else if (m_config->enableLoopback()) {
+                WSDLOG_DEBUG("Interface {} doesn't support multicast - ignoring", iface);
+            } else {
                 WSDLOG_DEBUG("Interface {} is loopback or doesn't support multicast - ignoring", iface);
+            }
             
         } else {
             
             m_handler->removeAddress(iface, addr);
         }
+    }
+
+    template<class T>
+    bool isUnusableInterface(T interfaceFlags) {
+        bool res = !(interfaceFlags & IFF_MULTICAST);
+        if (!res && !m_config->enableLoopback()) {
+            res = (interfaceFlags & IFF_LOOPBACK);
+        }
+        return res;
     }
 
 private:

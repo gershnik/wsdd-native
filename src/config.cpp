@@ -12,6 +12,7 @@ Config::Config(const CommandLine & cmdline):
     m_allowedAddressFamily = cmdline.allowedAddressFamily.value_or(BothIPv4AndIPv6);
     m_interfaceWhitelist.insert(cmdline.interfaces.begin(), cmdline.interfaces.end());
     m_sourcePort = cmdline.sourcePort.value_or(0);
+    m_enableLoopback = cmdline.enableLoopback.value_or(false);
 
     m_fullHostName = getHostName();
     m_simpleHostName = m_fullHostName.prefix_before_first(U'.').value_or(m_fullHostName);

@@ -226,7 +226,10 @@ private:
             if (auto it = knownIfaces.find(iface.index); it == knownIfaces.end()) {
                 if (auto flagsRes = ioctlSocket<GetInterfaceFlags>(m_socket, iface.name)) {
                     auto flags = flagsRes.assume_value();
-                    ignore = (flags & IFF_LOOPBACK) || !(flags & IFF_MULTICAST);
+                    ignore = !(interfaceFlags & IFF_MULTICAST);
+                    if (!ignore && !m_config->enableLoopback()) {
+                        ignore = (interfaceFlags & IFF_LOOPBACK);
+                    }
                     knownIfaces[iface.index] = ignore;
                 } else {
                     WSDLOG_ERROR("Unable to obtain flags for interface {0}, {1}", iface, flagsRes.assume_error().message());
@@ -237,6 +240,8 @@ private:
                 
             if (!ignore)
                 m_handler->addAddress(iface, addr);
+            else if (m_config->enableLoopback())
+                WSDLOG_DEBUG("Interface {} doesn't support multicast - ignoring", iface);
             else
                 WSDLOG_DEBUG("Interface {} is loopback or doesn't support multicast - ignoring", iface);
         } else {

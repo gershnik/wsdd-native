@@ -274,6 +274,11 @@ void CommandLine::parse(int argc, char * argv[]) {
                handler([this](std::string_view val){
         this->sourcePort = Argum::parseIntegral<unsigned>(val);
     }));
+    parser.add(Option("--enable-loopback").
+               help("enable receiving/sending on loopback interface.").
+               handler([this]() {
+        this->enableLoopback = true;
+    }));
     
     //Machine info
     parser.add(Option("--uuid").
@@ -430,6 +435,12 @@ void CommandLine::parseConfigKey(std::string_view keyName, const toml::node & va
             if (*val < 0 || *val >= 65536)
                 throw ConfigFileError("source-port value must be in [0, 65536) range", spdlog::level::err, val.source());
             this->sourcePort = uint16_t(*val);
+        });
+        
+    } else if (keyName == "enable-loopback"sv) {
+        
+        setConfigValue<bool>(bool(this->enableLoopback), keyName, value, [this](const toml::value<bool> & val) {
+            this->enableLoopback = *val;
         });
         
     } else

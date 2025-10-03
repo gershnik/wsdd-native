@@ -48,6 +48,7 @@ public:
     auto enableIPv4() const -> bool                         { return m_allowedAddressFamily != IPv6Only; }
     auto enableIPv6() const -> bool                         { return m_allowedAddressFamily != IPv4Only; }
     auto hopLimit() const -> int                            { return m_hopLimit; }
+    auto enableLoopback() const -> bool                     { return m_enableLoopback; }
     auto isAllowedInterface(const sys_string & name) const -> bool {
         return m_interfaceWhitelist.empty() || m_interfaceWhitelist.contains(name);
     }
@@ -82,6 +83,7 @@ private:
     int m_hopLimit = 1;
     std::set<sys_string> m_interfaceWhitelist;
     uint16_t m_sourcePort;
+    bool m_enableLoopback;
     
     size_t m_pageSize;
 };
