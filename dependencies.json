@@ -14,11 +14,11 @@
         "md5": "a3fc4f4ebd5baac595a7b3fea90f2117"
     },
     "fmt": {
-        "version": "11.2.0",
+        "version": "12.0.0",
         "url": "https://github.com/fmtlib/fmt/tarball/${version}",
         "homepage": "https://github.com/fmtlib/fmt",
-        "sha256": "15b7d9723d16e6ecbf83438a1611a2910879eaa5bc8d0e0fd8197c2f18f993be",
-        "md5": "f040663ed1085fff0055481247fcde63"
+        "sha256": "24b8e5ecad723fa9654ccbc5e322ff7881cc70425ad52dcdf5b88f5873e6d16b",
+        "md5": "f9d5b80495bb0c8327a988234e9e9524"
     },
     "isptr": {
         "version": "v1.9",
@@ -63,11 +63,11 @@
         "md5": "fff8a896dce461edf0402c2589526a46"
     },
     "sys_string": {
-        "version": "v2.20",
+        "version": "v2.21",
         "url": "https://github.com/gershnik/sys_string/tarball/${version}",
         "homepage": "https://github.com/gershnik/sys_string",
-        "sha256": "d2a0aa64e3e20e8f01ece30fa618393401d78bc9065b034aecf96814c0389c6f",
-        "md5": "1ecc6165c86085c8aa158e0203824127"
+        "sha256": "ca746f572a4f9bf48719c9ec724fc8c703da990a06a45073b446b248950ea900",
+        "md5": "f50e7094acc7d1b8153d1030511af94d"
     },
     "tomlplusplus": {
         "version": "v3.4.0",
