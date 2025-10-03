@@ -226,9 +226,9 @@ private:
             if (auto it = knownIfaces.find(iface.index); it == knownIfaces.end()) {
                 if (auto flagsRes = ioctlSocket<GetInterfaceFlags>(m_socket, iface.name)) {
                     auto flags = flagsRes.assume_value();
-                    ignore = !(interfaceFlags & IFF_MULTICAST);
+                    ignore = !(flags & IFF_MULTICAST);
                     if (!ignore && !m_config->enableLoopback()) {
-                        ignore = (interfaceFlags & IFF_LOOPBACK);
+                        ignore = (flags & IFF_LOOPBACK);
                     }
                     knownIfaces[iface.index] = ignore;
                 } else {
