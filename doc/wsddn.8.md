@@ -95,7 +95,10 @@ exploits into wsddn. If not specified the behavior is as follows
 :   Set the hop limit for multicast packets. The default is 1 which should prevent packets from leaving the local network segment. The equivalent config file option is `hoplimit`
 
 `--source-port` _number_
-:   Set the source port for outgoing multicast messages, so that replies will use this as the destination port. This is useful for firewalls that do not detect incoming unicast replies to a multicast as part of the flow, so the port needs to be fixed in order to be allowed manually.
+:   Set the source port for outgoing multicast messages, so that replies will use this as the destination port. This is useful for firewalls that do not detect incoming unicast replies to a multicast as part of the flow, so the port needs to be fixed in order to be allowed manually.  The equivalent config file option is `source-port`
+
+`--enable-loopback`
+:   Enable operation on loopback interfaces. By default the loopback interfaces are ignored. The equivalent config file option is `enable-loopback`
 
 ## Machine information options
 
