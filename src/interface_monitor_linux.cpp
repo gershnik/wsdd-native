@@ -199,7 +199,8 @@ private:
                 if (addrFamily == AF_INET6 && m_config->enableIPv6()) {
                     if (RTA_PAYLOAD(rta) >= sizeof(ip::address_v6::bytes_type)) {
                         ip::address_v6 addr6(*(ip::address_v6::bytes_type*)data);
-                        if (addr6.is_link_local()) {
+                        if (addr6.is_link_local() ||
+                            (m_config->enableLoopback() && addr6.is_loopback())) {
                             addr6.scope_id(ifIndex);
                             res.addr.emplace(addr6);
                         }
