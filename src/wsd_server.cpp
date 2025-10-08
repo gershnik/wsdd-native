@@ -348,12 +348,13 @@ public:
         m_iface(iface),
         m_httpAddress(addr, g_WsdHttpPort),
         m_fullComputerName(buildFullComputerName(*config)),
+        m_serverDesc(sys_format("WSD on {}({})", m_iface.name, addr.is_v6() ? "v6" : "v4")),
         m_udpServer(udpFactory(ctxt, config, iface, addr)),
         m_httpServer(httpFactory(ctxt, config, iface, m_httpAddress)) {
     }
 
     void start() override {
-        WSDLOG_INFO("Starting WSD server on {}", m_iface);
+        WSDLOG_INFO("{}: starting server", m_serverDesc);
         if (m_state != NotStarted)
             std::terminate();
         m_udpServer->start(*this);
@@ -368,10 +369,10 @@ public:
         
         if (m_state == Running) {
             if (graceful) {
-                WSDLOG_INFO("WSD on {}: sending Bye", m_iface);
+                WSDLOG_INFO("{}: sending Bye", m_serverDesc);
                 sendBye();
             } else {
-                WSDLOG_INFO("Stopping WSD server on {}", m_iface);
+                WSDLOG_INFO("{}: stopping server", m_serverDesc);
                 m_udpServer->stop();
                 m_httpServer->stop();
                 m_udpServer.reset();
@@ -455,7 +456,7 @@ private:
 
         sys_string messageId = xpathCtxt->eval(u8"string(./wsa:MessageID)")->stringval();
         if (!checkNewMessageId(messageId)) {
-            WSDLOG_DEBUG("repeated message {}, ignoring", messageId);
+            WSDLOG_DEBUG("{}: repeated message {}, ignoring", m_serverDesc, messageId);
             return std::nullopt;
         }
 
@@ -468,15 +469,15 @@ private:
         case Udp:
             if (uri == g_wsdUri) {
                 if (method == S("Probe")) {
-                    WSDLOG_DEBUG("Probe message");
+                    WSDLOG_DEBUG("{}: Probe message", m_serverDesc);
                     handled = handleProbe(*doc, *xpathCtxt, responseBuilder);
                 } else if (method == S("Resolve")) {
-                    WSDLOG_DEBUG("Resolve message");
+                    WSDLOG_DEBUG("{}: Resolve message", m_serverDesc);
                     handled = handleResolve(*doc, *xpathCtxt, responseBuilder);
                 } else if (method == S("Hello") || method == S("Bye")) {
-                    WSDLOG_TRACE("Ignoring UDP message, {}/{}", uri, method);
+                    WSDLOG_TRACE("{}: Ignoring UDP message, {}/{}", m_serverDesc, uri, method);
                 } else {
-                    WSDLOG_WARN("Unknown UDP message, {}/{}", uri, method);
+                    WSDLOG_WARN("{}: Unknown UDP message, {}/{}", m_serverDesc, uri, method);
                 }
             }
             break;
@@ -485,7 +486,7 @@ private:
                 if (method == S("Get")) {
                     handled = handleGet(*doc, *xpathCtxt, responseBuilder);
                 } else {
-                    WSDLOG_WARN("Unknown HTTP message, {}/{}", uri, method);
+                    WSDLOG_WARN("{}: Unknown HTTP message, {}/{}", m_serverDesc, uri, method);
                 }
             }
             break;
@@ -505,33 +506,33 @@ private:
         xpathCtxt.setContextNode(*doc.asNode());
         auto probeNode = xpathCtxt.eval(u8"/soap:Envelope/soap:Body/wsd:Probe")->firstNode();
         if (!probeNode) {
-            WSDLOG_WARN("No wsd:Probe in Probe message");
+            WSDLOG_WARN("{}: No wsd:Probe in Probe message", m_serverDesc);
             return false;
         }
 
         xpathCtxt.setContextNode(*probeNode);
         auto scopesNode = xpathCtxt.eval(u8"./wsd:Scopes")->firstNode();
         if (scopesNode) {
-            WSDLOG_WARN("No wsd:Scopes in Probe message");
+            WSDLOG_WARN("{}: No wsd:Scopes in Probe message", m_serverDesc);
             return false;
         }
 
         auto typesNode = xpathCtxt.eval(u8"./wsd:Types")->firstNode();
         if (!typesNode) {
-            WSDLOG_WARN("No wsd:Types in Probe message");
+            WSDLOG_WARN("{}: No wsd:Types in Probe message", m_serverDesc);
             return false;
         }
 
         sys_string types = typesNode->getContent();
         const auto & [prefix, type] = types.partition_at_first(U':').value_or(std::pair(S(""), S("")));
         if (prefix.empty() || type != S("Device")) {
-            WSDLOG_WARN("Invalid type '{}' in Probe message", type);
+            WSDLOG_WARN("{}: Invalid type '{}' in Probe message", m_serverDesc, type);
             return false;
         }
 
         auto prefixNs = doc.searchNs(*typesNode, xml_str(prefix));
         if (!prefixNs || prefixNs->href() != g_wsdpUri) {
-            WSDLOG_WARN("Invalid type prefix '{}' in Probe message", prefix);
+            WSDLOG_WARN("{}: Invalid type prefix '{}' in Probe message", m_serverDesc, prefix);
             return false;
         }
 
@@ -552,11 +553,11 @@ private:
         xpathCtxt.setContextNode(*doc.asNode());
         sys_string resolveAddr = xpathCtxt.eval(u8"string(/soap:Envelope/soap:Body/wsd:Resolve/wsa:EndpointReference/wsa:Address)")->stringval();
         if (resolveAddr.empty()) {
-            WSDLOG_WARN("No wsa:Address in Resolve message");
+            WSDLOG_WARN("{}: No wsa:Address in Resolve message", m_serverDesc);
             return false;
         }
         if (resolveAddr != m_config->endpointIdentifier()) {
-            WSDLOG_TRACE("wsa:Address in Resolve message doesn't match ours, ignoring");
+            WSDLOG_TRACE("{}: wsa:Address in Resolve message doesn't match ours, ignoring", m_serverDesc);
             return false;
         }
 
@@ -626,6 +627,7 @@ private:
     const NetworkInterface m_iface;
     const ip::tcp::endpoint m_httpAddress;
     const sys_string m_fullComputerName;
+    const sys_string m_serverDesc;
 
     refcnt_ptr<UdpServer> m_udpServer;
     refcnt_ptr<HttpServer> m_httpServer;

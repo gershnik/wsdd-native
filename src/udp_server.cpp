@@ -18,12 +18,13 @@ public:
                   const NetworkInterface & iface,
                   const ip::address & addr):
         m_config(config),
-        m_iface(iface),
         m_recvSocket(ctxt),
         m_multicastSendSocket(ctxt),
         m_unicastSendSocket(ctxt),
         m_recvBuffer(g_wsdMaxDatagramLength),
-        m_isV4(addr.is_v4()) {
+        m_ifaceIdx(iface.index),
+        m_isV4(addr.is_v4()),
+        m_serverDesc(sys_format("UDP on {}({})", iface.name, m_isV4 ? "v4" : "v6")) {
 
         auto prot = m_isV4 ? ip::udp::v4() : ip::udp::v6();
 
@@ -46,7 +47,7 @@ public:
     void start(Handler & handler) override {
         m_handler = &handler;
         read();
-        WSDLOG_INFO("Starting UDP server on {}", m_iface);
+        WSDLOG_INFO("{}: starting server", m_serverDesc);
     }
     
     void stop() override {
@@ -54,7 +55,7 @@ public:
         m_recvSocket.close();
         m_multicastSendSocket.close();
         m_unicastSendSocket.close();
-        WSDLOG_INFO("Stopping UDP server on {}", m_iface);
+        WSDLOG_INFO("{}: stopping server", m_serverDesc);
     }
     
      void broadcast(XmlCharBuffer && data, std::function<void (asio::error_code)> continuation) override {
@@ -140,9 +141,9 @@ private:
         static constexpr size_t size() noexcept { return sizeof(m_data); }
         cmsghdr * data() noexcept { return reinterpret_cast<cmsghdr *>(m_data); }
         
-        static bool checkInterfaceIndexV4(msghdr & msg, int ifIndex) {
+        static bool checkInterfaceIndexV4(msghdr & msg, int ifIndex, const sys_string & serverDesc) {
             if (msg.msg_flags & MSG_CTRUNC) {
-                WSDLOG_ERROR("UDP server on {}, control info is truncated", ifIndex);
+                WSDLOG_ERROR("{}: control info is truncated", serverDesc);
                 return true;
             }
             
@@ -171,7 +172,7 @@ private:
         static constexpr size_t size() noexcept { return 0; }
         static cmsghdr * data() noexcept { return nullptr; }
         
-        static bool checkInterfaceIndexV4(msghdr & /*msg*/, int /*ifIndex*/) { return true; }
+        static bool checkInterfaceIndexV4(msghdr & /*msg*/, int /*ifIndex*/, const sys_string & /*serverDesc*/) { return true; }
         
         static void applyV4(ip::udp::socket & /*sock*/) {}
     };
@@ -186,7 +187,7 @@ private:
             
             if (ec) {
                 if (ec != asio::error::operation_aborted) {
-                    WSDLOG_ERROR("UDP server on {}, error reading: {}", m_iface, ec.message());
+                    WSDLOG_ERROR("{}: error reading: {}", m_serverDesc, ec.message());
                     m_handler->onFatalUdpError();
                 }
                 
@@ -216,7 +217,7 @@ private:
                 if (ec == std::errc::operation_would_block || ec == std::errc::resource_unavailable_try_again)
                     return;
                     
-                WSDLOG_ERROR("UDP server on {}, error reading: {}", m_iface, ec.message());
+                WSDLOG_ERROR("{}: error reading: {}", m_serverDesc, ec.message());
                 m_handler->onFatalUdpError();
                 return;
             }
@@ -228,31 +229,31 @@ private:
                 auto from6 = (const sockaddr_in6 *)&from;
                 m_recvSender = ip::udp::endpoint(makeAddress(*from6), ntohs(from6->sin6_port));
             } else {
-                WSDLOG_DEBUG("UDP on {}, received invalid source address, ignoring", m_iface);
+                WSDLOG_DEBUG("{}: received invalid source address, ignoring", m_serverDesc);
                 read();
                 return;
             }
             
             if (msg.msg_flags & MSG_TRUNC)
-                WSDLOG_ERROR("UDP server on {}, read data truncated", m_iface);
+                WSDLOG_ERROR("{}: read data truncated", m_serverDesc);
             
-            if (m_isV4 && !ReadMessageControl::checkInterfaceIndexV4(msg, m_iface.index)) {
+            if (m_isV4 && !ReadMessageControl::checkInterfaceIndexV4(msg, m_ifaceIdx, m_serverDesc)) {
                 read();
                 return;
             }
 
             if (spdlog::should_log(spdlog::level::trace))
-                WSDLOG_TRACE("UDP on {}, received from {}:{}: {}", m_iface, m_recvSender.address().to_string(), m_recvSender.port(),
+                WSDLOG_TRACE("{}: received from {}:{}: {}", m_serverDesc, m_recvSender.address().to_string(), m_recvSender.port(),
                               std::string_view((const char *)m_recvBuffer.data(), bytesRecvd));
             else
-                WSDLOG_DEBUG("UDP on {}, received {} bytes from {}:{}", m_iface, bytesRecvd, m_recvSender.address().to_string(), m_recvSender.port());
+                WSDLOG_DEBUG("{}: received {} bytes from {}:{}", m_serverDesc, bytesRecvd, m_recvSender.address().to_string(), m_recvSender.port());
 
             std::optional<XmlCharBuffer> maybeReply;
             try {
                 auto doc = XmlDoc::parseMemory(m_recvBuffer.data(), int(bytesRecvd));
                 maybeReply = m_handler->handleUdpRequest(std::move(doc));
             } catch (std::exception & ex) {
-                WSDLOG_ERROR("UDP on {}, error handling request: {}", m_iface, ex.what());
+                WSDLOG_ERROR("{}: error handling request: {}", m_serverDesc, ex.what());
                 WSDLOG_TRACE("{}", formatCaughtExceptionBacktrace());
             }
 
@@ -287,14 +288,14 @@ private:
                 //blocks it. This isn't fatal and shouldn't be an error at all, so let's
                 //log it and treat it as success
                 if (isUnicast && ec == asio::error::access_denied) {
-                    WSDLOG_DEBUG("UDP server on {}, error writing: blocked by firewall", me->m_iface);
+                    WSDLOG_DEBUG("{}: error writing: blocked by firewall", me->m_serverDesc);
                     ec = asio::error_code{};
                 }
             #endif
 
                 if (ec) {
                     if (ec != asio::error::operation_aborted) {
-                        WSDLOG_ERROR("UDP server on {}, error writing: {}", me->m_iface, ec.message());
+                        WSDLOG_ERROR("{}: error writing: {}", me->m_serverDesc, ec.message());
                         
                         if (continuation)
                             continuation(ec);
@@ -325,17 +326,16 @@ private:
         };
 
         if (spdlog::should_log(spdlog::level::trace))
-            WSDLOG_TRACE("UDP on {}, sending to {}:{}: {}", m_iface, dest.address().to_string(), m_recvSender.port(),
+            WSDLOG_TRACE("{}: sending to {}:{}: {}", m_serverDesc, dest.address().to_string(), m_recvSender.port(),
                           std::string_view((const char *)buffer.begin()->data(), buffer.begin()->size()));
         else
-            WSDLOG_DEBUG("UDP on {}, sending {} bytes to {}:{}", m_iface, buffer.begin()->size(), dest.address().to_string(), m_recvSender.port());
+            WSDLOG_DEBUG("{}: sending {} bytes to {}:{}", m_serverDesc, buffer.begin()->size(), dest.address().to_string(), m_recvSender.port());
         
         socket.async_send_to(buffer, dest, Callback{refcnt_retain(this), buffer, socket, dest, isUnicast, repeatCount, continuation});
     }
 
 private:
     const refcnt_ptr<Config> m_config;
-    NetworkInterface m_iface;
     Handler * m_handler = nullptr;
 
     ip::udp::socket m_recvSocket;
@@ -346,7 +346,9 @@ private:
     std::vector<std::byte> m_recvBuffer;
     ip::udp::endpoint m_recvSender;
 
+    int m_ifaceIdx;
     bool m_isV4;
+    sys_string m_serverDesc;
 };
 
 refcnt_ptr<UdpServer> createUdpServer(asio::io_context & ctxt,

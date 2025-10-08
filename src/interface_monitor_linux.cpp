@@ -238,7 +238,7 @@ private:
             if (!ignore)
                 m_handler->addAddress(iface, addr);
             else
-                WSDLOG_DEBUG("Interface {} is loopback or doesn't support multicast - ignoring", iface);
+                WSDLOG_DEBUG("Interface {}, addr {} is loopback or doesn't support multicast - ignoring", iface, addr.to_string());
         } else {
             m_handler->removeAddress(iface, addr);
         }

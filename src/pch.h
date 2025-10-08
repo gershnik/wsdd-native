@@ -137,5 +137,13 @@ template <> struct fmt::formatter<sys_string> : private fmt::formatter<const cha
     }
 };
 
+template<class... Args>
+inline
+auto sys_format(fmt::format_string<Args...> fmtstr, Args &&... args) -> sys_string {
+    sys_string_builder builder;
+    fmt::format_to(std::back_inserter(builder.chars()), fmtstr, std::forward<Args>(args)...);
+    return builder.build();
+}
+
 
 #endif
