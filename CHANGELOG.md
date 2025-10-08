@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+- Man pages now correctly describe default log destinations
+
+### Changed
+- Updated 3rd party dependencies
+- Made log messages more uniform and informative.
+- Replaced single WSDDN_PREFER_SYSTEM CMake setting with per-dependency WSDDN_PREFER_SYSTEM_&lt;UPPERCASE_DEP_NAME&gt; ones
+
 ## [1.21] - 2025-08-04
 
 ### Added
