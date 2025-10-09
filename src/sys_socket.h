@@ -6,6 +6,8 @@
 
 #include "sys_util.h"
 
+#include <sys/sockio.h>
+
 namespace ptl {
 
     template<class Protocol, class Executor> 
@@ -41,6 +43,23 @@ inline auto makeAddress(const sockaddr_in6 & addr) -> ip::address_v6 {
     return ip::address_v6(clearAddr.asio, scope);
 }
 
+WSDDN_DECLARE_MEMBER_DETECTOR(struct ifreq, ifr_ifindex, ifreq_has_ifr_ifindex);
+
+template<std::same_as<struct ifreq> T>
+static inline void set_ifreq_ifindex(T & req, int ifIndex) {
+    if constexpr (ifreq_has_ifr_ifindex)
+        req.ifr_ifindex = ifIndex;
+    else
+        req.ifr_index = ifIndex;
+}
+
+template<std::same_as<struct ifreq> T>
+static inline int ifreq_ifindex(const T & req) {
+    if constexpr (ifreq_has_ifr_ifindex)
+        return req.ifr_ifindex;
+    else
+        return req.ifr_index;
+}
 
 template<unsigned long Name, class T>
 class SocketIOControl {
@@ -87,6 +106,22 @@ protected:
 
 #endif
 
+#ifdef SIOCGIFCONF
+
+    class GetInterfaceConf : public SocketIOControl<(unsigned long)SIOCGIFCONF, ifconf> {
+    public:
+        GetInterfaceConf(ifreq * dest, size_t size) {
+            m_data.ifc_len = size * sizeof(ifreq);
+            m_data.ifc_req = dest;
+        }
+
+        auto result() const -> size_t {
+            return m_data.ifc_len / sizeof(ifreq);
+        }
+    };
+
+#endif
+
 #ifdef SIOCGLIFINDEX
 
     class GetLInterfaceIndex : public SocketIOControl<(unsigned long)SIOCGLIFINDEX, lifreq> {
@@ -98,6 +133,22 @@ protected:
 
         auto result() const -> int {
             return m_data.lifr_index;
+        }
+    };
+
+#endif
+
+#ifdef SIOCGIFINDEX
+
+    class GetInterfaceIndex : public SocketIOControl<(unsigned long)SIOCGIFINDEX, ifreq> {
+    public:
+        GetInterfaceIndex(const sys_string & name) {
+            auto copied = name.copy_data(0, m_data.ifr_name, IFNAMSIZ);
+            memset(m_data.ifr_name + copied, 0, IFNAMSIZ - copied);
+        }
+
+        auto result() const -> int {
+            return ifreq_ifindex(m_data);
         }
     };
 
@@ -126,7 +177,7 @@ protected:
     class GetInterfaceName : public SocketIOControl<(unsigned long)SIOCGIFNAME, ifreq> {
     public:
         GetInterfaceName(int ifIndex) {
-            m_data.ifr_ifindex  = ifIndex;
+            set_ifreq_ifindex(m_data, ifIndex);
         }
         
         auto result() const -> sys_string {

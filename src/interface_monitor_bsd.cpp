@@ -5,7 +5,6 @@
 
 #include "interface_monitor.h"
 #include "sys_socket.h"
-#include <sys/sockio.h>
 #if HAVE_SYSCTL_PF_ROUTE
     #include <sys/sysctl.h>
 #endif
@@ -121,6 +120,41 @@ private:
             if ((interfaceFlags & IFF_LOOPBACK) || !(interfaceFlags & IFF_MULTICAST))
                 continue;
             auto index = ioctlSocket<GetLInterfaceIndex>(m_socket, name).value();
+            m_handler->addAddress(NetworkInterface(index, name), addr);
+        }
+    }
+
+    #elif HAVE_SIOCGIFCONF
+
+    void loadInitial() {
+        std::vector<ifreq> buf(256); //no machine is expected to have more than 256 interfaces :)
+        auto count = ioctlSocket<GetInterfaceConf>(m_socket, buf.data(), buf.size()).value();
+        for (size_t i = 0; i < count; ++i) {
+            auto & req = buf[i];
+            ip::address addr;
+            if (req.ifr_addr.sa_family == AF_INET) {
+                if (!m_config->enableIPv4())
+                    continue;
+                auto addr4 = (const sockaddr_in *)&req.ifr_addr;
+                addr = makeAddress(*addr4);
+            } else if (req.ifr_addr.sa_family == AF_INET6) {
+                if (!m_config->enableIPv6())
+                    continue;
+                auto addr6 = (const sockaddr_in6 *)&req.ifr_addr;
+                auto cppAddr = makeAddress(*addr6);
+                if (!cppAddr.is_link_local())
+                    continue;
+                addr = cppAddr;
+            } else {
+                continue;
+            }
+
+            sys_string name(req.ifr_name);
+            
+            auto interfaceFlags = ioctlSocket<GetInterfaceFlags>(m_socket, name).value();
+            if ((interfaceFlags & IFF_LOOPBACK) || !(interfaceFlags & IFF_MULTICAST))
+                continue;
+            auto index = ioctlSocket<GetInterfaceIndex>(m_socket, name).value();
             m_handler->addAddress(NetworkInterface(index, name), addr);
         }
     }

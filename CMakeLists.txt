@@ -57,8 +57,12 @@ if (NOT HAVE_NETLINK AND NOT HAVE_PF_ROUTE)
     message(FATAL_ERROR "Neither netlink nor PF_ROUTE headers were detected on your machine.\nThis platform seems not supported.")
 endif()
 
-if (HAVE_PF_ROUTE AND NOT HAVE_SYSCTL_PF_ROUTE AND NOT HAVE_SIOCGLIFCONF)
-    message(FATAL_ERROR "Neither BSD sysctl(CTL_NET, PF_ROUTE) not ioctl(SIOCGLIFCONF) were detected on your machine.\nThis platform seems not supported.")
+if (HAVE_PF_ROUTE AND NOT HAVE_SYSCTL_PF_ROUTE AND NOT HAVE_SIOCGLIFCONF AND NOT HAVE_SIOCGIFCONF)
+    message(FATAL_ERROR "Neither one of BSDs: 
+  - sysctl(CTL_NET, PF_ROUTE)
+  - ioctl(SIOCGLIFCONF)
+  - ioctl(SIOCGIFCONF)
+were detected on your machine.\nThis platform seems to be not supported.")
 endif()
 
 add_executable(wsddn)
@@ -134,6 +138,7 @@ target_compile_definitions(wsddn
 PRIVATE
     SYS_STRING_USE_GENERIC=1
     "$<$<PLATFORM_ID:SunOS>:ASIO_DISABLE_DEV_POLL=1>"
+    "$<$<PLATFORM_ID:Haiku>:_DEFAULT_SOURCE>"
 )
 
 target_include_directories(wsddn
