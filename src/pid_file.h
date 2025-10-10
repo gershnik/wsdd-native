@@ -78,7 +78,7 @@ private:
     }
 private:
     ptl::FileDescriptor m_fd;
-	std::filesystem::path m_path;
+    std::filesystem::path m_path;
     pid_t m_lockingProcess = -1;
 };
 

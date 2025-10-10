@@ -1,14 +1,14 @@
 #!/usr/bin/env sh
 
 if [ -z "${WSDDN_HOSTNAME}" ]; then
-	echo "You must set WSDDN_HOSTNAME environment variable."
-	exit 1
+    echo "You must set WSDDN_HOSTNAME environment variable."
+    exit 1
 fi
 
 echo "Starting wsdd-native"
 
 if  [ ! -z "${WSDDN_WORKGROUP}" ]; then
-	exec wsddn --user wsddn --hostname "${WSDDN_HOSTNAME}" --workgroup "${WSDDN_WORKGROUP}"
+    exec wsddn --user wsddn --hostname "${WSDDN_HOSTNAME}" --workgroup "${WSDDN_WORKGROUP}"
 elif  [ ! -z "${WSDDN_DOMAIN}" ]; then
     exec wsddn --user wsddn --hostname "${WSDDN_HOSTNAME}" --domain "${WSDDN_DOMAIN}"
 else

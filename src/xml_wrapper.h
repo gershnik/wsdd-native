@@ -131,8 +131,8 @@ public:
         return m_code;
     }
 private:
-    int	m_domain;
-    int	m_code;
+    int m_domain;
+    int m_code;
 };
 
 template<class T, class Derived>

@@ -94,7 +94,7 @@ private:
             }
 
             buf.resize(tableSize);
-   	}
+        }
 
         parseTable(buf.data(), buf.data() + tableSize, /*sequential*/true);
     }
