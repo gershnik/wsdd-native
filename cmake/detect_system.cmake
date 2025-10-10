@@ -83,7 +83,7 @@ check_cxx_source_compiles("
 HAVE_ABI_CXA_THROW)
 
 
-find_program(USERADD_PATH useradd PATHS /usr/sbin NO_DEFAULT_PATH)
+find_program(USERADD_PATH useradd PATHS /usr/sbin /bin NO_DEFAULT_PATH)
 if (USERADD_PATH)
     set(HAVE_USERADD ON CACHE INTERNAL "Whether platform has useradd command")
 else()

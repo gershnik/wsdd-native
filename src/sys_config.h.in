@@ -19,6 +19,8 @@
 
 #cmakedefine LIBSYSTEMD_SO "${LIBSYSTEMD_SO}"
 
+#cmakedefine USERADD_PATH "${USERADD_PATH}"
+#cmakedefine PW_PATH "${PW_PATH}"
 
 #if (defined(__APPLE__) && defined(__MACH__))
     #define WSDDN_PLATFORM_APPLE 1
@@ -34,6 +36,10 @@
     #define WSDDN_PLATFORM_APPLE 0
     #define WSDDN_DEFAULT_USER_NAME "_wsddn"
     #define WSDDN_DEFAULT_CHROOT_DIR "/var/chroot/wsddn"
+#elif defined(__HAIKU__)
+    #define WSDDN_PLATFORM_APPLE 0
+    #define WSDDN_DEFAULT_USER_NAME "wsddn"
+    #define WSDDN_DEFAULT_CHROOT_DIR "/var/empty"
 #else
     #define WSDDN_PLATFORM_APPLE 0
     #define WSDDN_DEFAULT_USER_NAME "wsddn"

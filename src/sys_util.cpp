@@ -16,13 +16,16 @@ auto Identity::createDaemonUser(const sys_string & name) -> Identity {
 
 #if HAVE_USERADD
     #ifdef __linux__
-        sys_string command = S("useradd -r -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false '") + name + S("'");
-    #else
-        sys_string command = S("useradd -L daemon -g =uid -d " WSDDN_DEFAULT_CHROOT_DIR " -s /sbin/nologin -c \"WS-Discovery Daemon\" '") + name + S("'");
+        sys_string command = S(USERADD_PATH " -r -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false '") + name + S("'");
+    #elif defined(__OpenBSD__) || defined(__NetBSD__)
+        sys_string command = S(USERADD_PATH " -L daemon -g =uid -d " WSDDN_DEFAULT_CHROOT_DIR " -s /sbin/nologin -c \"WS-Discovery Daemon\" '") + name + S("'");
+        createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
+    #elif defined(__HAIKU__)
+        sys_string command = S(USERADD_PATH " -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false -n \"WS-Discovery Daemon\" '") + name + S("'");
         createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
     #endif
 #elif HAVE_PW
-    sys_string command = S("pw adduser '") + name + S("' -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false -c \"WS-Discovery Daemon User\"");
+    sys_string command = S(PW_PATH " adduser '") + name + S("' -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false -c \"WS-Discovery Daemon User\"");
 #endif
     (void)!system(command.c_str());
     auto pwd = ptl::Passwd::getByName(name);
