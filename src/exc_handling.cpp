@@ -112,7 +112,7 @@ auto formatCaughtExceptionBacktrace() -> std::string {
 #else 
 
 auto formatCaughtExceptionBacktrace() -> std::string {
-    return {};
+    return "<no backtrace available>";
 }
 
 #endif
