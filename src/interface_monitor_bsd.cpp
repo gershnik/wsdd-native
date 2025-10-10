@@ -345,7 +345,7 @@ private:
     #endif
 
     template<class T>
-    bool isUnusableInterface(T interfaceFlags) {
+    inline bool isUnusableInterface(T interfaceFlags) {
         return (interfaceFlags & IFF_LOOPBACK)
     #ifndef __HAIKU__
                 || !(interfaceFlags & IFF_MULTICAST)
