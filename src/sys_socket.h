@@ -6,7 +6,13 @@
 
 #include "sys_util.h"
 
+#if __has_include(<sys/sockio.h>)
 #include <sys/sockio.h>
+#endif
+
+#if __has_include(<sys/ioctl.h>)
+#include <sys/ioctl.h>
+#endif
 
 namespace ptl {
 
