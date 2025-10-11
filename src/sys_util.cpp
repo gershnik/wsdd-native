@@ -10,29 +10,55 @@ const char * OsLogHandle::s_category = "main";
 
 #endif
 
-#if HAVE_USERADD || HAVE_PW
+#if !HAVE_APPLE_USER_CREATION
 
-auto Identity::createDaemonUser(const sys_string & name) -> Identity {
+    static auto runCreateDaemonUserCommands(const sys_string & name) -> bool {
+        
+    #if defined(__linux__) && defined(USERADD_PATH)
 
-#if HAVE_USERADD
-    #ifdef __linux__
         sys_string command = S(USERADD_PATH " -r -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false '") + name + S("'");
-    #elif defined(__OpenBSD__) || defined(__NetBSD__)
+        (void)!system(command.c_str());
+        return true;
+
+    #elif (defined(__OpenBSD__) || defined(__NetBSD__)) && defined(USERADD_PATH)
+
+        createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
         sys_string command = S(USERADD_PATH " -L daemon -g =uid -d " WSDDN_DEFAULT_CHROOT_DIR " -s /sbin/nologin -c \"WS-Discovery Daemon\" '") + name + S("'");
+        (void)!system(command.c_str());
+        return true;
+
+    #elif defined(__HAIKU__) && defined(USERADD_PATH) && defined(GROUPADD_PATH)
+
         createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
-    #elif defined(__HAIKU__)
-        sys_string command = S(USERADD_PATH " -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false -n \"WS-Discovery Daemon\" '") + name + S("'");
-        createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
+
+        sys_string command = S(GROUPADD_PATH " '") + name + S("'");
+        (void)!system(command.c_str());
+        command = S(USERADD_PATH " -g ") + name + S(" -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false -n \"WS-Discovery Daemon\" '") + name + S("'");
+        (void)!system(command.c_str());
+        return true;
+
+    #elif defined(__FreeBSD__) && defined(PW_PATH)
+
+        sys_string command = S(PW_PATH " adduser '") + name + S("' -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false -c \"WS-Discovery Daemon User\"");
+        (void)!system(command.c_str());
+        return true;
+
+    #else
+
+        return false;
+
     #endif
-#elif HAVE_PW
-    sys_string command = S(PW_PATH " adduser '") + name + S("' -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false -c \"WS-Discovery Daemon User\"");
-#endif
-    (void)!system(command.c_str());
-    auto pwd = ptl::Passwd::getByName(name);
-    if (!pwd)
-        throw std::runtime_error(fmt::format("unable to create user {}", name));
-    return Identity(pwd->pw_uid, pwd->pw_gid);
-}
+    }
+
+    auto Identity::createDaemonUser(const sys_string & name) -> std::optional<Identity> {
+
+        if (!runCreateDaemonUserCommands(name))
+            return {};
+        auto pwd = ptl::Passwd::getByName(name);
+        if (!pwd)
+            throw std::runtime_error(fmt::format("unable to create user {}", name));
+        return Identity(pwd->pw_uid, pwd->pw_gid);
+    }
 
 #endif
 

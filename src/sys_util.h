@@ -31,11 +31,7 @@ public:
 #endif
     }
 
-#if CAN_CREATE_USERS
-
-    static auto createDaemonUser(const sys_string & name) -> Identity;
-
-#endif
+    static auto createDaemonUser(const sys_string & name) -> std::optional<Identity>;
     
     void setMyIdentity() const {
         ptl::setGroups({});

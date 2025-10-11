@@ -69,23 +69,24 @@ void AppState::init() {
     if (getuid() == 0) {
         
         if (!m_currentCommandLine.runAs) {
-#if CAN_CREATE_USERS
             WSDLOG_DEBUG("Running as root but no account to run under is specified in configuration. Using {}", WSDDN_DEFAULT_USER_NAME);
             auto pwd = ptl::Passwd::getByName(WSDDN_DEFAULT_USER_NAME);
             if (pwd) {
                 m_currentCommandLine.runAs = Identity(pwd->pw_uid, pwd->pw_gid);
             } else  {
-                WSDLOG_INFO("User {} does not exist, creating", WSDDN_DEFAULT_USER_NAME);
+                WSDLOG_INFO("User {} does not exist, trying to create", WSDDN_DEFAULT_USER_NAME);
                 m_currentCommandLine.runAs = Identity::createDaemonUser(WSDDN_DEFAULT_USER_NAME);
+            
+                if (!m_currentCommandLine.runAs) {
+                    WSDLOG_INFO("User creation is not supported on this platform");
+                    WSDLOG_CRITICAL("Running network service as a root is extremely insecure and is not allowed.\n"
+                                    "Please use one of the following approaches: \n"
+                                    "  * pass `--user username` command line option to specify which account to run network code under\n"
+                                    "  * start " WSDDN_PROGNAME " under a non-root account (if using systemd consider DynamicUser approach)"
+                    );
+                    exit(EXIT_FAILURE);
+                }
             }
-#else
-            WSDLOG_CRITICAL("Running network service as a root is extremely insecure and is not allowed.\n"
-                            "Please use one of the following approaches: \n"
-                            "  * pass `--user username` command line option to specify which account to run network code under\n"
-                            "  * start " WSDDN_PROGNAME " under a non-root account (if using systemd consider DynamicUser approach)"
-            );
-            exit(EXIT_FAILURE);
-#endif
         }
         if (!m_currentCommandLine.chrootDir) {
             WSDLOG_DEBUG("Running as root but no chroot specified in configuration. Using {}", WSDDN_DEFAULT_CHROOT_DIR);
