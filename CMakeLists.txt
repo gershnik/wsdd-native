@@ -53,13 +53,30 @@ endif()
 include(cmake/dependencies.cmake)
 include(cmake/detect_system.cmake)
 
-if (NOT HAVE_NETLINK AND NOT HAVE_PF_ROUTE)
-    message(FATAL_ERROR "Neither netlink nor PF_ROUTE headers were detected on your machine.\nThis platform seems not supported.")
+if (NOT HAVE_NETLINK)
+
+    if (NOT HAVE_SYSCTL_PF_ROUTE AND NOT HAVE_SIOCGLIFCONF AND NOT HAVE_SIOCGIFCONF)
+        message(FATAL_ERROR [=[
+Neither one of:
+ - netlink 
+ - sysctl(CTL_NET, PF_ROUTE)
+ - ioctl(SIOCGLIFCONF)
+ - ioctl(SIOCGIFCONF)
+were detected on your machine.
+This platform seems to be not supported.
+]=])
+    endif()
+
+    if (NOT HAVE_PF_ROUTE)
+        if (HAVE_SIOCGLIFCONF OR HAVE_SIOCGIFCONF)
+            message(WARNING "Neither netlink nor PF_ROUTE headers were detected on your machine.\nwsdd-native will not detect network interface changes after startup.")
+        else()
+            message(FATAL_ERROR "Neither netlink nor PF_ROUTE headers were detected on your machine.\nThis platform seems to be not supported.")
+        endif()
+    endif()
+
 endif()
 
-if (HAVE_PF_ROUTE AND NOT HAVE_SYSCTL_PF_ROUTE AND NOT HAVE_SIOCGLIFCONF)
-    message(FATAL_ERROR "Neither BSD sysctl(CTL_NET, PF_ROUTE) not ioctl(SIOCGLIFCONF) were detected on your machine.\nThis platform seems not supported.")
-endif()
 
 add_executable(wsddn)
 
@@ -110,6 +127,8 @@ PRIVATE
     "$<$<OR:$<PLATFORM_ID:Linux>,$<BOOL:${HAVE_SYSTEMD}>>:dl>"
 
     "$<$<PLATFORM_ID:SunOS>:socket>"
+
+    "$<$<PLATFORM_ID:Haiku>:-lnetwork>"
     
     "$<$<BOOL:${HAVE_EXECINFO_LIB}>:execinfo>"
 )
@@ -134,6 +153,7 @@ target_compile_definitions(wsddn
 PRIVATE
     SYS_STRING_USE_GENERIC=1
     "$<$<PLATFORM_ID:SunOS>:ASIO_DISABLE_DEV_POLL=1>"
+    "$<$<PLATFORM_ID:Haiku>:_DEFAULT_SOURCE>"
 )
 
 target_include_directories(wsddn

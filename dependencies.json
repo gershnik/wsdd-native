@@ -35,11 +35,11 @@
         "md5": "6d29889f41d024c5b8b561067aee89fa"
     },
     "modern-uuid": {
-        "version": "v2.0",
+        "version": "64a7a0854bcedff6845360ea61202c044187f2bd",
         "url": "https://github.com/gershnik/modern-uuid/tarball/${version}",
         "homepage": "https://github.com/gershnik/modern-uuid",
-        "sha256": "10ba7b7393d5e727bbd92f3bfa0be3643bea1d6f23212fad9685ea221c71b68f",
-        "md5": "aa6703b57bea1d182182f41c68a3814b"
+        "sha256": "d82ea49bedde5aea767f1b7e0e3eb4b9c75031c83b5f0084edf7c250255325de",
+        "md5": "f160e86e1c0cb7d08aebe259c28727b2"
     },
     "outcome": {
         "version": "v2.2.12",
@@ -63,11 +63,11 @@
         "md5": "fff8a896dce461edf0402c2589526a46"
     },
     "sys_string": {
-        "version": "v2.21",
+        "version": "bfe89e0e21ea330e11032ad7cf204c76fe1fc0a7",
         "url": "https://github.com/gershnik/sys_string/tarball/${version}",
         "homepage": "https://github.com/gershnik/sys_string",
-        "sha256": "ca746f572a4f9bf48719c9ec724fc8c703da990a06a45073b446b248950ea900",
-        "md5": "f50e7094acc7d1b8153d1030511af94d"
+        "sha256": "d311db43a562207707b58ea07c0f6768125aac610fc70529db5d953d624bacdc",
+        "md5": "36e9c48f756fae68c87726ff1861b9e8"
     },
     "tomlplusplus": {
         "version": "v3.4.0",

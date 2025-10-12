@@ -19,9 +19,11 @@ if (NOT HAVE_NETLINK)
     check_cxx_source_compiles("
         #include <net/if.h>
         #include <net/if_dl.h>
+        #include <net/route.h>
         #include <sys/socket.h>
         int main() { 
             int x = PF_ROUTE;
+            size_t s = sizeof(rt_msghdr);
         }" 
     HAVE_PF_ROUTE)
 
@@ -45,6 +47,17 @@ if (NOT HAVE_NETLINK)
             lifconf conf{};
         }" 
     HAVE_SIOCGLIFCONF)
+
+    check_cxx_source_compiles("
+        #include <sys/socket.h>
+        #include <sys/sockio.h>
+        #include <netinet/in.h>
+        #include <net/if.h>
+        int main() {
+            int x = SIOCGIFCONF;
+            ifconf conf{};
+        }"
+    HAVE_SIOCGIFCONF)
 
 endif()
 

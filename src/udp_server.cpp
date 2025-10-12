@@ -94,7 +94,7 @@ private:
         m_recvSocket.bind(ip::udp::endpoint(multicastGroupAddress, g_WsdUdpPort));
         m_unicastSendSocket.bind(ip::udp::endpoint(addr, g_WsdUdpPort));
         
-    #if !defined(__NetBSD__) && !defined(__sun)
+    #if !defined(__NetBSD__) && !defined(__sun) && !defined(__HAIKU__)
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastIface, multicastGroupRequest);
     #else
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv4MulticastIface, multicastGroupRequest.imr_interface);

@@ -8,6 +8,15 @@
  Portable utilities
  */
 
+#define WSDDN_DECLARE_MEMBER_DETECTOR(type, member, name) \
+    struct name##_detector { \
+        template<class T> \
+        static std::true_type detect(decltype(T::member) *); \
+        template<class T> \
+        static std::false_type detect(...); \
+    }; \
+    constexpr bool name = decltype(name##_detector::detect<type>(nullptr))::value
+
 enum AllowedAddressFamily {
     BothIPv4AndIPv6,
     IPv4Only,

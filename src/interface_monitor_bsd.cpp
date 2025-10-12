@@ -1,11 +1,10 @@
 // Copyright (c) 2022, Eugene Gershnik
 // SPDX-License-Identifier: BSD-3-Clause
 
-#if HAVE_PF_ROUTE
+#if !HAVE_NETLINK && (HAVE_PF_ROUTE || HAVE_SIOCGLIFCONF || HAVE_SIOCGIFCONF)
 
 #include "interface_monitor.h"
 #include "sys_socket.h"
-#include <sys/sockio.h>
 #if HAVE_SYSCTL_PF_ROUTE
     #include <sys/sysctl.h>
 #endif
@@ -16,6 +15,7 @@
 
 using namespace asio::generic;
 
+#if HAVE_PF_ROUTE
 static inline auto alignedRtMessageLength(const sockaddr * sa) -> size_t {
     constexpr size_t salign = (alignof(rt_msghdr) - 1);
     #if HAVE_SOCKADDR_SA_LEN
@@ -35,6 +35,7 @@ static inline auto alignedRtMessageLength(const sockaddr * sa) -> size_t {
         return (len + salign) & ~salign;
     #endif
 }
+#endif
 
 class InterfaceMonitorImpl : public InterfaceMonitor {
 
@@ -46,17 +47,23 @@ private:
 public:
     InterfaceMonitorImpl(asio::io_context & ctxt,  const refcnt_ptr<Config> & config):
         m_config(config),
+#if HAVE_PF_ROUTE
         m_socket(ctxt, raw_protocol(PF_ROUTE, AF_UNSPEC)),
-        m_recvBuffer(m_config->pageSize()) {
-    }
+        m_recvBuffer(m_config->pageSize())
+#else
+        m_socket(ctxt, datagram_protocol(AF_INET, 0))
+#endif
+    {}
 
     void start(Handler & handler) override {
 
         m_handler = &handler;
         
         WSDLOG_INFO("Starting interface monitor");
-    
+
+#if HAVE_PF_ROUTE    
         read();
+#endif
 
         loadInitial();
     }
@@ -64,7 +71,9 @@ public:
     void stop() override {
         WSDLOG_INFO("Stopping interface monitor");
         m_handler = nullptr;
+#if HAVE_PF_ROUTE
         m_socket.close();
+#endif
     }
 
 private:
@@ -118,17 +127,52 @@ private:
             sys_string name(req.lifr_name);
             
             auto interfaceFlags = ioctlSocket<GetLInterfaceFlags>(m_socket, name).value();
-            if ((interfaceFlags & IFF_LOOPBACK) || !(interfaceFlags & IFF_MULTICAST))
+            if (isUnusableInterface(interfaceFlags))
                 continue;
             auto index = ioctlSocket<GetLInterfaceIndex>(m_socket, name).value();
             m_handler->addAddress(NetworkInterface(index, name), addr);
         }
     }
 
+    #elif HAVE_SIOCGIFCONF
+
+    void loadInitial() {
+        std::vector<ifreq> buf(256); //no machine is expected to have more than 256 interfaces :)
+        auto count = ioctlSocket<GetInterfaceConf>(m_socket, buf.data(), buf.size()).value();
+        for (size_t i = 0; i < count; ++i) {
+            auto & req = buf[i];
+            ip::address addr;
+            if (req.ifr_addr.sa_family == AF_INET) {
+                if (!m_config->enableIPv4())
+                    continue;
+                auto addr4 = (const sockaddr_in *)&req.ifr_addr;
+                addr = makeAddress(*addr4);
+            } else if (req.ifr_addr.sa_family == AF_INET6) {
+                if (!m_config->enableIPv6())
+                    continue;
+                auto addr6 = (const sockaddr_in6 *)&req.ifr_addr;
+                auto cppAddr = makeAddress(*addr6);
+                if (!cppAddr.is_link_local())
+                    continue;
+                addr = cppAddr;
+            } else {
+                continue;
+            }
+
+            sys_string name(req.ifr_name);
+            
+            auto interfaceFlags = ioctlSocket<GetInterfaceFlags>(m_socket, name).value();
+            if (isUnusableInterface(interfaceFlags))
+                continue;
+            auto index = ioctlSocket<GetInterfaceIndex>(m_socket, name).value();
+            m_handler->addAddress(NetworkInterface(index, name), addr);
+        }
+    }
+
     #endif
 
+    #if HAVE_PF_ROUTE
     void read() {
-
         asio::mutable_buffer buffer(m_recvBuffer.data() + m_recvOffset, m_recvBuffer.size() - m_recvOffset);
         m_socket.async_receive(buffer,
             [this, holder = refcnt_retain(this)](const asio::error_code & ec, size_t bytesRead){
@@ -204,7 +248,7 @@ private:
                 }
                 
                 if (header->rtm_type == RTM_IFINFO) {
-                    knownIfaces[result.iface->index] = (interfaceFlags & IFF_LOOPBACK) || !(interfaceFlags & IFF_MULTICAST);
+                    knownIfaces[result.iface->index] = isUnusableInterface(interfaceFlags);
                 } else {
                     if (auto it = knownIfaces.find(result.iface->index); it == knownIfaces.end()) {
                         #if HAVE_SIOCGLIFCONF
@@ -214,7 +258,7 @@ private:
                         #endif
                         if (auto flagsRes = ioctlSocket<GetInterfaceFlagsType>(m_socket, result.iface->name)) {
                             interfaceFlags = flagsRes.assume_value();
-                            bool ignore = (interfaceFlags & IFF_LOOPBACK) || !(interfaceFlags & IFF_MULTICAST);
+                            bool ignore = isUnusableInterface(interfaceFlags);
                             knownIfaces.emplace(result.iface->index, ignore);
                         }
                     }
@@ -298,14 +342,27 @@ private:
             m_handler->removeAddress(iface, addr);
         }
     }
+    #endif
 
+    template<class T>
+    inline bool isUnusableInterface(T interfaceFlags) {
+        return (interfaceFlags & IFF_LOOPBACK)
+    #ifndef __HAIKU__
+                || !(interfaceFlags & IFF_MULTICAST)
+    #endif
+        ;
+    }
 private:
     const refcnt_ptr<Config> m_config;
     Handler * m_handler = nullptr;
 
+#if HAVE_PF_ROUTE
     raw_protocol::socket m_socket;
     std::vector<std::byte> m_recvBuffer;
     size_t m_recvOffset = 0;
+#else
+    datagram_protocol::socket m_socket;
+#endif
 };
 
 auto createInterfaceMonitor(asio::io_context & ctxt, const refcnt_ptr<Config> & config) -> refcnt_ptr<InterfaceMonitor> {

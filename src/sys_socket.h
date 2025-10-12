@@ -6,6 +6,14 @@
 
 #include "sys_util.h"
 
+#if __has_include(<sys/sockio.h>)
+#include <sys/sockio.h>
+#endif
+
+#if __has_include(<sys/ioctl.h>)
+#include <sys/ioctl.h>
+#endif
+
 namespace ptl {
 
     template<class Protocol, class Executor> 
@@ -20,6 +28,18 @@ namespace ptl {
     ((IN6_IS_ADDR_LINKLOCAL(a)) ||    \
     (IN6_IS_ADDR_MC_LINKLOCAL(a)))
 
+
+WSDDN_DECLARE_MEMBER_DETECTOR(in6_addr, s6_addr16, in6_addr_has_s6_addr16);
+
+template<std::same_as<in6_addr> T>
+static inline uint16_t * in6_addr_addr16(T & addr) {
+    if constexpr (in6_addr_has_s6_addr16)
+        return addr.s6_addr16;
+    else
+        return (uint16_t *)&addr.s6_addr;
+}
+
+
 inline auto makeAddress(const sockaddr_in & addr) -> ip::address_v4 {
     return ip::address_v4(ntohl(addr.sin_addr.s_addr));
 }
@@ -32,7 +52,7 @@ inline auto makeAddress(const sockaddr_in6 & addr) -> ip::address_v6 {
     memcpy(&clearAddr.raw, addr.sin6_addr.s6_addr, sizeof(clearAddr.raw));
     uint32_t scope = addr.sin6_scope_id;
     if (IN6_IS_SCOPE_LINKLOCAL(&clearAddr.raw)) {
-        uint16_t * words = (uint16_t *)&clearAddr.raw.s6_addr;
+        uint16_t * words = in6_addr_addr16(clearAddr.raw);
         if (uint32_t embeddedScope = htons(words[1])) {
             scope = embeddedScope;
         }
@@ -41,6 +61,23 @@ inline auto makeAddress(const sockaddr_in6 & addr) -> ip::address_v6 {
     return ip::address_v6(clearAddr.asio, scope);
 }
 
+WSDDN_DECLARE_MEMBER_DETECTOR(struct ifreq, ifr_ifindex, ifreq_has_ifr_ifindex);
+
+template<std::same_as<struct ifreq> T>
+static inline void set_ifreq_ifindex(T & req, int ifIndex) {
+    if constexpr (ifreq_has_ifr_ifindex)
+        req.ifr_ifindex = ifIndex;
+    else
+        req.ifr_index = ifIndex;
+}
+
+template<std::same_as<struct ifreq> T>
+static inline int ifreq_ifindex(const T & req) {
+    if constexpr (ifreq_has_ifr_ifindex)
+        return req.ifr_ifindex;
+    else
+        return req.ifr_index;
+}
 
 template<unsigned long Name, class T>
 class SocketIOControl {
@@ -87,6 +124,22 @@ protected:
 
 #endif
 
+#ifdef SIOCGIFCONF
+
+    class GetInterfaceConf : public SocketIOControl<(unsigned long)SIOCGIFCONF, ifconf> {
+    public:
+        GetInterfaceConf(ifreq * dest, size_t size) {
+            m_data.ifc_len = size * sizeof(ifreq);
+            m_data.ifc_req = dest;
+        }
+
+        auto result() const -> size_t {
+            return m_data.ifc_len / sizeof(ifreq);
+        }
+    };
+
+#endif
+
 #ifdef SIOCGLIFINDEX
 
     class GetLInterfaceIndex : public SocketIOControl<(unsigned long)SIOCGLIFINDEX, lifreq> {
@@ -98,6 +151,22 @@ protected:
 
         auto result() const -> int {
             return m_data.lifr_index;
+        }
+    };
+
+#endif
+
+#ifdef SIOCGIFINDEX
+
+    class GetInterfaceIndex : public SocketIOControl<(unsigned long)SIOCGIFINDEX, ifreq> {
+    public:
+        GetInterfaceIndex(const sys_string & name) {
+            auto copied = name.copy_data(0, m_data.ifr_name, IFNAMSIZ);
+            memset(m_data.ifr_name + copied, 0, IFNAMSIZ - copied);
+        }
+
+        auto result() const -> int {
+            return ifreq_ifindex(m_data);
         }
     };
 
@@ -126,7 +195,7 @@ protected:
     class GetInterfaceName : public SocketIOControl<(unsigned long)SIOCGIFNAME, ifreq> {
     public:
         GetInterfaceName(int ifIndex) {
-            m_data.ifr_ifindex  = ifIndex;
+            set_ifreq_ifindex(m_data, ifIndex);
         }
         
         auto result() const -> sys_string {
