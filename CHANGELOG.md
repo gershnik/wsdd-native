@@ -5,8 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Added
+- Support building and running on operating systems that lack either Netlink or PF_ROUTE
+  mechanisms (such as for example Haiku OS). On such systems network interface changes 
+  after wsddn startup are not detected.
+- Automatic daemon user creation when running as root is now supported on Alpine and Illumos
+
 ### Fixed
 - Man pages now correctly describe default log destinations
+- Miscellaneous fixes around automatic daemon user creation when running as root:
+  - Security hardening around invoking OS user creation commands
+  - Better user defaults to align with conventions on known platforms
 
 ### Changed
 - Updated 3rd party dependencies
