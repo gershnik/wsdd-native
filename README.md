@@ -631,7 +631,7 @@ To uninstall:
 
 Use the `-c` flag to also remove `_wsddn` daemon user and group.
 
-As is standard on FreeBSD daemon will not be enabled or started after installation. 
+As is standard on OpenBSD daemon will not be enabled or started after installation. 
 To enable it call
 ```console
 # rcctl enable wsddn
@@ -687,7 +687,6 @@ configurable settings.
 * Git
 * C++20 capable compiler. Minimal compilers known to work are GCC 10.2, Clang 13 and Xcode 13.
 * CMake 3.25 or greater. If your distribution CMake is older than that you can download a newer version from https://cmake.org/download/
-* `patch` tool. Most operating system distributions have it available by default but some minimalistic ones might not.
 * _Optional_: On Linux if you wish to enable `systemd` integration make sure you have `libsystemd` library and headers installed on your system. On APT systems use:
   ```bash
   sudo apt install libsystemd-dev
@@ -727,7 +726,7 @@ This controls whether to enable `systemd` integration. Auto performs auto-detect
 
 ### Setting up daemon
 
-The [config](config) directory of this repo contains sample configuration files for different init systems (systemd, FreeBSD rc.d and macOS launchd). You can adapt those as appropriate to your system. 
+The [config](config) directory of this repo contains sample configuration files for different init systems (Systemd, Launchd, SysV init, FreeBSD and OpenBSD rc.d and OpenRC). You can adapt those as appropriate to your system. 
 
 Command line flags and configuration file entries are documented in `man wsddn` and online [here][manpage]
 
@@ -763,8 +762,8 @@ There are four main security concerns with a daemon that accepts network request
 Currently the implementation ignores the second concern. The things **wsdd-native** discloses are the existence of the local host, its name, presence of Samba on it and domain/workgroup membership. All of these are generally disclosed by Samba itself via SMB broadcasts so, assuming the firewall is configured as described above, there is no net gain for an attacker. WS-Discovery protocol contains provisions for encrypting its HTTP traffic and potentially authenticating clients accessing your host via their client certificates. This limits exposure somewhat but at a significant configuration and maintenance cost. If there is interest in any of it it is possible to easily add this functionality in a future version. 
 
 The first concern is by far the most significant one. All software contains bugs and despite developer's best efforts there is always a risk that a bad actor can discover some kind of input that allows him to hijack the server process. To address this possibility **wsdd-native** takes the following measures (apart from general secure coding practices):
-* The process performing network communications never runs as root. If launched as root it will create an unprivileged account (`_wsddn:_wsddn` on macOS and `wsddn:wsddn` on other platforms) and run network process under it.
-* Similarly when started as root the daemon will lock the network process in a [chroot jail][chroot_jail] (`/var/empty` on macOS and `/var/run/wsddn` on other platforms). 
+* The process performing network communications never runs as root. If launched as root it will create an unprivileged account (`_wsddn:_wsddn` or `wsddn:wsddn` based on platform conventions) and run network process under it.
+* Similarly when started as root the daemon will lock the network process in a [chroot jail][chroot_jail] (usually `/var/empty` or `/var/run/wsddn` or another platform appropriate location). 
 
 These measures are automatic and cannot be bypassed. Taken together they should limit the fallout of any vulnerability though, of course, nothing ever can be claimed to be 100% secure.
 
