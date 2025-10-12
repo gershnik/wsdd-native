@@ -14,11 +14,15 @@
 #cmakedefine01 HAVE_CXXABI_H
 #cmakedefine01 HAVE_ABI_CXA_THROW
 #cmakedefine01 HAVE_SYSTEMD
-#cmakedefine01 HAVE_USERADD
-#cmakedefine01 HAVE_PW
+#cmakedefine01 IS_ALPINE_LINUX
 
 #cmakedefine LIBSYSTEMD_SO "${LIBSYSTEMD_SO}"
 
+#cmakedefine USERADD_PATH "${USERADD_PATH}"
+#cmakedefine GROUPADD_PATH "${GROUPADD_PATH}"
+#cmakedefine PW_PATH "${PW_PATH}"
+#cmakedefine ADDUSER_PATH "${ADDUSER_PATH}"
+#cmakedefine ADDGROUP_PATH "${ADDGROUP_PATH}"
 
 #if (defined(__APPLE__) && defined(__MACH__))
     #define WSDDN_PLATFORM_APPLE 1
@@ -26,6 +30,10 @@
     #define WSDDN_DEFAULT_USER_NAME "_wsddn"
     #define WSDDN_DEFAULT_CHROOT_DIR "/var/empty"
     #define WSDDN_BUNDLE_IDENTIFIER "@WSDDN_BUNDLE_IDENTIFIER@"
+#elif defined(__FreeBSD__)
+    #define WSDDN_PLATFORM_APPLE 0
+    #define WSDDN_DEFAULT_USER_NAME "wsddn"
+    #define WSDDN_DEFAULT_CHROOT_DIR "/var/empty"
 #elif defined(__OpenBSD__)
     #define WSDDN_PLATFORM_APPLE 0
     #define WSDDN_DEFAULT_USER_NAME "_wsddn"
@@ -34,6 +42,10 @@
     #define WSDDN_PLATFORM_APPLE 0
     #define WSDDN_DEFAULT_USER_NAME "_wsddn"
     #define WSDDN_DEFAULT_CHROOT_DIR "/var/chroot/wsddn"
+#elif defined(__sun) || defined(__HAIKU__)
+    #define WSDDN_PLATFORM_APPLE 0
+    #define WSDDN_DEFAULT_USER_NAME "wsddn"
+    #define WSDDN_DEFAULT_CHROOT_DIR "/var/empty"
 #else
     #define WSDDN_PLATFORM_APPLE 0
     #define WSDDN_DEFAULT_USER_NAME "wsddn"
@@ -45,9 +57,6 @@
 #define HAVE_APPLE_USER_CREATION WSDDN_PLATFORM_APPLE
 #define HAVE_LAUNCHD WSDDN_PLATFORM_APPLE
 #define HAVE_OS_LOG WSDDN_PLATFORM_APPLE
-
-
-#define CAN_CREATE_USERS HAVE_APPLE_USER_CREATION || HAVE_USERADD || HAVE_PW
 
 
 #define WSDDN_VERSION "@WSDDN_VERSION@"

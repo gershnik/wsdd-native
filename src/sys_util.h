@@ -31,11 +31,7 @@ public:
 #endif
     }
 
-#if CAN_CREATE_USERS
-
-    static auto createDaemonUser(const sys_string & name) -> Identity;
-
-#endif
+    static auto createDaemonUser(const sys_string & name) -> std::optional<Identity>;
     
     void setMyIdentity() const {
         ptl::setGroups({});
@@ -202,6 +198,7 @@ private:
     Sink m_sink;
 };
 
+int run(const ptl::StringRefArray & args);
 void shell(const ptl::StringRefArray & args, bool suppressStdErr, std::function<void (const ptl::FileDescriptor & fd)> reader);
 
 

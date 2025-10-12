@@ -201,7 +201,7 @@ static auto createRecordWithUniqueId(const cf_ptr<ODNodeRef> & localNode,
     return {record, idValue};
 }
 
-auto Identity::createDaemonUser(const sys_string & name) -> Identity {
+auto Identity::createDaemonUser(const sys_string & name) -> std::optional<Identity> {
 
     cf_ptr<CFErrorRef> err;
     

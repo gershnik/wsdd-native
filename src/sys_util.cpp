@@ -10,37 +10,96 @@ const char * OsLogHandle::s_category = "main";
 
 #endif
 
-#if HAVE_USERADD || HAVE_PW
+#if !HAVE_APPLE_USER_CREATION
 
-auto Identity::createDaemonUser(const sys_string & name) -> Identity {
+    static auto runCreateDaemonUserCommands([[maybe_unused]] const sys_string & name) -> bool {
 
-#if HAVE_USERADD
-    #ifdef __linux__
-        sys_string command = S("useradd -r -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false '") + name + S("'");
-    #else
-        sys_string command = S("useradd -L daemon -g =uid -d " WSDDN_DEFAULT_CHROOT_DIR " -s /sbin/nologin -c \"WS-Discovery Daemon\" '") + name + S("'");
+    #if defined(__linux__) && defined(USERADD_PATH)
+
+        (void)run({USERADD_PATH, "-r", "-d", WSDDN_DEFAULT_CHROOT_DIR, "-s", "/bin/false", name.c_str()});
+        return true;
+
+    #elif defined(__linux__) && defined(IS_ALPINE_LINUX) && defined(ADDUSER_PATH) && defined(ADDGROUP_PATH)
+    
+        //The second addgroup instead of -G for adduser is necessary since for some reason -G doesn't 
+        //modify /etc/group when run from here
+        (void)run({ADDGROUP_PATH, "-S", name.c_str()});
+        (void)run({ADDUSER_PATH, "-S", "-D", "-H", "-h", "/var/empty", "-s", "/sbin/nologin", "-g", name.c_str(), name.c_str()});
+        (void)run({ADDGROUP_PATH, name.c_str(), name.c_str()});
+        return true;
+
+    #elif (defined(__OpenBSD__) || defined(__NetBSD__)) && defined(USERADD_PATH)
+
         createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
+        (void)run({USERADD_PATH, "-L", "daemon", "-g", "=uid", "-d", WSDDN_DEFAULT_CHROOT_DIR, "-s", "/sbin/nologin", "-c", "WS-Discovery Daemon", name.c_str()});
+        return true;
+
+    #elif defined(__HAIKU__) && defined(USERADD_PATH) && defined(GROUPADD_PATH)
+
+        (void)run({GROUPADD_PATH, name.c_str()});
+        (void)run({USERADD_PATH, "-g", name.c_str(), "-d", WSDDN_DEFAULT_CHROOT_DIR, "-s", "/bin/false", "-n", "WS-Discovery Daemon", name.c_str()});
+        return true;
+
+    #elif defined(__FreeBSD__) && defined(PW_PATH)
+
+        (void)run({PW_PATH, "adduser", name.c_str(), "-d", WSDDN_DEFAULT_CHROOT_DIR, "-s", "/usr/sbin/nologin", "-c", "WS-Discovery Daemon User"});
+        return true;
+
+    #elif defined(__sun) && defined(USERADD_PATH) && defined(GROUPADD_PATH)
+
+        (void)run({GROUPADD_PATH, name.c_str()});
+        (void)run({USERADD_PATH, "-g", name.c_str(), "-d", WSDDN_DEFAULT_CHROOT_DIR, "-s", "/bin/false", "-c", "WS-Discovery Daemon User", name.c_str()});
+        return true;
+
+    #else
+
+        return false;
+
     #endif
-#elif HAVE_PW
-    sys_string command = S("pw adduser '") + name + S("' -d " WSDDN_DEFAULT_CHROOT_DIR " -s /bin/false -c \"WS-Discovery Daemon User\"");
-#endif
-    (void)!system(command.c_str());
-    auto pwd = ptl::Passwd::getByName(name);
-    if (!pwd)
-        throw std::runtime_error(fmt::format("unable to create user {}", name));
-    return Identity(pwd->pw_uid, pwd->pw_gid);
-}
+    }
+
+    auto Identity::createDaemonUser(const sys_string & name) -> std::optional<Identity> {
+
+        if (!runCreateDaemonUserCommands(name))
+            return {};
+        auto pwd = ptl::Passwd::getByName(name);
+        if (!pwd)
+            throw std::runtime_error(fmt::format("unable to create user {}", name));
+        return Identity(pwd->pw_uid, pwd->pw_gid);
+    }
 
 #endif
 
-void shell(const ptl::StringRefArray & args, bool suppressStdErr, std::function<void (const ptl::FileDescriptor & fd)> reader) {
-    auto [read, write] = ptl::Pipe::create();
+int run(const ptl::StringRefArray & args) {
     ptl::SpawnAttr spawnAttr;
+#ifndef __HAIKU__
     spawnAttr.setFlags(POSIX_SPAWN_SETSIGDEF);
     auto sigs = ptl::SignalSet::all();
     sigs.del(SIGKILL);
     sigs.del(SIGSTOP);
     spawnAttr.setSigDefault(sigs);
+#endif
+    
+    auto proc = spawn(args, ptl::SpawnSettings().attr(spawnAttr).usePath());
+    
+    auto stat = proc.wait().value();
+    if (WIFEXITED(stat))
+        return WEXITSTATUS(stat);
+    if (WIFSIGNALED(stat))
+        return 128+WTERMSIG(stat);
+    throw std::runtime_error(fmt::format("`{} finished with status 0x{:X}`", args, stat));
+}
+
+void shell(const ptl::StringRefArray & args, bool suppressStdErr, std::function<void (const ptl::FileDescriptor & fd)> reader) {
+    auto [read, write] = ptl::Pipe::create();
+    ptl::SpawnAttr spawnAttr;
+#ifndef __HAIKU__
+    spawnAttr.setFlags(POSIX_SPAWN_SETSIGDEF);
+    auto sigs = ptl::SignalSet::all();
+    sigs.del(SIGKILL);
+    sigs.del(SIGSTOP);
+    spawnAttr.setSigDefault(sigs);
+#endif
     
     ptl::SpawnFileActions act;
     act.addDuplicateTo(write, stdout);
@@ -48,7 +107,7 @@ void shell(const ptl::StringRefArray & args, bool suppressStdErr, std::function<
     if (suppressStdErr) {
        act.addOpen(stderr, "/dev/null", O_WRONLY, 0);
     }
-    auto proc = spawn(args, ptl::SpawnSettings().fileActions(act).usePath());
+    auto proc = spawn(args, ptl::SpawnSettings().attr(spawnAttr).fileActions(act).usePath());
     write.close();
 
     reader(read);
