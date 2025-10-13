@@ -127,8 +127,10 @@ private:
             sys_string name(req.lifr_name);
             
             auto interfaceFlags = ioctlSocket<GetLInterfaceFlags>(m_socket, name).value();
-            if (isUnusableInterface(interfaceFlags))
+            if (isUnusableInterface(interfaceFlags)) {
+                WSDLOG_DEBUG("Interface {}, addr {} is loopback or doesn't support multicast - ignoring", name, addr.to_string());
                 continue;
+            }
             auto index = ioctlSocket<GetLInterfaceIndex>(m_socket, name).value();
             m_handler->addAddress(NetworkInterface(index, name), addr);
         }
@@ -162,8 +164,10 @@ private:
             sys_string name(req.ifr_name);
             
             auto interfaceFlags = ioctlSocket<GetInterfaceFlags>(m_socket, name).value();
-            if (isUnusableInterface(interfaceFlags))
+            if (isUnusableInterface(interfaceFlags)) {
+                WSDLOG_DEBUG("Interface {}, addr {} is loopback or doesn't support multicast - ignoring", name, addr.to_string());
                 continue;
+            }
             auto index = ioctlSocket<GetInterfaceIndex>(m_socket, name).value();
             m_handler->addAddress(NetworkInterface(index, name), addr);
         }
