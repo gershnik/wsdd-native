@@ -148,6 +148,7 @@ jobs:
           - archlinux
           - netbsd-10
           - omnios
+          - haiku
 
     steps:
       - name: Run remote build
