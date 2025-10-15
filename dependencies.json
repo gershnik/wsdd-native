@@ -42,11 +42,11 @@
         "md5": "b07ea7836194f192b1bab0bbd446d9de"
     },
     "outcome": {
-        "version": "v2.2.12",
+        "version": "v2.2.13",
         "url": "https://github.com/ned14/outcome/tarball/${version}",
         "homepage": "https://github.com/ned14/outcome",
-        "sha256": "838ed35d1bdedcfe9cee2186b51d023404274418f2868798fefac5a54e8bb403",
-        "md5": "4757c54b97d015c66b6431ba75de90a3"
+        "sha256": "3ee937017934371169c2f50d1e3742839dd6ab4fc1f23141cbd2efc3824cfd15",
+        "md5": "e6d0ae19b6c250ba5e6ceb0ec11eaddb"
     },
     "ptl": {
         "version": "v1.7",
@@ -56,11 +56,11 @@
         "md5": "f4c503429bd1fa9c8db8823a64590a4b"
     },
     "spdlog": {
-        "version": "v1.15.3",
+        "version": "v1.16.0",
         "url": "https://github.com/gabime/spdlog/tarball/${version}",
         "homepage": "https://github.com/gabime/spdlog",
-        "sha256": "2f33b90dee78e9a910abbba1a294398277d4608831c6b8161ac74a7ca5493b49",
-        "md5": "fff8a896dce461edf0402c2589526a46"
+        "sha256": "72d7aebe7730d5d5573524e11736bdba8c1891f07e8d80cc7e8f7b36ec7c046d",
+        "md5": "85ad737bf7f042010ccfe998d1c8a566"
     },
     "sys_string": {
         "version": "v2.22",
