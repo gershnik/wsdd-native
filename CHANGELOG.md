@@ -12,13 +12,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Automatic daemon user creation when running as root is now supported on Alpine and Illumos
 
 ### Fixed
+- Binary packages no longer declare conflict with `wsdd` ([#23](https://github.com/gershnik/wsdd-native/issues/23))
 - Man pages now correctly describe default log destinations
 - Miscellaneous fixes around automatic daemon user creation when running as root:
   - Security hardening around invoking OS user creation commands
   - Better user defaults to align with conventions on known platforms
 
 ### Changed
-- Binary packages no longer declare conflict with `wsdd` (#23)
 - Updated 3rd party dependencies
 - Made log messages more uniform and informative.
 - Replaced single WSDDN_PREFER_SYSTEM CMake setting with per-dependency WSDDN_PREFER_SYSTEM_&lt;UPPERCASE_DEP_NAME&gt; ones
@@ -32,12 +32,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 - Samba config detection now works properly when `samba` tool is not present. Detection is also
   no longer depends on `whereis` tool. This is particularly an issue on OpenBSD but can be a problem 
-  on other platforms too (#17) 
+  on other platforms too ([#17](https://github.com/gershnik/wsdd-native/issues/17)) 
 - OpenBSD: UDP writes blocked by firewall no longer stop all processing on an 
-  interface (#18)
+  interface ([#18](https://github.com/gershnik/wsdd-native/issues/18))
 - OpenBSD and potentially other less common BSD variants: `wsddn` now properly handles
   older BSD behavior where reading from multicast IPv4 sockets surfaces packets sent to
-  all interfaces, not the one the socket is restricted to (#19)
+  all interfaces, not the one the socket is restricted to ([#19](https://github.com/gershnik/wsdd-native/issues/19))
 - OpenBSD and NetBSD: automatic daemon user creation now works properly. The default expected daemon user name
   is now "_wsddn" on both systems.
 - OpenSUSE: RPM package now installs cleanly without warning about missing `firewalld-filesystem` dependency
@@ -64,7 +64,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [1.18] - 2025-03-27
 
 ### Fixed
-- macOS: "Allow in the background" settings now show "wsdd-native" rather than the author name (#16)
+- macOS: "Allow in the background" settings now show "wsdd-native" rather than the author name ([#16](https://github.com/gershnik/wsdd-native/issues/16))
 
 ### Changed
 - Updated 3rd party dependencies
@@ -94,7 +94,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [1.14] - 2024-05-29
 
 ### Fixed
-- Removed superfluous/misleading warning log messages (#10)
+- Removed superfluous/misleading warning log messages ([#10](https://github.com/gershnik/wsdd-native/issues/10))
 
 ## [1.13] - 2024-05-16
 
@@ -134,7 +134,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [1.5] - 2023-07-21
 
 ### Fixed:
-- macOS: Hopefully final fix for #4: `_wsddn` user is reassigned to staff group on OS update 
+- macOS: Hopefully final fix for [#4](https://github.com/gershnik/wsdd-native/issues/4): `_wsddn` user is reassigned to staff group on OS update 
 
 ### Changed:
 - Replaced ad-hoc calls to various Posix-y APIs with [ptl](https://github.com/gershnik/ptl)
