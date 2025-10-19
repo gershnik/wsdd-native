@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Better user defaults to align with conventions on known platforms
 
 ### Changed
+- Binary packages no longer declare conflict with `wsdd` (#23)
 - Updated 3rd party dependencies
 - Made log messages more uniform and informative.
 - Replaced single WSDDN_PREFER_SYSTEM CMake setting with per-dependency WSDDN_PREFER_SYSTEM_&lt;UPPERCASE_DEP_NAME&gt; ones

@@ -99,8 +99,6 @@ Version: {VERSION}
 Architecture: {ARCH}
 Installed-Size: {total_size}
 Depends: {{shlibs_Depends}}
-Conflicts: wsdd
-Replaces: wsdd
 Maintainer: Eugene Gershnik <gershnik@hotmail.com>
 Homepage: https://github.com/gershnik/wsdd-native
 Description: WS-Discovery Host Daemon
