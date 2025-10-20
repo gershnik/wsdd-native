@@ -1,31 +1,12 @@
 # wsdd-native
 
-![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
-![macOS](https://img.shields.io/badge/-macOS-black?style=flat&logo=apple&logoColor=F0F0F0)
-![FreeBSD](https://img.shields.io/badge/-FreeBSD-%23870000?style=flat&logo=freebsd&logoColor=white)
-![OpenBSD](https://img.shields.io/badge/OpenBSD-e6ffff?style=flat&logo=openbsd&logoColor=FF0000)
-![NetBSD](https://img.shields.io/badge/NetBSD-fefefe?style=flat&logo=netbsd)
-[![Language](https://img.shields.io/badge/language-C++-blue.svg)](https://isocpp.org/)
-[![Standard](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.wikipedia.org/wiki/C%2B%2B#Standardization)
-[![License](https://img.shields.io/badge/license-BSD-brightgreen.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![Version][version_badge]][releases]
+[![License][license_badge]](https://opensource.org/licenses/BSD-3-Clause)
+[![Language][language_badge]](https://isocpp.org/)
 
-A Unix daemon that makes your Linux/macOS/BSD/illumos machine visible in Network view of Windows Explorer on newer versions of Windows.
+A Unix daemon that makes your macOS/Linux/BSD/illumos/HaikuOS machine visible in Network view of Windows Explorer on newer versions of Windows.
 
 It implements WS-Discovery protocol that Windows now uses to discover machines on local network. It is a native daemon, written in C++. 
-
-<!-- Links -->
-
-[manpage]: https://htmlpreview.github.io/?https://github.com/gershnik/wsdd-native/blob/master/doc/wsddn.8.html
-[releases]: https://github.com/gershnik/wsdd-native/releases
-[issues]: https://github.com/gershnik/wsdd-native/issues
-[wsdd]: https://github.com/christgau/wsdd
-[wsdd2]: https://github.com/Netgear/wsdd2
-[chroot_jail]: https://en.wikipedia.org/wiki/Chroot
-[macports]: https://www.macports.org
-[homebrew]: https://brew.sh
-[aur]: https://wiki.archlinux.org/title/Arch_User_Repository
-
-<!-- End Links -->
 
 <!-- TOC depthfrom:2 -->
 
@@ -58,7 +39,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 
 ## Features
 
-* Fully supports macOS, Linux, FreeBSD, OpenBSD, NetBSD and illumos
+* Fully supports macOS, Linux, FreeBSD, OpenBSD, NetBSD and illumos. Partial support for Haiku OS
 * Can be configured via a configuration file, not just command line.
 * Discovers Samba/macOS SMB configuration on its own. (This can be overridden, if desired)
 * Can present the Unix host as something other than "Computer" in Windows Explorer.
@@ -794,4 +775,22 @@ See [Acknowledgements.md](Acknowledgements.md) for information about open source
 
 Please use the GitHub [issue tracker][issues] to report any bugs or suggestions.
 For vulnerability disclosures or other security concerns see [Security Policy](SECURITY.md)
+
+<!-- Links -->
+
+[manpage]: https://htmlpreview.github.io/?https://github.com/gershnik/wsdd-native/blob/master/doc/wsddn.8.html
+[releases]: https://github.com/gershnik/wsdd-native/releases
+[issues]: https://github.com/gershnik/wsdd-native/issues
+[wsdd]: https://github.com/christgau/wsdd
+[wsdd2]: https://github.com/Netgear/wsdd2
+[chroot_jail]: https://en.wikipedia.org/wiki/Chroot
+[macports]: https://www.macports.org
+[homebrew]: https://brew.sh
+[aur]: https://wiki.archlinux.org/title/Arch_User_Repository
+
+[version_badge]: https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2Fgershnik%2Fwsdd-native%2Frefs%2Fheads%2Fmaster%2FVERSION&search=(.*)&replace=%241&label=version
+[license_badge]: https://img.shields.io/badge/license-BSD-brightgreen.svg
+[language_badge]: https://img.shields.io/badge/language-C++%2020-blue.svg
+
+<!-- End Links -->
 
