@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.22] - 2025-10-19
+
 ### Added
 - Support building and running on operating systems that lack either Netlink or PF_ROUTE
   mechanisms (such as for example Haiku OS). On such systems network interface changes 
@@ -212,3 +214,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.19]: https://github.com/gershnik/wsdd-native/releases/v1.19
 [1.20]: https://github.com/gershnik/wsdd-native/releases/v1.20
 [1.21]: https://github.com/gershnik/wsdd-native/releases/v1.21
+[1.22]: https://github.com/gershnik/wsdd-native/releases/v1.22
