@@ -1,10 +1,10 @@
 {
     "argum": {
-        "version": "v2.6",
+        "version": "521524bd56692f62a0c1bcf1c7ec0295feb9bb34",
         "url": "https://github.com/gershnik/argum/tarball/${version}",
         "homepage": "https://github.com/gershnik/argum",
-        "sha256": "72b2b6805da7bf022e8111f3c2f3ed08ae6c23daa0ad336de56f2bd133d653c4",
-        "md5": "59141e9e95b75097b0cf6d9d36fc6304"
+        "sha256": "a1e02a6bfd515af95acc5ebca0a90a58bea2ceea4bea7e6e28c1efdd681baac1",
+        "md5": "da11ade8bab8cabbbcfe121bb805895c"
     },
     "asio": {
         "version": "1.36.0",
@@ -14,11 +14,11 @@
         "md5": "a3fc4f4ebd5baac595a7b3fea90f2117"
     },
     "fmt": {
-        "version": "12.0.0",
+        "version": "12.1.0",
         "url": "https://github.com/fmtlib/fmt/tarball/${version}",
         "homepage": "https://github.com/fmtlib/fmt",
-        "sha256": "24b8e5ecad723fa9654ccbc5e322ff7881cc70425ad52dcdf5b88f5873e6d16b",
-        "md5": "f9d5b80495bb0c8327a988234e9e9524"
+        "sha256": "882f71002bff720ca6d0dbebd0952684da8fb521b0b448277a36f3759518afcb",
+        "md5": "3638c6732b795a3eb4c9c7e2db1cca7d"
     },
     "isptr": {
         "version": "v1.9",
@@ -28,25 +28,25 @@
         "md5": "574eb3ad0a8e5685cdc9e7712804900f"
     },
     "LibXml2": {
-        "version": "v2.15.0",
+        "version": "v2.15.1",
         "url": "https://gitlab.gnome.org/GNOME/libxml2/-/archive/${version}/libxml2-${version}.tar.gz",
         "homepage": "https://gitlab.gnome.org/GNOME/libxml2",
-        "sha256": "027e302d24e0d136393a24e02938046cda72281a3e3620d56cbc0995524658bc",
-        "md5": "6d29889f41d024c5b8b561067aee89fa"
+        "sha256": "0a5ebf8fa131585748d661ae692503483aff39d9b29b6c4b342cd80d422f246c",
+        "md5": "d500a7dd8045bc23f552256188ba9ed3"
     },
     "modern-uuid": {
-        "version": "v2.1",
+        "version": "v2.2",
         "url": "https://github.com/gershnik/modern-uuid/tarball/${version}",
         "homepage": "https://github.com/gershnik/modern-uuid",
-        "sha256": "f52bad71a9691fe10a88982cee876f4670885bc4d533fbce8790e0013aad8752",
-        "md5": "b07ea7836194f192b1bab0bbd446d9de"
+        "sha256": "dcbf6d135957d43f304fc8f739911f9db7a31c150558ce45710031e2b3130ed3",
+        "md5": "1dc8918829dadaa85a96833ad6841ebc"
     },
     "outcome": {
-        "version": "v2.2.13",
+        "version": "v2.2.14",
         "url": "https://github.com/ned14/outcome/tarball/${version}",
         "homepage": "https://github.com/ned14/outcome",
-        "sha256": "3ee937017934371169c2f50d1e3742839dd6ab4fc1f23141cbd2efc3824cfd15",
-        "md5": "e6d0ae19b6c250ba5e6ceb0ec11eaddb"
+        "sha256": "9153fbbb13adc23fbd5cb84d617a9750e7f31ef73e9e0666ac43df540af91a4c",
+        "md5": "5b2fc2bab37dd43db5048892be53d226"
     },
     "ptl": {
         "version": "v1.7",
@@ -56,18 +56,18 @@
         "md5": "f4c503429bd1fa9c8db8823a64590a4b"
     },
     "spdlog": {
-        "version": "v1.16.0",
+        "version": "v1.17.0",
         "url": "https://github.com/gabime/spdlog/tarball/${version}",
         "homepage": "https://github.com/gabime/spdlog",
-        "sha256": "72d7aebe7730d5d5573524e11736bdba8c1891f07e8d80cc7e8f7b36ec7c046d",
-        "md5": "85ad737bf7f042010ccfe998d1c8a566"
+        "sha256": "2d6e0db3730a2cd847bf3f08f4b8c16d8bf8c95ab65fb34576b96d767dce5fdc",
+        "md5": "ebfd0e3f97c3631723fa4d1bd0ce2b61"
     },
     "sys_string": {
-        "version": "v2.22",
+        "version": "v2.23",
         "url": "https://github.com/gershnik/sys_string/tarball/${version}",
         "homepage": "https://github.com/gershnik/sys_string",
-        "sha256": "774f8b4e39cbdba4b1a2617878a4deccb095c427dbfcd22493a221ba0960b8e4",
-        "md5": "10f07a548b1dbfd4ceef3ce74de3f45b"
+        "sha256": "da94ef50659c01bc2fbc66599d9fdee9c0a0aaddcb1e6ee315f4a42ae660859c",
+        "md5": "ededde145dbcb60ccace137663acbf98"
     },
     "tomlplusplus": {
         "version": "v3.4.0",
