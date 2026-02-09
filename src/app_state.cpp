@@ -193,7 +193,7 @@ void AppState::setLogOutput(bool firstTime) {
                 auto sink = std::make_shared<spdlog::sinks::stdout_color_sink_st>(spdlog::color_mode::always);
                 sink->set_color(spdlog::level::trace, Argum::makeColor<Argum::Color::faint>());
                 sink->set_color(spdlog::level::info, "");
-                sink->set_color(spdlog::level::critical, Argum::makeColor<Argum::Color::bold, Argum::Color::bright_white, Argum::Color(41)>());
+                sink->set_color(spdlog::level::critical, Argum::makeColor<Argum::Color::bold, Argum::Color::bright_white, Argum::Color::bg_red>());
                 auto logger = std::make_shared<spdlog::logger>("console", std::move(sink));
                 spdlog::set_default_logger(logger);
             } else {
