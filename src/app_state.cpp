@@ -207,11 +207,10 @@ void AppState::setLogOutput(bool firstTime) {
                 formatter->add_flag<SystemdLevelFormatter>('l').set_pattern("%l%v");
                 spdlog::set_formatter(std::move(formatter));
             } else 
-        #else
+        #endif
             {
                 spdlog::set_pattern("%^[%l] %v%$");
             }
-        #endif
         }
     }
     m_logFilePath = m_currentCommandLine.logFile;
