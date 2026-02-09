@@ -5,9 +5,10 @@
 
 AppState::AppState(int argc, char ** argv, std::set<int> untouchedSignals):
     m_untouchedSignals(std::move(untouchedSignals)),
+    m_envColorStatus(Argum::environmentColorStatus()),
     m_mainPid(getpid()) {
         
-    m_origCommandLine.parse(argc, argv);
+    m_origCommandLine.parse(argc, argv, m_envColorStatus);
     m_currentCommandLine = m_origCommandLine;
 
 #if HAVE_SYSTEMD
@@ -174,37 +175,52 @@ void AppState::setLogOutput(bool firstTime) {
         spdlog::set_pattern("%v");
     } else 
 #endif
-
-    if (m_currentCommandLine.logFile) {
-        auto fileFd = openLogFile(*m_currentCommandLine.logFile);
-        redirectStdFile(stdout, fileFd);
-        redirectStdFile(stderr, fileFd);
-        auto logger = spdlog::stdout_logger_st("file");
-        spdlog::set_default_logger(logger);
-        spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%P] %L -- %v");
-    } else {
-        if (!firstTime) {
-            redirectStdFile(stdout, m_savedStdOut);
-            redirectStdFile(stderr, m_savedStdErr);
-        }
-        auto logger = isatty(fileno(stdout)) ? spdlog::stdout_color_st("console") : spdlog::stdout_logger_st("console");
-        spdlog::set_default_logger(logger);
-    #if HAVE_SYSTEMD
-        if (m_currentCommandLine.daemonType && *m_currentCommandLine.daemonType == DaemonType::Systemd) {
-            auto formatter = std::make_unique<spdlog::pattern_formatter>();
-            formatter->add_flag<SystemdLevelFormatter>('l').set_pattern("%l%v");
-            spdlog::set_formatter(std::move(formatter));
+    {
+        if (m_currentCommandLine.logFile) {
+            auto fileFd = openLogFile(*m_currentCommandLine.logFile);
+            redirectStdFile(stdout, fileFd);
+            redirectStdFile(stderr, fileFd);
+            auto logger = spdlog::stdout_logger_st("file");
+            spdlog::set_default_logger(logger);
+            spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%P] %L -- %v");
         } else {
-            spdlog::set_pattern("[%l] %v");
+            if (!firstTime) {
+                redirectStdFile(stdout, m_savedStdOut);
+                redirectStdFile(stderr, m_savedStdErr);
+            }
+
+            if (Argum::shouldUseColor(m_envColorStatus, stdout)) {
+                auto sink = std::make_shared<spdlog::sinks::stdout_color_sink_st>(spdlog::color_mode::always);
+                sink->set_color(spdlog::level::trace, Argum::makeColor<Argum::Color::faint>());
+                sink->set_color(spdlog::level::info, "");
+                sink->set_color(spdlog::level::critical, Argum::makeColor<Argum::Color::bold, Argum::Color::bright_white, Argum::Color(41)>());
+                auto logger = std::make_shared<spdlog::logger>("console", std::move(sink));
+                spdlog::set_default_logger(logger);
+            } else {
+                auto logger = spdlog::stdout_logger_st("console");
+                spdlog::set_default_logger(logger);
+            }
+            
+        #if HAVE_SYSTEMD
+            if (m_currentCommandLine.daemonType && *m_currentCommandLine.daemonType == DaemonType::Systemd) {
+                auto formatter = std::make_unique<spdlog::pattern_formatter>();
+                formatter->add_flag<SystemdLevelFormatter>('l').set_pattern("%l%v");
+                spdlog::set_formatter(std::move(formatter));
+            } else 
+        #else
+            {
+                spdlog::set_pattern("%^[%l] %v%$");
+            }
+        #endif
         }
-    #else
-        spdlog::set_pattern("[%l] %v");
-    #endif
     }
     m_logFilePath = m_currentCommandLine.logFile;
 #if HAVE_OS_LOG
     m_logToOsLog = m_currentCommandLine.logToOsLog;
 #endif
+    //changing logger drops level so let's restore it, if needed
+    if (m_logLevel)
+        spdlog::set_level(*m_logLevel);
 }
 
 void AppState::setPidFile() {

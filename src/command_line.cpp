@@ -197,10 +197,9 @@ static auto setChrootDir(CommandLine & cmdline, std::string_view val) {
     cmdline.chrootDir.emplace(std::move(value));
 }
 
-void CommandLine::parse(int argc, char * argv[]) {
+void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
  
     const char * const progname = (argc ? argv[0] : WSDDN_PROGNAME);
-    ColorStatus envColorStatus = environmentColorStatus();
     
     Argum::Parser parser;
     //Program options

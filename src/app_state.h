@@ -50,6 +50,7 @@ private:
     static void closeAllExcept(const int * first, const int * last);
 private:
     std::set<int> m_untouchedSignals;
+    Argum::ColorStatus m_envColorStatus;
     CommandLine m_origCommandLine;
     CommandLine m_currentCommandLine;
     pid_t m_mainPid;
