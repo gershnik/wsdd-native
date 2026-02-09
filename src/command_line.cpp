@@ -197,16 +197,18 @@ static auto setChrootDir(CommandLine & cmdline, std::string_view val) {
     cmdline.chrootDir.emplace(std::move(value));
 }
 
-void CommandLine::parse(int argc, char * argv[]) {
+void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
  
-    const char * progname = (argc ? argv[0] : WSDDN_PROGNAME);
+    const char * const progname = (argc ? argv[0] : WSDDN_PROGNAME);
     
     Argum::Parser parser;
     //Program options
     parser.add(Option("--help", "-h").
                help("show this help message and exit").
                handler([&]() {
-        fmt::print("{}", parser.formatHelp(progname).c_str());
+
+        auto colorizer = colorizerForFile(envColorStatus, stdout);
+        fmt::print("{}", parser.formatHelp(progname, terminalWidth(stdout), colorizer));
         exit(EXIT_SUCCESS);
     }));
     parser.add(Option("--version", "-v").
@@ -335,7 +337,7 @@ void CommandLine::parse(int argc, char * argv[]) {
     //Behavior options
     parser.add(Option("--log-level").
                argName("LEVEL").
-               help("set log level (default = 4). Log levels range from 0 (disable logging) to 6 (detailed trace)."
+               help("set log level (default = 4). Log levels range from 0 (disable logging) to 6 (detailed trace).\n"
                     "Passing values bigger than 6 is equivalent to 6").
                occurs(Argum::neverOrOnce).
                handler([this](std::string_view val){
@@ -386,8 +388,9 @@ void CommandLine::parse(int argc, char * argv[]) {
     try {
         parser.parse(argc, argv);
     } catch (ParsingException & ex) {
-        fmt::print(stderr, "{}\n\n", ex.message());
-        fmt::print(stderr, "{}", parser.formatUsage(progname));
+        auto colorizer = colorizerForFile(envColorStatus, stderr);
+        fmt::print(stderr, "{}\n\n", colorizer.error(ex.message()));
+        fmt::print(stderr, "{}", parser.formatUsage(progname, terminalWidth(stderr), colorizer));
         exit(EXIT_FAILURE);
     }
 }

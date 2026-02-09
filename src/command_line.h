@@ -36,7 +36,7 @@ struct CommandLine {
     std::optional<std::filesystem::path> chrootDir;
     
 
-    void parse(int argc, char * argv[]);
+    void parse(int argc, char * argv[], Argum::ColorStatus envColorStatus);
     void mergeConfigFile(const std::filesystem::path & path);
     
 private:
