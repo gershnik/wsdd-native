@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Changed
+- Terminal output is now in color when supported by the terminal. Because it is 2026.
+  `NO_COLOR` and `FORCE_COLOR` environment variables are fully supported too.
+- Command line help now wraps correctly at the terminal edge
+- Updated 3rd party dependencies
+
+### Fixed
+- `log-level` command line flag/config setting is now working correctly again.
+
 ## [1.22] - 2025-10-19
 
 ### Added
