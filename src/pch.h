@@ -26,10 +26,7 @@
     #define WSDDN_IGNORE_DEPRECATED_END
 #endif
 
-#include <argum/parser.h>
-#include <argum/type-parsers.h>
-#include <argum/validators.h>
-#include <argum/detect-system.h>
+#include <argum/argum.h>
 
 #include <spdlog/fmt/fmt.h>
 
