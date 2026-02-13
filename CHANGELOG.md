@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.23] - 2026-02-13
+
 ### Changed
 - Terminal output is now in color when supported by the terminal. Because it is 2026.
   `NO_COLOR` and `FORCE_COLOR` environment variables are fully supported too.
@@ -225,3 +227,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.20]: https://github.com/gershnik/wsdd-native/releases/v1.20
 [1.21]: https://github.com/gershnik/wsdd-native/releases/v1.21
 [1.22]: https://github.com/gershnik/wsdd-native/releases/v1.22
+[1.23]: https://github.com/gershnik/wsdd-native/releases/v1.23
