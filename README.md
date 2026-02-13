@@ -523,7 +523,7 @@ Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via
 
 ### FreeBSD
 
-Pre-built packages are available for FreeBSD 13, 14 and 15 in a custom binary package repository. 
+Pre-built packages are available for FreeBSD 14 and 15 in a custom binary package repository. 
 Both `amd64` (aka `x86_64`) and `arm64` (aka `aarch64`) architectures are supported.
 
 <details>

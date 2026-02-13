@@ -279,25 +279,24 @@ add_custom_command(
     VERBATIM
 )
 
-if (PANDOC_PATH)
+if (ASCIIDOCTOR_PATH)
 
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8
-        MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.md
-        COMMAND ${PANDOC_PATH} --standalone --to man ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.md -o ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8
+        MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.adoc
+        COMMAND ${ASCIIDOCTOR_PATH} -b manpage ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.adoc -o ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8
         VERBATIM
     )
 
-endif()
-
-if (GROFF_PATH)
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.html
-        MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8
-        COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8 | ${GROFF_PATH} -mandoc -Thtml > ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.html
+        MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.adoc
+        COMMAND ${ASCIIDOCTOR_PATH} -a doctype=article ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.adoc -o ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.html
         VERBATIM
     )
+
 endif()
+
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND NOT WSDDN_MACOS_SUPPRESS_WRAPPER)
 

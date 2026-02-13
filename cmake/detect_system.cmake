@@ -193,5 +193,4 @@ if (WSDDN_WITH_SYSTEMD STREQUAL "yes" OR WSDDN_WITH_SYSTEMD STREQUAL "auto" AND 
 endif()
 
 
-find_program(PANDOC_PATH pandoc)
-find_program(GROFF_PATH groff)
+find_program(ASCIIDOCTOR_PATH asciidoctor)

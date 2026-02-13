@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Terminal output is now in color when supported by the terminal. Because it is 2026.
   `NO_COLOR` and `FORCE_COLOR` environment variables are fully supported too.
 - Command line help now wraps correctly at the terminal edge
+- Manpage is now generated using Asciidoctor.
 - Updated 3rd party dependencies
 
 ### Fixed
