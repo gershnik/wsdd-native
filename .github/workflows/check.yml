@@ -116,7 +116,6 @@ jobs:
         - { os: macos-14, xcode: '15.4.0' }
         - { os: macos-15, xcode: '16.4.0' }
         - { os: macos-15-intel, xcode: '16.4.0' }
-        - { os: macos-26, xcode: '26.0' }
     env: 
       DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app
     steps:
