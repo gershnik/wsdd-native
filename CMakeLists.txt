@@ -267,7 +267,7 @@ endif()
 
 add_custom_target(manpage ALL
     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doc/wsddn.8.gz ${CMAKE_CURRENT_SOURCE_DIR}/doc/wsddn.8.html
-    SOURCES doc/wsddn.8.md
+    SOURCES doc/wsddn.8.adoc
 )
 
 add_custom_command(
