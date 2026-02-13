@@ -197,6 +197,107 @@ static auto setChrootDir(CommandLine & cmdline, std::string_view val) {
     cmdline.chrootDir.emplace(std::move(value));
 }
 
+static std::string colorTagged(std::string_view str) {
+
+    static constexpr std::pair<std::string_view, std::string_view> replacements[] = {
+        {"norm", makeColor<Color::normal>()},
+        {"bold", makeColor<Color::bold>()},
+        {"longopt", defaultColorScheme().longOptionInUsage},
+        {"arg", defaultColorScheme().optionArgInUsage},
+    };
+
+    static const std::regex patterns_re = []() {
+        std::string patterns = "\\{(?:";
+        patterns += "(";
+        patterns += replacements[0].first;
+        patterns += ")";
+        for (size_t i = 1; i < std::size(replacements); ++i) {
+            patterns += "|(";
+            patterns += replacements[i].first;
+            patterns += ")";
+        }
+        patterns += ")\\}";
+
+        return std::regex(patterns, std::regex_constants::ECMAScript);
+    }();
+    
+    std::string ret;
+    for (auto start = str.cbegin(); ; ) {
+        std::cmatch m;
+        if (!std::regex_search(start, str.cend(), m, patterns_re)) {
+            ret.append(start, str.cend());
+            break;
+        }
+        size_t found_idx = std::find_if(m.begin() + 1, m.end(), [](auto & sm) {
+            return sm.length() > 0;
+        }) - m.begin();
+        if (found_idx < m.size() && found_idx - 1 < std::size(replacements)) {
+            ret.append(start, m[0].first);
+            ret.append(replacements[found_idx - 1].second);
+        } else {
+            ret.append(start, m[0].second);
+        }
+        start = m[0].second;
+    }
+    return ret;
+}
+
+static void removeColors(std::string & str) {
+    enum {
+        stateNormal,
+        stateEsc,
+        stateControlStart,
+        stateControlIntermediate
+    } state = stateNormal;
+    size_t putIdx = 0;
+    for (char c: str) {
+        switch(state) {
+        break; case stateNormal: restart:
+            if (c == '\x1b') {
+                state = stateEsc;
+                continue;
+            }
+            str[putIdx++] = c;
+
+        break; case stateEsc:
+            if (c == '[') {
+                state = stateControlStart;
+                continue;
+            }
+            state = stateNormal;
+            goto restart;
+
+        break; case stateControlStart:
+            if (c >= 0x30 && c <= 0x3F) {
+                continue;
+            }
+            if (c >= 0x20 && c <= 0x2F) {
+                state = stateControlIntermediate;
+                continue;
+            }
+            if (c >= 0x40 && c <= 0x7E) {
+                state = stateNormal;
+                continue;
+            }
+            state = stateNormal;
+            goto restart;
+
+        break; case stateControlIntermediate:
+            if (c >= 0x20 && c <= 0x2F) {
+                state = stateControlIntermediate;
+                continue;
+            }
+            if (c >= 0x40 && c <= 0x7E) {
+                state = stateNormal;
+                continue;
+            }
+            state = stateNormal;
+            goto restart;
+        }
+    }
+    str.resize(putIdx);
+}
+
 void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
  
     const char * const progname = (argc ? argv[0] : WSDDN_PROGNAME);
@@ -207,8 +308,12 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
                help("show this help message and exit").
                handler([&]() {
 
+        auto useColor = shouldUseColor(envColorStatus, stdout);
         auto colorizer = colorizerForFile(envColorStatus, stdout);
-        fmt::print("{}", parser.formatHelp(progname, terminalWidth(stdout), colorizer));
+        auto help = parser.formatHelp(progname, terminalWidth(stdout), colorizer);
+        if (!useColor) 
+            removeColors(help);
+        fmt::print("{}", help);
         exit(EXIT_SUCCESS);
     }));
     parser.add(Option("--version", "-v").
@@ -266,7 +371,7 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
                         "--ipv4only and --ipv6only cannot be used together");
     parser.add(Option("--hoplimit").
                argName("NUMBER").
-               help("hop limit for multicast packets (default = 1)").
+               help(colorTagged("hop limit for multicast packets (default = {bold}1{norm})")).
                occurs(Argum::neverOrOnce).
                handler([this](std::string_view val){
         this->hoplimit = Argum::parseIntegral<unsigned>(val);
@@ -287,28 +392,31 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
     }));
     parser.add(Option("--hostname", "-H").
                argName("NAME").
-               help("override hostname to be reported to Windows machines. "
-                    "If you set the value to \":NETBIOS:\" then Netbios hostname will be used. "
+               help(colorTagged(
+                    "override hostname to be reported to Windows machines. "
+                    "If you set the value to {bold}\":NETBIOS:\"{norm} then Netbios hostname will be used. "
                     "The Netbios hostname is either detected from SMB configuration, if found, or produced "
-                    "by capitalizing normal machine hostname.").
+                    "by capitalizing normal machine hostname.")).
                occurs(Argum::neverOrOnce).
                handler([this](std::string_view val) {
         setHostname(*this, sys_string(val).trim());
     }));
     parser.add(Option("--domain", "-D").
                argName("NAME").
-               help("report this computer as a member of Windows domain NAME. "
-                    "--domain and --workgroup are mutually exclusive. "
-                    "If neither is specified domain/workgroup membership is auto-detected").
+               help(colorTagged(
+                    "report this computer as a member of Windows domain {arg}NAME{norm}.\n"
+                    "{longopt}--domain{norm} and {longopt}--workgroup{norm} are mutually exclusive. "
+                    "If neither is specified domain/workgroup membership is auto-detected")).
                occurs(Argum::neverOrOnce).
                handler([this](std::string_view val){
         setDomain(*this, sys_string(val).trim());
     }));
     parser.add(Option("--workgroup", "-W").
                argName("NAME").
-               help("report this computer as a member of Windows workgroup NAME. "
-                    "--domain and --workgroup are mutually exclusive. "
-                    "If neither is specified domain/workgroup membership is auto-detected").
+               help(colorTagged(
+                    "report this computer as a member of Windows workgroup {arg}NAME{norm}.\n"
+                    "{longopt}--domain{norm} and {longopt}--workgroup{norm} are mutually exclusive. "
+                    "If neither is specified domain/workgroup membership is auto-detected")).
                occurs(Argum::neverOrOnce).
                handler([this](std::string_view val){
         setWorkgroup(*this, sys_string(val).trim());
@@ -318,8 +426,9 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
 #if CAN_HAVE_SAMBA
     parser.add(Option("--smb-conf").
                argName("PATH").
-               help("location of smb.conf (a.k.a. samba.conf) to get the workgroup etc. information from. "
-                    "Normally its location is auto-detected. Use this option if auto-detection fails or picks wrong samba instance. ").
+               help(colorTagged(
+                    "location of {bold}smb.conf{norm} (a.k.a. {bold}samba.conf{norm}) to get the workgroup etc. information from. "
+                    "Normally its location is auto-detected. Use this option if auto-detection fails or picks wrong samba instance.")).
                occurs(Argum::neverOrOnce).
                handler([this](std::string_view val){
         setSmbConf(*this, val);
@@ -337,8 +446,10 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
     //Behavior options
     parser.add(Option("--log-level").
                argName("LEVEL").
-               help("set log level (default = 4). Log levels range from 0 (disable logging) to 6 (detailed trace).\n"
-                    "Passing values bigger than 6 is equivalent to 6").
+               help(colorTagged(
+                    "set log level (default = {bold}4{norm}). Log levels range from "
+                    "{bold}0{norm} (disable logging) to {bold}6{norm} (detailed trace).\n"
+                    "Passing values bigger than {bold}6{norm} is equivalent to {bold}6{norm}")).
                occurs(Argum::neverOrOnce).
                handler([this](std::string_view val){
         auto decrease = Argum::parseIntegral<unsigned>(val);
@@ -346,16 +457,19 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
     }));
     parser.add(Option("--log-file").
                argName("PATH").
-               help("the file to write the log output to.\n"
-                    "If --user option is used, the directory of the logfile must allow the specified user to create and delete files").
+               help(colorTagged(
+                    "the file to write the log output to.\n"
+                    "If {longopt}--user{norm} option is used, the directory of the logfile must allow the specified "
+                    "user to create and delete files")).
                occurs(Argum::neverOrOnce).
                handler([this](std::string_view val){
         setLogFile(*this, val);
     }));
 #if HAVE_OS_LOG
     parser.add(Option("--log-os-log").
-               help("log to system log.\n"
-                    "This option is mutually exclusive with --log-file").
+               help(colorTagged(
+                    "log to system log.\n"
+                    "This option is mutually exclusive with {longopt}--log-file{norm}")).
                occurs(Argum::neverOrOnce).
                handler([this](){
         setLogToOsLog(*this, true);
@@ -363,16 +477,20 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
 #endif
     parser.add(Option("--pid-file").
                argName("PATH").
-               help("PID file to create.\n"
-                    "If --user option is used, the directory of the pidfile must allow the specified user to create and delete files").
+               help(colorTagged(
+                    "PID file to create.\n"
+                    "If {longopt}--user{norm} option is used, the directory of the pidfile must "
+                    "allow the specified user to create and delete files")).
                occurs(Argum::neverOrOnce).
                handler([this](std::string_view val){
         setPidFile(*this, val);
     }));
     parser.add(Option("--user", "-U").
                argName("USERNAME").
-               help("the account to run networking code under. "
-                    "USERNAME can be either a plain user or in a groupname:username form").
+               help(colorTagged(
+                    "the account to run networking code under. "
+                    "{arg}USERNAME{norm} can be either a plain user or in "
+                    "a {bold}groupname:username{norm} form")).
                occurs(Argum::neverOrOnce).
                handler([this](std::string_view val){
         setRunAs(*this, val);
