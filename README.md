@@ -145,13 +145,17 @@ To set the repo up:
 sudo bash <<'___'
 set -e
 pemurl=https://gershnik.com/macports-repo/macports.pem
+puburl=https://gershnik.com/macports-repo/macports-signify.pub
 porturl=https://www.gershnik.com/macports-repo/ports.tar.bz2
 prefix=$(dirname $(dirname $(which port)))
 pemfile="$prefix/share/macports/gershnik.pem"
+pubfile="$prefix/share/macports/gershnik.pub"
 pubkeysfile="$prefix/etc/macports/pubkeys.conf"
 sourcesfile="$prefix/etc/macports/sources.conf"
 curl -s $pemurl > "$pemfile"
+curl -s $puburl > "$pubfile"
 grep -qxF "$pemfile" "$pubkeysfile" || echo $pemfile >> "$pubkeysfile"
+grep -qxF "$pubfile" "$pubkeysfile" || echo $pubfile >> "$pubkeysfile"
 grep -qxF "$porturl" "$sourcesfile" || echo $porturl >> "$sourcesfile"
 sudo port sync
 ___
