@@ -92,7 +92,7 @@ sudo launchctl kill HUP system/io.github.gershnik.wsddn
 ```
 
 Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
 
 Daemon and related logs can be viewed in system log by searching for subsystem or
 process names containing string `wsddn`. For example:
@@ -178,7 +178,7 @@ sudo launchctl kill HUP system/org.macports.wsddn
 ```
 
 Configuration file will be at `/opt/local/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
 
 Daemon and related logs can be viewed in system log by searching for subsystem or
 process names containing string `wsddn`. For example:
@@ -246,7 +246,7 @@ sudo systemctl reload wsddn
 ```
 
 Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
 
 Daemon log can be viewed via `journalctl` as usual
 
@@ -318,7 +318,7 @@ sudo systemctl reload wsddn
 ```
 
 Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
 
 Daemon log can be viewed via `journalctl` as usual
 
@@ -382,7 +382,7 @@ sudo systemctl reload wsddn
 ```
 
 Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
 
 Daemon log can be viewed via `journalctl` as usual
 
@@ -452,7 +452,7 @@ sudo systemctl reload wsddn
 ```
 
 Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
 
 Daemon log can be viewed via `journalctl` as usual
 
@@ -519,7 +519,8 @@ sudo rc-service wsddn reload
 ```
 
 Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-If you installed documentation you can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+If you installed documentation you can also use `man wsddn` to learn about configuration 
+or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
 
 Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `logrotate`. To modify rotation settings edit `/etc/logrotate.d/wsddn`
 
@@ -579,7 +580,7 @@ sudo service wsddn reload
 ```
 
 Configuration file will be at `/usr/local/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
 
 Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsylogd`. To modify rotation settings edit `/usr/local/etc/newsyslog.conf.d/wsddn.conf`
 
@@ -629,7 +630,7 @@ To start/stop/reload the daemon use:
 ```
 
 Configuration file will be at `/etc/wsddn/wsddn.conf`. Comments inside indicate available options and their meaning. You can also consult `/etc/wsddn/wsddn.conf.sample` you can consult, that preserves the original configuration.
-You can also use `man wsddn` to learn about configuration or see online version [here][manpage]
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
 
 Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsylogd`. To modify rotation settings edit `/etc/newsyslog.conf`.
 
@@ -711,7 +712,7 @@ This controls whether to enable `systemd` integration. Auto performs auto-detect
 
 The [config](config) directory of this repo contains sample configuration files for different init systems (Systemd, Launchd, SysV init, FreeBSD and OpenBSD rc.d and OpenRC). You can adapt those as appropriate to your system. 
 
-Command line flags and configuration file entries are documented in `man wsddn` and online [here][manpage]
+Command line flags and configuration file entries are documented in `man wsddn` and online [here][manpage] or [here](doc/wsddn.8.adoc)
 
 
 ## Usage
