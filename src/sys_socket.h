@@ -129,7 +129,8 @@ protected:
     class GetInterfaceConf : public SocketIOControl<(unsigned long)SIOCGIFCONF, ifconf> {
     public:
         GetInterfaceConf(ifreq * dest, size_t size) {
-            m_data.ifc_len = size * sizeof(ifreq);
+            using lentype = decltype(m_data.ifc_len);
+            m_data.ifc_len = lentype(size * sizeof(ifreq));
             m_data.ifc_req = dest;
         }
 
