@@ -8,9 +8,9 @@ fi
 echo "Starting wsdd-native"
 
 if  [ ! -z "${WSDDN_WORKGROUP}" ]; then
-    exec wsddn --user wsddn --hostname "${WSDDN_HOSTNAME}" --workgroup "${WSDDN_WORKGROUP}"
+    exec wsddn --hostname "${WSDDN_HOSTNAME}" --workgroup "${WSDDN_WORKGROUP}"
 elif  [ ! -z "${WSDDN_DOMAIN}" ]; then
-    exec wsddn --user wsddn --hostname "${WSDDN_HOSTNAME}" --domain "${WSDDN_DOMAIN}"
+    exec wsddn --hostname "${WSDDN_HOSTNAME}" --domain "${WSDDN_DOMAIN}"
 else
-    exec wsddn --user wsddn --hostname "${WSDDN_HOSTNAME}"
+    exec wsddn --hostname "${WSDDN_HOSTNAME}"
 fi

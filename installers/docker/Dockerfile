@@ -16,4 +16,6 @@ EOF
 
 COPY run-wsddn ./
 
+USER wsddn
+
 CMD [ "./run-wsddn"]
