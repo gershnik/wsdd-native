@@ -163,6 +163,10 @@ jobs:
           git fetch -f --prune --tags
           git reset --hard ${{ github.sha }}
           [ -d "out" ] && tools/uncache out
+          if [[ '${{ matrix.remote_host }}' == 'dragonfly' ]]; then
+            export CC=gcc11
+            export CXX=g++11
+          fi
           cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo
           cmake --build out --target wsddn
           EOF

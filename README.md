@@ -39,7 +39,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 
 ## Features
 
-* Fully supports macOS, Linux, FreeBSD, OpenBSD, NetBSD and illumos. Partial support for Haiku OS
+* Fully supports macOS, Linux, FreeBSD, OpenBSD, NetBSD, DragonFlyBSD and illumos. Partial support for Haiku OS
 * Can be configured via a configuration file, not just command line.
 * Discovers Samba/macOS SMB configuration on its own. (This can be overridden, if desired)
 * Can present the Unix host as something other than "Computer" in Windows Explorer.
@@ -691,6 +691,9 @@ sudo cmake --install out --strip
 ```
 
 The `wsddn` executable will be installed into `/usr/local/bin` and manpage added to section 8 of the manual.
+
+To use a non-default compiler, set `CC` and `CXX` variables before CMake configure step. 
+Other usual variables like `CXXFLGS` or `LDFLGAS` are also supported by CMake. For more information see [cmake-env-variables](https://cmake.org/cmake/help/latest/manual/cmake-env-variables.7.html)
 
 The following flags can be passed to CMake configure step:
 
