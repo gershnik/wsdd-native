@@ -146,6 +146,7 @@ jobs:
           - alpine-3
           - archlinux
           - netbsd-10
+          - dragonfly
           - omnios
           - haiku
 
