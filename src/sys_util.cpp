@@ -40,7 +40,7 @@ const char * OsLogHandle::s_category = "main";
         (void)run({USERADD_PATH, "-g", name.c_str(), "-d", WSDDN_DEFAULT_CHROOT_DIR, "-s", "/bin/false", "-n", "WS-Discovery Daemon", name.c_str()});
         return true;
 
-    #elif defined(__FreeBSD__) && defined(PW_PATH)
+    #elif (defined(__FreeBSD__) || defined(__DragonFly__)) && defined(PW_PATH)
 
         (void)run({PW_PATH, "adduser", name.c_str(), "-d", WSDDN_DEFAULT_CHROOT_DIR, "-s", "/usr/sbin/nologin", "-c", "WS-Discovery Daemon User"});
         return true;
@@ -72,7 +72,7 @@ const char * OsLogHandle::s_category = "main";
 
 int run(const ptl::StringRefArray & args) {
     ptl::SpawnAttr spawnAttr;
-#ifndef __HAIKU__
+#if !defined(__HAIKU__) && !defined(__DragonFly__)
     spawnAttr.setFlags(POSIX_SPAWN_SETSIGDEF);
     auto sigs = ptl::SignalSet::all();
     sigs.del(SIGKILL);

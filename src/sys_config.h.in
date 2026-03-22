@@ -42,7 +42,7 @@
     #define WSDDN_PLATFORM_APPLE 0
     #define WSDDN_DEFAULT_USER_NAME "_wsddn"
     #define WSDDN_DEFAULT_CHROOT_DIR "/var/chroot/wsddn"
-#elif defined(__sun) || defined(__HAIKU__)
+#elif defined(__DragonFly__) || defined(__sun) || defined(__HAIKU__)
     #define WSDDN_PLATFORM_APPLE 0
     #define WSDDN_DEFAULT_USER_NAME "wsddn"
     #define WSDDN_DEFAULT_CHROOT_DIR "/var/empty"

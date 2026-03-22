@@ -42,7 +42,7 @@ jobs:
         - {os: ubuntu-24.04, compiler: clang, version: 21 }
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Linux
         run: |
@@ -87,7 +87,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Install pre-requisites
       run: |
@@ -120,7 +120,7 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         
       - name: Configure
         run: |
@@ -146,6 +146,7 @@ jobs:
           - alpine-3
           - archlinux
           - netbsd-10
+          - dragonfly
           - omnios
           - haiku
 
@@ -162,6 +163,10 @@ jobs:
           git fetch -f --prune --tags
           git reset --hard ${{ github.sha }}
           [ -d "out" ] && tools/uncache out
+          if [[ '${{ matrix.remote_host }}' == 'dragonfly' ]]; then
+            export CC=gcc11
+            export CXX=g++11
+          fi
           cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo
           cmake --build out --target wsddn
           EOF
