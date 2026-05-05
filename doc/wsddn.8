@@ -2,12 +2,12 @@
 .\"     Title: wsddn
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2026-02-13
+.\"      Date: 2026-05-04
 .\"    Manual: System Manager's Manual
 .\"    Source: WS-Discovery Host Daemon
 .\"  Language: English
 .\"
-.TH "WSDDN" "8" "2026-02-13" "WS\-Discovery Host Daemon" "System Manager\*(Aqs Manual"
+.TH "WSDDN" "8" "2026-05-04" "WS\-Discovery Host Daemon" "System Manager\*(Aqs Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -41,7 +41,7 @@ wsddn \- WS\-Discovery Host Daemon
 [\fB\-\-pid\-file\fP \fIpath\fP] [\fB\-U\fP \fIuser\fP[:\fIgroup\fP]] [\fB\-r\fP \fIdir\fP]
 .SH "DESCRIPTION"
 .sp
-\fBwsddn\fP is a native daemon that implements WS\-Discovery (WSD) host protocol. It allows UNIX hosts
+\fBwsddn\fP is a native daemon that implements the WS\-Discovery (WSD) host protocol. It allows UNIX hosts
 to be found by modern Windows versions and displayed in their Explorer Network views.
 .sp
 \fBwsddn\fP can be configured using command\-line options or a configuration file (see \fB\-\-config\fP option below);
@@ -50,7 +50,7 @@ command\-line options override values specified in the configuration file.
 \fBwsddn\fP rereads its configuration file when it receives a hangup signal, \fBSIGHUP\fP.
 .SH "OPTIONS"
 .sp
-Unless otherwise specified options cannot be repeated. The options are as follows:
+Unless otherwise specified, options cannot be repeated. The options are as follows:
 .SS "General options"
 .sp
 \fB\-\-help\fP, \fB\-h\fP
@@ -81,7 +81,7 @@ Run as a launchd daemon. This option is only available on macOS.
 \fB\-\-config\fP \fIpath\fP, \fB\-c\fP \fIpath\fP
 .RS 4
 Path to the configuration file. The file does not need to exist. If it exists, the file is read and options
-specified in it are applied \fIif not already specified on command line\fP. See [CONFIG FILE] below for information
+specified in it are applied \fIif not already specified on the command line\fP. See [CONFIG FILE] below for information
 about its syntax and content. Content of the configuration file is re\-read upon \fBSIGHUP\fP signal. By default,
 if this option isn\(cqt specified, no configuration file is read.
 .RE
@@ -89,13 +89,13 @@ if this option isn\(cqt specified, no configuration file is read.
 .sp
 \fB\-\-log\-level\fP \fIlevel\fP
 .RS 4
-Sets the verbosity of log output. Log levels range from 0 (disable logging) to 6 (detailed trace) with default being 4.
+Sets the verbosity of log output. Log levels range from 0 (disable logging) to 6 (detailed trace) with the default being 4.
 Passing values bigger than 6 is equivalent to 6.
 .RE
 .sp
 \fB\-\-log\-file\fP \fIpath\fP
 .RS 4
-The path of the file to write the log output to. If not specified \fBwsddn\fP outputs its log messages as follows:
+The path of the file to write the log output to. If not specified, \fBwsddn\fP outputs its log messages as follows:
 .sp
 .RS 4
 .ie n \{\
@@ -144,23 +144,24 @@ If invoked with \-\-unixd: to \fB/dev/null\fP (no logging)
 .sp
 \fB\-\-log\-os\-log\fP
 .RS 4
-Available on macOS only. If specified log output is sent to system log visible via Console app or \fBlog\fP command line tool.
+Available on macOS only. If specified, log output is sent to the system log visible via
+the Console app or \fBlog\fP command\-line tool.
 This option is mutually exclusive with \fB\-\-log\-file\fP.
 .RE
 .sp
 \fB\-\-pid\-file\fP \fIpath\fP
 .RS 4
-Set the path to PID file. If not specified no PID file is written. Send \fBSIGHUP\fP to the process ID in the PID file
-to reload configuration. If \fB\-\-user\fP option is used, the directory of the pidfile must allow the specified user to
+Set the path to the PID file. If not specified, no PID file is written. Send \fBSIGHUP\fP to the process ID in the PID file
+to reload configuration. If the \fB\-\-user\fP option is used, the directory of the PID file must allow the specified user to
 create and delete files.
 .RE
 .sp
 \fB\-\-user\fP \fIusername\fP[:\fIgroupname\fP], \fB\-U\fP \fIusername\fP[:\fIgroupname\fP]
 .RS 4
-Set the identity under which the process that performs network communications will run. If group name is not
-specified, primary group of the username is used.
+Set the identity under which the process that performs network communications will run. If the group name is not
+specified, the primary group of the username is used.
 .sp
-If this option is not specified then the behavior is as follows:
+If this option is not specified, then the behavior is as follows:
 .sp
 .RS 4
 .ie n \{\
@@ -170,8 +171,8 @@ If this option is not specified then the behavior is as follows:
 .  sp -1
 .  IP \(bu 2.3
 .\}
-If wsddn process is run under the root account it tries to use a special unprivileged account name
-(\fB_wsddn\fP:\fB_wsddn\fP or \fBwsddn\fP:\fBwsddn\fP depending on a platform). The user and group are created if they do not exist.
+If the wsddn process is run under the root account, it tries to use a special unprivileged account name
+(\fB_wsddn\fP:\fB_wsddn\fP or \fBwsddn\fP:\fBwsddn\fP depending on the platform). The user and group are created if they do not exist.
 Any failures in these steps stop the process.
 .RE
 .sp
@@ -186,15 +187,15 @@ Any failures in these steps stop the process.
 Otherwise, wsddn uses the account it is run under.
 .RE
 .sp
-The net effect of these rules is that wsddn under no circumstances will perform network communications under root account.
+The net effect of these rules is that wsddn will under no circumstances perform network communications under the root account.
 .RE
 .sp
 \fB\-\-chroot\fP \fIdir\fP, \fB\-r\fP \fIdir\fP
 .RS 4
-Set the directory into which process that performs network communications should chroot. This further limits any impact
-of potential network exploits into wsddn.
+Set the directory into which the process that performs network communications should chroot. This further limits any impact
+of potential network exploits against wsddn.
 .sp
-If not specified the behavior is as follows:
+If not specified, the behavior is as follows:
 .sp
 .RS 4
 .ie n \{\
@@ -204,7 +205,7 @@ If not specified the behavior is as follows:
 .  sp -1
 .  IP \(bu 2.3
 .\}
-If wsddn process is run under the root account: use \fB/var/empty\fP or \fB/var/run/wsddn\fP depending on a platform.
+If the wsddn process is run under the root account: use \fB/var/empty\fP or \fB/var/run/wsddn\fP depending on the platform.
 This directory will be created if it does not exist.
 .RE
 .sp
@@ -219,8 +220,8 @@ This directory will be created if it does not exist.
 Otherwise: do not chroot.
 .RE
 .sp
-Note: do not use external methods to chroot wsddn process (e.g. using launchd config plist). Non\-networking parts
-of wsddn need access to the normal filesystem to detect SMB configuration etc.
+Note: do not use external methods to chroot the wsddn process (e.g., using launchd config plist). Non\-networking parts
+of wsddn need access to the normal filesystem to detect SMB configuration, etc.
 .RE
 .SS "Networking options"
 .sp
@@ -235,21 +236,21 @@ The equivalent config file option is \fBinterfaces\fP.
 .sp
 \fB\-\-ipv4only\fP, \fB\-4\fP
 .RS 4
-Use only IPv4. By default both IPv4 and IPv6 are used. This option cannot be combined with \fB\-\-ipv6only\fP.
+Use only IPv4. By default, both IPv4 and IPv6 are used. This option cannot be combined with \fB\-\-ipv6only\fP.
 .sp
 The equivalent config file option is \fBallowed\-address\-family\fP.
 .RE
 .sp
 \fB\-\-ipv6only\fP, \fB\-6\fP
 .RS 4
-Use only IPv6. By default both IPv4 and IPv6 are used. This option cannot be combined with \fB\-\-ipv4only\fP.
+Use only IPv6. By default, both IPv4 and IPv6 are used. This option cannot be combined with \fB\-\-ipv4only\fP.
 .sp
 The equivalent config file option is \fBallowed\-address\-family\fP.
 .RE
 .sp
 \fB\-\-hoplimit\fP \fInumber\fP
 .RS 4
-Set the hop limit for multicast packets. The default is 1 which should prevent packets from leaving the local network segment.
+Set the hop limit for multicast packets. The default is 1, which should prevent packets from leaving the local network segment.
 .RE
 .sp
 \fB\-\-source\-port\fP \fInumber\fP
@@ -262,34 +263,34 @@ so the port needs to be fixed in order to be allowed manually.
 .sp
 \fB\-\-uuid\fP \fIuuid\fP
 .RS 4
-WS\-Discovery protocol requires your machine to have a unique identifier that is stable across reboots or changes
-in networks.  By default, \fBwsddn\fP uses UUID version 5 with private namespace and the host name of the machine.
+The WS\-Discovery protocol requires your machine to have a unique identifier that is stable across reboots or changes
+in networks. By default, \fBwsddn\fP uses UUID version 5 with a private namespace and the host name of the machine.
 This will remain stable as long as the hostname doesn\(cqt change. If desired, you can override this with a fixed
 UUID using this option.
 .RE
 .sp
 \fB\-\-hostname\fP \fIname\fP, \fB\-H\fP \fIname\fP
 .RS 4
-Override hostname to be reported to Windows machines. By default the local machine\(cqs hostname
-(with domain part, if any, removed) is used. If you set the name to \fB:NETBIOS:\fP then Netbios
-hostname will be used. The Netbios hostname is either detected from SMB configuration, if found,
-or produced by capitalizing normal machine hostname.
+Override the hostname to be reported to Windows machines. By default, the local machine\(cqs hostname
+(with domain part, if any, removed) is used. If you set the name to \fB:NETBIOS:\fP, then the NetBIOS
+hostname will be used. The NetBIOS hostname is either detected from SMB configuration, if found,
+or produced by capitalizing the normal machine hostname.
 .RE
 .sp
 \fB\-\-domain\fP \fIname\fP, \fB\-D\fP \fIname\fP
 .RS 4
-Report this computer as a member of Windows domain \fIname\fP. Options \fB\-\-domain\fP and \fB\-\-workgroup\fP
-are mutually exclusive. If neither is specified domain/workgroup membership is auto\-detected
-from SMB configuration. If no SMB configuration is found it is set to a workgroup named \fBWORKGROUP\fP.
+Report this computer as a member of a Windows domain \fIname\fP. Options \fB\-\-domain\fP and \fB\-\-workgroup\fP
+are mutually exclusive. If neither is specified, domain/workgroup membership is auto\-detected
+from SMB configuration. If no SMB configuration is found, it is set to a workgroup named \fBWORKGROUP\fP.
 .sp
-The equivalent config file option is \fBmember\-of\fP
+The equivalent config file option is \fBmember\-of\fP.
 .RE
 .sp
 \fB\-\-workgroup\fP \fIname\fP, \fB\-W\fP \fIname\fP
 .RS 4
-Report this computer as a member of Windows workgroup \fIname\fP. Options \fB\-\-domain\fP and \fB\-\-workgroup\fP
-are mutually exclusive. If neither is specified domain/workgroup membership is auto\-detected from
-SMB configuration. If no SMB configuration is found it is set to a workgroup named \fBWORKGROUP\fP.
+Report this computer as a member of a Windows workgroup \fIname\fP. Options \fB\-\-domain\fP and \fB\-\-workgroup\fP
+are mutually exclusive. If neither is specified, domain/workgroup membership is auto\-detected from
+SMB configuration. If no SMB configuration is found, it is set to a workgroup named \fBWORKGROUP\fP.
 .sp
 The equivalent config file option is \fBmember\-of\fP.
 .RE
@@ -297,9 +298,9 @@ The equivalent config file option is \fBmember\-of\fP.
 \fB\-\-smb\-conf\fP \fIpath\fP
 .RS 4
 Path to \fBsmb.conf\fP, \fBsamba.conf\fP, or \fBksmbd.conf\fP file to extract the SMB configuration from.
-This option is not available on macOS. By default \fBwsddn\fP tries to locate this file on its own by
-querying your local Samba installation. Use this option if auto\-detection fails, picks wrong
-Samba instance or if you are using KSMBD on Linux. The equivalent config file option is \fBsmb\-conf\fP.
+This option is not available on macOS. By default, \fBwsddn\fP tries to locate this file on its own by
+querying your local Samba installation. Use this option if auto\-detection fails, picks the wrong
+Samba instance, or if you are using KSMBD on Linux. The equivalent config file option is \fBsmb\-conf\fP.
 .RE
 .sp
 \fB\-\-metadata\fP \fIpath\fP, \fB\-m\fP \fIpath\fP
@@ -316,37 +317,38 @@ The following environment variables, in order of precedence from highest to lowe
 .sp
 \fBNO_COLOR\fP
 .RS 4
-set to a non\-empty value (1 is recommended) to prevent color output on \fBstdout\fP/\fBstderr\fP
+Set to a non\-empty value (1 is recommended) to prevent color output on \fBstdout\fP/\fBstderr\fP.
 .RE
 .sp
 \fBFORCE_COLOR\fP
 .RS 4
-set to a non\-empty value (1 is recommended) to force color output on \fBstdout\fP/\fBstderr\fP.
+Set to a non\-empty value (1 is recommended) to force color output on \fBstdout\fP/\fBstderr\fP.
 .RE
 .sp
 \fBCLICOLOR_FORCE\fP
 .RS 4
-if set to \fB0\fP or \fBfalse\fP prevents color output \fBstdout\fP/\fBstderr\fP. If set to any other non\-empty value forces color output.
+If set to \fB0\fP or \fBfalse\fP, it prevents color output on \fBstdout\fP/\fBstderr\fP.
+If set to any other non\-empty value, it forces color output.
 .RE
 .sp
 \fBCLICOLOR\fP
 .RS 4
-same as \fBCLICOLOR_FORCE\fP but with lower precedence
+Same as \fBCLICOLOR_FORCE\fP but with lower precedence.
 .RE
 .sp
 \fBCOLORTERM\fP
 .RS 4
-if set to a non\-empty value the terminal is assumed to support color output. Unless suppressed by
+If set to a non\-empty value, the terminal is assumed to support color output. Unless suppressed by
 higher precedence variables, the output to \fBstdout\fP/\fBstderr\fP will be colored \fIiff\fP they are connected
-to the terminal (as reported by \fBisatty\fP())
+to the terminal (as reported by \fBisatty\fP()).
 .RE
 .sp
 \fBTERM\fP
 .RS 4
-content of this variable is used to detect whether the terminal supports colors. The detection
+The content of this variable is used to detect whether the terminal supports colors. The detection
 criteria are undocumented and subject to change. If the terminal is deemed to support colors
 and unless suppressed by higher precedence variables, the output to \fBstdout\fP/\fBstderr\fP will be colored
-\fIiff\fP they are connected to the terminal (as reported by \fBisatty\fP())
+\fIiff\fP they are connected to the terminal (as reported by \fBisatty\fP()).
 .RE
 .SH "SIGNALS"
 .sp
@@ -354,16 +356,16 @@ and unless suppressed by higher precedence variables, the output to \fBstdout\fP
 .sp
 \fBSIGHUP\fP
 .RS 4
-gracefully stop network communications, reload configuration and re\-start communications.
+Gracefully stop network communications, reload configuration and re\-start communications.
 .RE
 .sp
 \fBSIGTERM\fP, \fBSIGINT\fP
 .RS 4
-gracefully stop network communications and exit.
+Gracefully stop network communications and exit.
 .RE
 .SH "EXIT STATUS"
 .sp
-\fBwsddn\fP exit code is 0 upon normal termination (via \fBSIGINT\fP or \fBSIGTERM\fP) or non\-zero upon error.
+The \fBwsddn\fP exit code is 0 upon normal termination (via \fBSIGINT\fP or \fBSIGTERM\fP) or non\-zero upon error.
 .SH "FIREWALL SETUP"
 .sp
 Traffic for the following ports, directions and addresses must be allowed:
@@ -408,13 +410,13 @@ space for IPv6. Please note that IGMP traffic must be enabled in order to get IP
 The syntax of the configuration file is TOML (\c
 .URL "https://toml.io/en/" "" ")."
 .sp
-Any options specified on command line take precedence over options in the config file. Most options are named and
-behave exactly the same as corresponding command line options. Exceptions are explained in\-depth below.
+Any options specified on the command line take precedence over options in the config file. Most options are named and
+behave exactly the same as the corresponding command line options. Exceptions are explained in\-depth below.
 .sp
 \fBallowed\-address\-family\fP = "IPv4" | "IPv6"
 .RS 4
-Restrict communications to the given address family. Valid values are "IPv4" or "IPv6" case\-insensitive.
-The equivalent command line options are \fB\-\-ipv4only\fP and \fB\-\-ipv6only\fP
+Restrict communications to the given address family. Valid values are "IPv4" or "IPv6", case\-insensitive.
+The equivalent command line options are \fB\-\-ipv4only\fP and \fB\-\-ipv6only\fP.
 .RE
 .sp
 \fBchroot\fP = "\fIpath\fP"
@@ -439,10 +441,10 @@ Same as \fB\-\-hostname\fP command line option.
 .sp
 \fBinterfaces\fP = [ "\fIname\fP", .\|.\|. ]
 .RS 4
-Specify on which interfaces wsddn will be listening on. If no interfaces are specified,
-or the list is empty all suitable detected interfaces will be used. Loop\-back interfaces
+Specify which interfaces wsddn will be listening on. If no interfaces are specified,
+or the list is empty, all suitable detected interfaces will be used. Loop\-back interfaces
 are never used, even when explicitly specified. For interfaces with IPv6 addresses,
-only link\-local addresses will be used. The equivalent command line option is \fB\-\-interface\fP
+only link\-local addresses will be used. The equivalent command line option is \fB\-\-interface\fP.
 .RE
 .sp
 \fBlog\-level\fP = \fInumber\fP
@@ -462,10 +464,10 @@ Same as \fB\-\-log\-os\-log\fP command line option.
 .sp
 \fBmember\-of\fP = "Workgroup/\fIname\fP" | "Domain/\fIname\fP"
 .RS 4
-Report whether the host is a member of a given workgroup or domain. To specify a workgroup
-use "Workgroup/name" syntax. To specify a domain use "Domain/name". The "workgroup/" and "domain/"
-prefixes are not case sensitive. If not specified workgroup/domain membership is detected
-from SMB configuration. If no SMB configuration is found it is set to a workgroup named WORKGROUP.
+Report whether the host is a member of a given workgroup or domain. To specify a workgroup,
+use "Workgroup/name" syntax. To specify a domain, use "Domain/name". The "workgroup/" and "domain/"
+prefixes are not case\-sensitive. If not specified, workgroup/domain membership is detected
+from SMB configuration. If no SMB configuration is found, it is set to a workgroup named WORKGROUP.
 The equivalent command line options are \fB\-\-domain\fP and \fB\-\-workgroup\fP.
 .RE
 .sp

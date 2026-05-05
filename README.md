@@ -4,9 +4,9 @@
 [![License][license_badge]](https://opensource.org/licenses/BSD-3-Clause)
 [![Language][language_badge]](https://isocpp.org/)
 
-A Unix daemon that makes your macOS/Linux/BSD/illumos/HaikuOS machine visible in Network view of Windows Explorer on newer versions of Windows.
+A Unix daemon that makes your macOS/Linux/BSD/illumos/HaikuOS machine visible in the Network view of Windows Explorer on newer versions of Windows.
 
-It implements WS-Discovery protocol that Windows now uses to discover machines on local network. It is a native daemon, written in C++. 
+It implements the WS-Discovery protocol that Windows now uses to discover machines on the local network. It is a native daemon, written in C++. 
 
 <!-- TOC depthfrom:2 -->
 
@@ -15,7 +15,7 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
     - [macOS](#macos)
         - [Standalone installer](#standalone-installer)
         - [Homebrew](#homebrew)
-        - [Macports](#macports)
+        - [MacPorts](#macports)
     - [Ubuntu/Debian/Mint/Raspberry Pi](#ubuntudebianmintraspberry-pi)
     - [RedHat/CentOS/Fedora](#redhatcentosfedora)
     - [OpenSUSE](#opensuse)
@@ -39,14 +39,14 @@ It implements WS-Discovery protocol that Windows now uses to discover machines o
 
 ## Features
 
-* Fully supports macOS, Linux, FreeBSD, OpenBSD, NetBSD, DragonFlyBSD and illumos. Partial support for Haiku OS
-* Can be configured via a configuration file, not just command line.
-* Discovers Samba/macOS SMB configuration on its own. (This can be overridden, if desired)
+* Fully supports macOS, Linux, FreeBSD, OpenBSD, NetBSD, DragonFlyBSD and illumos. Partial support for Haiku OS.
+* Can be configured via a configuration file, not just the command line.
+* Discovers the Samba/macOS SMB configuration on its own. (This can be overridden, if desired.)
 * Can present the Unix host as something other than "Computer" in Windows Explorer.
-* Integrates well with `systemd` and `launchd`. Of course, it can also run as a classical Unix daemon for other init systems.
+* Integrates well with `systemd` and `launchd`. Of course, it can also run as a classic Unix daemon for other init systems.
 * Friendly to various log rotation methods like `newsyslogd` and `logrotate`. Supports standard reload semantics via SIGHUP.
 * Written with security in mind first and foremost. 
-* Will never run any network code as root. Designated user account to run under is created automatically, if needed.
+* Will never run any network code as root. The designated user account to run under is created automatically, if needed.
 
 There are a couple of similar projects available: [wsdd][wsdd] written in Python and [wsdd2][wsdd2] written in C. Neither of them, however, fully provides the features above. 
 
@@ -54,11 +54,11 @@ There are a couple of similar projects available: [wsdd][wsdd] written in Python
 
 ### macOS
 
-On macOS there are 3 ways to install `wsddn`: via a standalone installer package, [Homebrew][homebrew] or [Macports][macports]. 
-Using a standalone installer is simpler but you will have to manually install any future updates as well.
-Homebrew/Macports are a bit more complicated to set up but it provides updatability similar to Linux/BSD package managers. 
+On macOS there are 3 ways to install `wsddn`: via a standalone installer package, [Homebrew][homebrew] or [MacPorts][macports]. 
+Using a standalone installer is simpler, but you will have to manually install any future updates as well.
+Homebrew/MacPorts are a bit more complicated to set up, but they provide updatability similar to Linux/BSD package managers. 
 
-For all 3 methods the supported platforms are:
+For all 3 methods, the supported platforms are:
 - macOS Catalina (10.15) and above
 - Both Intel and Apple Silicon
 
@@ -72,16 +72,16 @@ For all 3 methods the supported platforms are:
 To install via standalone `.pkg` installer:
 
 * Download [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.23/wsddn-macos-1.23.pkg)
-* Double click it to run and follow the prompts.
+* Double-click it to run and follow the prompts.
 
-If you prefer command line, you can also install via:
+If you prefer the command line, you can also install via:
 ```bash
 sudo installer -pkg /path/to/wsddn-macos-1.23.pkg -target /
 ```
 
-To fully uninstall `wsddn` run `/usr/local/bin/wsddn-uninstall`
+To fully uninstall `wsddn`, run `/usr/local/bin/wsddn-uninstall`.
 
-Daemon will start automatically on install. 
+The daemon will start automatically on install. 
 
 To start/stop/reload the daemon use:
 
@@ -91,11 +91,11 @@ sudo launchctl kill TERM system/io.github.gershnik.wsddn
 sudo launchctl kill HUP system/io.github.gershnik.wsddn
 ```
 
-Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
+The configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc).
 
-Daemon and related logs can be viewed in system log by searching for subsystem or
-process names containing string `wsddn`. For example:
+Daemon and related logs can be viewed in the system log by searching for subsystem or
+process names containing the string `wsddn`. For example:
 
 ```bash
 log show --last 15m --debug --info \
@@ -111,33 +111,33 @@ log show --last 15m --debug --info \
 <summary>Setup and usage (click to expand)</summary>
 <br>
 
-Homebrew package ('cask') can be installed via a custom tap. 
+The Homebrew package ('cask') can be installed via a custom tap. 
 
-To set it up
+To set it up:
 
 ```bash
 brew tap gershnik/repo
 ```
 
-Then
+Then:
 
 ```bash
 brew install wsddn
 ```
 
-This installs exactly the same thing as standalone installer would so all the usage instructions under [Standalone installer](#standalone-installer) apply as well.
+This installs exactly the same thing as the standalone installer would, so all the usage instructions under [Standalone installer](#standalone-installer) apply as well.
 
 </details>
 
 
-#### Macports
+#### MacPorts
 
 <details>
 
 <summary>Setup and usage (click to expand)</summary>
 <br>
 
-Macports package can be installed via a custom repository.
+The MacPorts package can be installed via a custom repository.
 
 To set the repo up:
 
@@ -161,13 +161,13 @@ sudo port sync
 ___
 ```
 
-Then you can install `wsddn` as usual via
+Then you can install `wsddn` as usual via:
 
 ```bash
 sudo port install wsddn
 ```
 
-Daemon will start automatically on install. 
+The daemon will start automatically on install. 
 
 To start/stop/reload the daemon use:
 
@@ -177,11 +177,11 @@ sudo launchctl kill TERM system/org.macports.wsddn
 sudo launchctl kill HUP system/org.macports.wsddn
 ```
 
-Configuration file will be at `/opt/local/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
+The configuration file will be at `/opt/local/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc).
 
-Daemon and related logs can be viewed in system log by searching for subsystem or
-process names containing string `wsddn`. For example:
+Daemon and related logs can be viewed in the system log by searching for subsystem or
+process names containing the string `wsddn`. For example:
 
 ```bash
 log show --last 15m --debug --info \
@@ -196,7 +196,7 @@ log show --last 15m --debug --info \
 Pre-built packages are available in a custom apt repository for systems newer than Ubuntu 20.04 (focal) or
 Debian 11 (bullseye). Any Debian system based upon those or newer should work.
 
-Architectures supported: `amd64` (aka `x86_64`), `arm64` (aka `aarch64`) and `armhf` 
+Architectures supported: `amd64` (aka `x86_64`), `arm64` (aka `aarch64`) and `armhf`.
 
 <details>
 
@@ -212,7 +212,7 @@ To set up the apt repository:
     | sudo tee /usr/share/keyrings/gershnik.gpg >/dev/null
   ```
 
-* Add new repo
+* Add a new repo
   ```bash
   echo "deb" \
   "[arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/gershnik.gpg]" \
@@ -229,15 +229,15 @@ sudo apt update
 sudo apt install wsddn
 ```
 
-If you have UFW firewall running, do
+If you have UFW firewall running, do:
 
 ```bash
 sudo ufw allow wsddn
 ```
 
-Daemon will be enabled and started automatically on first install but keep its existing state on updates. 
+The daemon will be enabled and started automatically on first install, but will keep its existing state on updates. 
 
-On `systemd` based distributions to start/stop/reload it use
+On `systemd`-based distributions, to start/stop/reload it use:
 
 ```bash
 sudo systemctl start wsddn
@@ -245,16 +245,16 @@ sudo systemctl stop wsddn
 sudo systemctl reload wsddn
 ```
 
-Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
+The configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc).
 
-Daemon log can be viewed via `journalctl` as usual
+The daemon log can be viewed via `journalctl` as usual:
 
 ```bash
 journalctl -u wsddn
 ```
 
-On non-`systemd` based distributions (and Docker) you can use:
+On non-`systemd`-based distributions (and Docker) you can use:
 
 ```bash
 sudo /etc/init.d/wsddn start
@@ -262,13 +262,13 @@ sudo /etc/init.d/wsddn stop
 sudo /etc/init.d/wsddn reload
 ```
 
-and the log is available at `/var/log/wsddn.log`
+and the log is available at `/var/log/wsddn.log`.
 
 </details>
 
 ### RedHat/CentOS/Fedora
 
-Pre-built packages are available on [Fedora Copr](https://copr.fedorainfracloud.org/coprs/gershnik/wsddn/) repository.
+Pre-built packages are available on the [Fedora Copr](https://copr.fedorainfracloud.org/coprs/gershnik/wsddn/) repository.
 Visit that link to see currently supported distributions and architectures. 
 
 <details>
@@ -276,7 +276,7 @@ Visit that link to see currently supported distributions and architectures.
 <summary>Setup and usage (click to expand)</summary>
 <br>
 
-To set the repo up you need to install `copr` plugin if you haven't already done so:
+To set the repo up, you need to install the `copr` plugin if you haven't already done so:
 
 ```bash
 sudo dnf install dnf-plugins-core
@@ -284,7 +284,7 @@ sudo dnf install dnf-plugins-core
 #sudo yum install yum-plugin-copr
 ```
 
-Then
+Then:
 
 ```bash
 sudo dnf copr enable gershnik/wsddn
@@ -292,7 +292,7 @@ sudo dnf copr enable gershnik/wsddn
 #sudo yum copr enable gershnik/wsddn
 ```
 
-Once the repository is set up you can install `wsddn` as usual via
+Once the repository is set up you can install `wsddn` as usual via:
 
 ```bash
 sudo dnf install wsddn
@@ -300,7 +300,7 @@ sudo dnf install wsddn
 #sudo yum install wsddn
 ```
 
-On first install firewall will be configured to open `wsddn` service. 
+On the first install, the firewall will be configured to open the `wsddn` service. 
 
 Enable and start the daemon:
 
@@ -309,7 +309,7 @@ sudo systemctl enable wsddn
 sudo systemctl start wsddn
 ```
 
-To start/stop/reload it use
+To start/stop/reload it use:
 
 ```bash
 sudo systemctl start wsddn
@@ -317,10 +317,10 @@ sudo systemctl stop wsddn
 sudo systemctl reload wsddn
 ```
 
-Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
+The configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc).
 
-Daemon log can be viewed via `journalctl` as usual
+The daemon log can be viewed via `journalctl` as usual:
 
 ```bash
 journalctl -u wsddn
@@ -330,9 +330,9 @@ journalctl -u wsddn
 
 ### OpenSUSE
 
-Pre-built OpenSUSE packages for Tumbleweed are available via [Fedora Copr](https://copr.fedorainfracloud.org/coprs/gershnik/wsddn/). 
+Pre-built OpenSUSE packages for Tumbleweed are available via the [Fedora Copr](https://copr.fedorainfracloud.org/coprs/gershnik/wsddn/). 
 
-Architectures supported: `x86_64` and`aarch64`
+Architectures supported: `x86_64` and `aarch64`
 
 <details>
 
@@ -364,7 +364,7 @@ Once the repository is set up you can install `wsddn` as usual via:
 sudo zypper in wsddn
 ```
 
-On first install firewall ports `5357/tcp` and `3702/udp` will be opened. 
+On the first install, the firewall ports `5357/tcp` and `3702/udp` will be opened. 
 
 Enable and start the daemon:
 
@@ -373,7 +373,7 @@ sudo systemctl enable wsddn
 sudo systemctl start wsddn
 ```
 
-To start/stop/reload it use
+To start/stop/reload it use:
 
 ```bash
 sudo systemctl start wsddn
@@ -381,10 +381,10 @@ sudo systemctl stop wsddn
 sudo systemctl reload wsddn
 ```
 
-Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
+The configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc).
 
-Daemon log can be viewed via `journalctl` as usual
+The daemon log can be viewed via `journalctl` as usual:
 
 ```bash
 journalctl -u wsddn
@@ -394,11 +394,11 @@ journalctl -u wsddn
 
 ### Arch Linux
 
-Source package is available on [AUR][aur] at https://aur.archlinux.org/packages/wsdd-native 
+The source package is available on the [AUR][aur] at https://aur.archlinux.org/packages/wsdd-native 
 
 Pre-built packages are available in a custom `pacman` repository.
 
-Architectures supported: `x86_64` and`aarch64`
+Architectures supported: `x86_64` and `aarch64`
 
 <details>
 
@@ -428,13 +428,13 @@ Once the repository is set up you can install `wsdd-native` as usual via:
 sudo pacman -S wsdd-native
 ```
 
-If you have UFW firewall running, do
+If you have UFW firewall running, do:
 
 ```bash
 sudo ufw allow wsddn
 ```
 
-As per Arch Linux convention the installation does not automatically enable or start services.
+As per Arch Linux convention, the installation does not automatically enable or start services.
 
 Enable and start the daemon:
 
@@ -443,7 +443,7 @@ sudo systemctl enable wsddn
 sudo systemctl start wsddn
 ```
 
-To start/stop/reload it use
+To start/stop/reload it use:
 
 ```bash
 sudo systemctl start wsddn
@@ -451,10 +451,10 @@ sudo systemctl stop wsddn
 sudo systemctl reload wsddn
 ```
 
-Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
+The configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc).
 
-Daemon log can be viewed via `journalctl` as usual
+The daemon log can be viewed via `journalctl` as usual:
 
 ```bash
 journalctl -u wsddn
@@ -466,7 +466,7 @@ journalctl -u wsddn
 
 Pre-built packages are available in a custom `apk` repository for Alpine 3.18 or above. 
 
-Architectures supported: `x86_64` and`aarch64`
+Architectures supported: `x86_64` and `aarch64`
 
 <details>
 
@@ -481,7 +481,7 @@ To set up the repository:
     | sudo tee /etc/apk/keys/gershnik@hotmail.com-6643812b.rsa.pub >/dev/null
   ```
 
-2. Add new repo
+2. Add a new repo
   ```bash
   sudo mkdir -p /etc/apk/repositories.d && \
   echo "https://www.gershnik.com/alpine-repo/main" \
@@ -499,7 +499,7 @@ To set up the repository:
   ```
   
 If your Alpine system has OpenRC running (e.g. not a Docker container), OpenRC configuration will be automatically installed too.
-Otherwise, if desired, you can manually add it via `sudo apk add wsdd-native-openrc`. Similarly documentation is available via `sudo apk add wsdd-native-doc`.
+Otherwise, if desired, you can manually add it via `sudo apk add wsdd-native-openrc`. Similarly, documentation is available via `sudo apk add wsdd-native-doc`.
 
 Under OpenRC:
 
@@ -510,7 +510,7 @@ sudo rc-update add wsddn
 sudo rc-service wsddn start
 ```
 
-To start/stop/reload it use
+To start/stop/reload it use:
 
 ```bash
 sudo rc-service wsddn start
@@ -518,11 +518,11 @@ sudo rc-service wsddn stop
 sudo rc-service wsddn reload
 ```
 
-Configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-If you installed documentation you can also use `man wsddn` to learn about configuration 
-or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
+The configuration file will be at `/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+If you installed documentation, you can also use `man wsddn` to learn about configuration 
+or see an online version [here][manpage] or [here](doc/wsddn.8.adoc).
 
-Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `logrotate`. To modify rotation settings edit `/etc/logrotate.d/wsddn`
+The log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `logrotate`. To modify rotation settings, edit `/etc/logrotate.d/wsddn`.
 
 </details>
 
@@ -558,15 +558,15 @@ To set the repo up:
   }
   ```
 
-Once the repository is set up you can install `wsddn` as usual via
+Once the repository is set up you can install `wsddn` as usual via:
 
 ```bash
 sudo pkg update
 sudo pkg install wsddn
 ```
 
-As is standard on FreeBSD daemon will not be enabled or started after installation. To enable it, edit `/etc/rc.conf` and add
-the following line there:
+As is standard on FreeBSD, the daemon will not be enabled or started after installation. To enable it, edit `/etc/rc.conf` and add
+the following line:
 ```
 wsddn_enable="YES"
 ```
@@ -579,10 +579,10 @@ sudo service wsddn stop
 sudo service wsddn reload
 ```
 
-Configuration file will be at `/usr/local/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
-You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
+The configuration file will be at `/usr/local/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc).
 
-Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsylogd`. To modify rotation settings edit `/usr/local/etc/newsyslog.conf.d/wsddn.conf`
+The log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsyslogd`. To modify rotation settings, edit `/usr/local/etc/newsyslog.conf.d/wsddn.conf`.
 
 </details>
 
@@ -598,12 +598,12 @@ architecture is currently supported. The package is available from [Releases][re
 
 To install:
 
-* Download the [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.23/wsddn-1.23-OpenBSD-amd64.tgz)
+* Download [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.23/wsddn-1.23-OpenBSD-amd64.tgz)
 * **Important:** Rename it to `wsddn-1.23.tgz`. For example:
 ```sh
 mv wsddn-1.23-OpenBSD-amd64.tgz wsddn-1.23.tgz
 ```
-* Run
+* Run:
 ```console
 # pkg_add -D unsigned wsddn-x.y.tgz
 ```
@@ -615,8 +615,8 @@ To uninstall:
 
 Use the `-c` flag to also remove `_wsddn` daemon user and group.
 
-As is standard on OpenBSD daemon will not be enabled or started after installation. 
-To enable it call
+As is standard on OpenBSD, the daemon will not be enabled or started after installation. 
+To enable it, call:
 ```console
 # rcctl enable wsddn
 ```
@@ -629,27 +629,27 @@ To start/stop/reload the daemon use:
 # rcctl reload wsddn
 ```
 
-Configuration file will be at `/etc/wsddn/wsddn.conf`. Comments inside indicate available options and their meaning. You can also consult `/etc/wsddn/wsddn.conf.sample` you can consult, that preserves the original configuration.
-You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc)
+The configuration file will be at `/etc/wsddn/wsddn.conf`. Comments inside indicate available options and their meaning. You can also consult `/etc/wsddn/wsddn.conf.sample`, which preserves the original configuration.
+You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc).
 
-Log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsylogd`. To modify rotation settings edit `/etc/newsyslog.conf`.
+The log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsyslogd`. To modify rotation settings, edit `/etc/newsyslog.conf`.
 
 </details>
 
 ### Docker
 
-On Linux, if you are loath to install or build anything you also have an option to run
+On Linux, if you are loath to install or build anything, you also have an option to run
 `wsdd-native` in a Docker container.
 
 > [!WARNING]
-> Docker container will **not** work on macOS.
+> The Docker container will **not** work on macOS.
 
 <details>
 
 <summary>Setup and usage (click to expand)</summary>
 <br>
 
-To run the container do
+To run the container, do:
 
 ```bash
 docker run --net=host -e WSDDN_HOSTNAME=$(hostname) gershnik/wsddn
@@ -670,12 +670,12 @@ configurable settings.
 
 * Git
 * C++20 capable compiler. Minimal compilers known to work are GCC 10.2, Clang 13 and Xcode 13.
-* CMake 3.25 or greater. If your distribution CMake is older than that you can download a newer version from https://cmake.org/download/
-* _Optional_: On Linux if you wish to enable `systemd` integration make sure you have `libsystemd` library and headers installed on your system. On APT systems use:
+* CMake 3.25 or greater. If your distribution's CMake is older than that, you can download a newer version from https://cmake.org/download/
+* _Optional_: On Linux, if you wish to enable `systemd` integration, make sure you have `libsystemd` library and headers installed on your system. On APT systems use:
   ```bash
   sudo apt install libsystemd-dev
   ```
-  On DNF systems use
+  On DNF systems use:
   ```bash
   sudo dnf install systemd-devel
   ```
@@ -690,41 +690,41 @@ cmake --build out
 sudo cmake --install out --strip
 ```
 
-The `wsddn` executable will be installed into `/usr/local/bin` and manpage added to section 8 of the manual.
+The `wsddn` executable will be installed into `/usr/local/bin` and the manpage added to section 8 of the manual.
 
-To use a non-default compiler, set `CC` and `CXX` variables before CMake configure step. 
-Other usual variables like `CXXFLGS` or `LDFLGAS` are also supported by CMake. For more information see [cmake-env-variables](https://cmake.org/cmake/help/latest/manual/cmake-env-variables.7.html)
+To use a non-default compiler, set the `CC` and `CXX` variables before the CMake configure step. 
+Other usual variables like `CXXFLAGS` or `LDFLAGS` are also supported by CMake. For more information, see [cmake-env-variables](https://cmake.org/cmake/help/latest/manual/cmake-env-variables.7.html)
 
-The following flags can be passed to CMake configure step:
+The following flags can be passed to the CMake configure step:
 
 - `-DWSDDN_PREFER_SYSTEM_LIBXML2=ON|OFF`
 - `-DWSDDN_PREFER_SYSTEM_FMT=ON|OFF`
 - `-DWSDDN_PREFER_SYSTEM_SPDLOG=ON|OFF`
 - `-DWSDDN_PREFER_SYSTEM_TOMLPLUSPLUS=ON|OFF`
 
-This controls whether to prefer system package version of 3rd party libraries or fetch and use them from sources.
-By default all dependencies are fetched and used from sources.
+This controls whether to prefer the system package version of 3rd party libraries or fetch and use them from sources.
+By default, all dependencies are fetched and used from sources.
 
 On Linux:
 
 `-DWSDDN_WITH_SYSTEMD="yes"|"no"|"auto"`. 
 
-This controls whether to enable `systemd` integration. Auto performs auto-detection (this is the default). 
+This controls whether to enable `systemd` integration. `auto` performs auto-detection (this is the default). 
 
 ### Setting up daemon
 
 The [config](config) directory of this repo contains sample configuration files for different init systems (Systemd, Launchd, SysV init, FreeBSD and OpenBSD rc.d and OpenRC). You can adapt those as appropriate to your system. 
 
-Command line flags and configuration file entries are documented in `man wsddn` and online [here][manpage] or [here](doc/wsddn.8.adoc)
+Command line flags and configuration file entries are documented in `man wsddn` and online [here][manpage] or [here](doc/wsddn.8.adoc).
 
 
 ## Usage
 
 ### Firewall Setup
 
-<small>Note: The following instructions are copied almost verbatim from [wsdd][wsdd] since the requirements are identical</small>
+<small>Note: The following instructions are copied almost verbatim from [wsdd][wsdd] since the requirements are identical.</small>
 
-Traffic for the following ports, directions and addresses must be allowed.
+Traffic for the following ports, directions and addresses must be allowed:
 
 * incoming and outgoing traffic to `udp/3702` with multicast destination:
   * `239.255.255.250` for IPv4
@@ -734,55 +734,55 @@ Traffic for the following ports, directions and addresses must be allowed.
 
 You should further restrict the traffic to the (link-)local subnet, e.g. by using the `fe80::/10` address space for IPv6. Please note that IGMP traffic must be enabled in order to get IPv4 multicast traffic working.
 
-For UFW and firewalld, application/service profiles can be found under `config/firewalls`. If using binary installation packages these are provided 
-as part of the installation. Note that UFW profiles only allow to grant the traffic on specific UDP and TCP ports, but a restriction on the IP range (like link local for IPv6) or the multicast traffic is not possible.
+For UFW and firewalld, application/service profiles can be found under `config/firewalls`. If using binary installation packages, these are provided 
+as part of the installation. Note that UFW profiles only allow you to permit the traffic on specific UDP and TCP ports, but a restriction on the IP range (like link local for IPv6) or the multicast traffic is not possible.
 
 ### Security
 
-There are four main security concerns with a daemon that accepts network requests and delivers data about local machine over the network
+There are four main security concerns with a daemon that accepts network requests and delivers data about the local machine over the network.
 
 1. A bug inside the daemon code may allow a remote attacker to penetrate the machine running it.
 2. The information legitimately provided by the daemon will disclose something to an attacker that would otherwise remain unknown, enabling him to mount further attacks.
-3. A bug or even the _normal functionality_ of the daemon might allow a remote attacker to use it to mount further attacks against other systems. For example it might be possible to "convince" the daemon to become a part of a distributed denial of service (DDoS) attack.
-4. A bug or a normal operation of the daemon might allow a remote attacker to make it or even the entire machine hosting it unresponsive resulting in a denial of service.
+3. A bug or even the _normal functionality_ of the daemon might allow a remote attacker to use it to mount further attacks against other systems. For example, it might be possible to "convince" the daemon to become a part of a distributed denial of service (DDoS) attack.
+4. A bug or a normal operation of the daemon might allow a remote attacker to make it or even the entire machine hosting it unresponsive, resulting in a denial of service.
 
-Currently the implementation ignores the second concern. The things **wsdd-native** discloses are the existence of the local host, its name, presence of Samba on it and domain/workgroup membership. All of these are generally disclosed by Samba itself via SMB broadcasts so, assuming the firewall is configured as described above, there is no net gain for an attacker. WS-Discovery protocol contains provisions for encrypting its HTTP traffic and potentially authenticating clients accessing your host via their client certificates. This limits exposure somewhat but at a significant configuration and maintenance cost. If there is interest in any of it it is possible to easily add this functionality in a future version. 
+Currently, the implementation ignores the second concern. The things **wsdd-native** discloses are the existence of the local host, its name, presence of Samba on it and domain/workgroup membership. All of these are generally disclosed by Samba itself via SMB broadcasts, so, assuming the firewall is configured as described above, there is no net gain for an attacker. The WS-Discovery protocol contains provisions for encrypting its HTTP traffic and potentially authenticating clients accessing your host via their client certificates. This limits exposure somewhat but at a significant configuration and maintenance cost. If there is interest in any of it, it is possible to easily add this functionality in a future version. 
 
-The first concern is by far the most significant one. All software contains bugs and despite developer's best efforts there is always a risk that a bad actor can discover some kind of input that allows him to hijack the server process. To address this possibility **wsdd-native** takes the following measures (apart from general secure coding practices):
-* The process performing network communications never runs as root. If launched as root it will create an unprivileged account (`_wsddn:_wsddn` or `wsddn:wsddn` based on platform conventions) and run network process under it.
-* Similarly when started as root the daemon will lock the network process in a [chroot jail][chroot_jail] (usually `/var/empty` or `/var/run/wsddn` or another platform appropriate location). 
+The first concern is by far the most significant one. All software contains bugs, and despite the developer's best efforts, there is always a risk that a bad actor can discover some kind of input that allows him to hijack the server process. To address this possibility, **wsdd-native** takes the following measures (apart from general secure coding practices):
+* The process performing network communications never runs as root. If launched as root, it will create an unprivileged account (`_wsddn:_wsddn` or `wsddn:wsddn` based on platform conventions) and run the network process under it.
+* Similarly, when started as root, the daemon will lock the network process in a [chroot jail][chroot_jail] (usually `/var/empty` or `/var/run/wsddn` or another platform-appropriate location). 
 
-These measures are automatic and cannot be bypassed. Taken together they should limit the fallout of any vulnerability though, of course, nothing ever can be claimed to be 100% secure.
+These measures are automatic and cannot be bypassed. Taken together, they should limit the fallout of any vulnerability, though, of course, nothing ever can be claimed to be 100% secure.
 
-Note that when running on `systemd` systems it is recommended to use its `DynamicUser` facility instead of running as root and relying on the measures above. The Debian/Ubuntu/Fedora/Arch binary packages do so.
+Note that, when running on `systemd` systems, it is recommended to use its `DynamicUser` facility instead of running as root and relying on the measures above. The Debian/Ubuntu/Fedora/Arch binary packages do so.
 
-The third concern is also a significant one. Even in absence of any bugs a completely correct implementation of WS-Discovery protocol is known to be vulnerable to these kinds of attacks. See for example 
+The third concern is also a significant one. Even in the absence of any bugs, a completely correct implementation of the WS-Discovery protocol is known to be vulnerable to these kinds of attacks. See, for example, 
 [here](https://blogs.akamai.com/sitr/2019/09/new-ddos-vector-observed-in-the-wild-wsd-attacks-hitting-35gbps.html) and 
 [here](https://www.zdnet.com/article/protocol-used-by-630000-devices-can-be-abused-for-devastating-ddos-attacks/). 
-Bugs (always a possibility) can make things even worse. As far as I know there is no effective mitigation to this threat that **wsdd-native** can implement in code. The only way to prevent these kinds of attacks is to __never__ expose **wsdd-native** ports to open internet via [firewall configuration](#firewall-setup). Given that the whole purpose of this daemon is to enable interoperability with Windows via SMB protocol there is probably never a good
+Bugs (always a possibility) can make things even worse. As far as I know, there is no effective mitigation to this threat that **wsdd-native** can implement in code. The only way to prevent these kinds of attacks is to __never__ expose **wsdd-native** ports to the open internet via [firewall configuration](#firewall-setup). Given that the whole purpose of this daemon is to enable interoperability with Windows via the SMB protocol, there is probably never a good
 reason to let it accept and send traffic outside of a local network.
 
-The fourth concern, while also present, is less severe than the above. **wsdd-native** is single threaded and so, even if overwhelmed by traffic, will not stress more than 1 CPU core. Its memory consumption is bounded so, in absence of bugs, it will not stress system memory either. It can itself be rendered unresponsive, of course, by too much traffic but, considering that it probably isn't a vital service for anyone, this isn't something that would excite any attacker. Possible bugs change this picture, however. If the network process is hijacked, even if mitigations for the 1st concern prevent further system penetration, the attacker can still make the network process consume too much CPU and memory. You can try to mitigate against this possibility by limiting daemon CPU and memory usage via [cgroups](https://www.redhat.com/en/blog/cgroups-part-four) or other mechanisms. However, a much simpler solution to these issues is the same as the above - never expose the daemon to the open internet.
+The fourth concern, while also present, is less severe than the above. **wsdd-native** is single-threaded, and so, even if overwhelmed by traffic, it will not stress more than 1 CPU core. Its memory consumption is bounded, so, in the absence of bugs, it will not stress system memory either. It can itself be rendered unresponsive, of course, by too much traffic, but, considering that it probably isn't a vital service for anyone, this isn't something that would excite any attacker. Possible bugs change this picture, however. If the network process is hijacked, even if mitigations for the 1st concern prevent further system penetration, the attacker can still make the network process consume too much CPU and memory. You can try to mitigate against this possibility by limiting daemon CPU and memory usage via [cgroups](https://www.redhat.com/en/blog/cgroups-part-four) or other mechanisms. However, a much simpler solution to these issues is the same as the above - never expose the daemon to the open internet.
 
 ### Custom metadata
 
-By default **wsdd-native** exposes the host it is running on as a computer in "Computer" section of Windows Explorer Network view. Clicking on a computer will attempt to access its shares via SMB protocol.
+By default, **wsdd-native** exposes the host it is running on as a computer in the "Computer" section of Windows Explorer Network view. Clicking on a computer will attempt to access its shares via the SMB protocol.
 
-Instead of this **wsdd-native** allows you to expose the host as a different kind of device among those supported by Windows Explorer, for example a media player, home security, printer etc. To do so you need to author a custom metadata XML and specify it via `--metadata` command line switch or `metadata` field in `wsddn.conf`.
+Instead of this, **wsdd-native** allows you to expose the host as a different kind of device among those supported by Windows Explorer, for example, a media player, home security, printer, etc. To do so, you need to author a custom metadata XML and specify it via the `--metadata` command line switch or `metadata` field in `wsddn.conf`.
 
 More details on this can be found [on this page](config/metadata/README.md).
 
 
 ## Acknowledgements
 
-**wsdd-native** is directly influenced by [wsdd][wsdd]. While no source code from it was directly re-used in this project, many design and implementation ideas were; as well as command line design and some documentation content.
+**wsdd-native** is directly influenced by [wsdd][wsdd]. While no source code from it was directly reused in this project, many design and implementation ideas were, as well as command line design and some documentation content.
 
 See [Acknowledgements.md](Acknowledgements.md) for information about open source libraries used in this project.
 
 ## Reporting Bugs
 
 Please use the GitHub [issue tracker][issues] to report any bugs or suggestions.
-For vulnerability disclosures or other security concerns see [Security Policy](SECURITY.md)
+For vulnerability disclosures or other security concerns, see [Security Policy](SECURITY.md).
 
 <!-- Links -->
 

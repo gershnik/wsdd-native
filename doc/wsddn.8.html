@@ -464,7 +464,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_description">DESCRIPTION</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><strong>wsddn</strong> is a native daemon that implements WS-Discovery (WSD) host protocol. It allows UNIX hosts
+<p><strong>wsddn</strong> is a native daemon that implements the WS-Discovery (WSD) host protocol. It allows UNIX hosts
 to be found by modern Windows versions and displayed in their Explorer Network views.</p>
 </div>
 <div class="paragraph">
@@ -480,7 +480,7 @@ command-line options override values specified in the configuration file.</p>
 <h2 id="_options">OPTIONS</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Unless otherwise specified options cannot be repeated. The options are as follows:</p>
+<p>Unless otherwise specified, options cannot be repeated. The options are as follows:</p>
 </div>
 <div class="sect2">
 <h3 id="_general_options">General options</h3>
@@ -509,7 +509,7 @@ command-line options override values specified in the configuration file.</p>
 <dt class="hdlist1"><strong>--config</strong> <em>path</em>, <strong>-c</strong> <em>path</em></dt>
 <dd>
 <p>Path to the configuration file. The file does not need to exist. If it exists, the file is read and options
-specified in it are applied <em>if not already specified on command line</em>. See [CONFIG FILE] below for information
+specified in it are applied <em>if not already specified on the command line</em>. See [CONFIG FILE] below for information
 about its syntax and content. Content of the configuration file is re-read upon <strong>SIGHUP</strong> signal. By default,
 if this option isn&#8217;t specified, no configuration file is read.</p>
 </dd>
@@ -522,12 +522,12 @@ if this option isn&#8217;t specified, no configuration file is read.</p>
 <dl>
 <dt class="hdlist1"><strong>--log-level</strong> <em>level</em></dt>
 <dd>
-<p>Sets the verbosity of log output. Log levels range from 0 (disable logging) to 6 (detailed trace) with default being 4.
+<p>Sets the verbosity of log output. Log levels range from 0 (disable logging) to 6 (detailed trace) with the default being 4.
 Passing values bigger than 6 is equivalent to 6.</p>
 </dd>
 <dt class="hdlist1"><strong>--log-file</strong> <em>path</em></dt>
 <dd>
-<p>The path of the file to write the log output to. If not specified <strong>wsddn</strong> outputs its log messages as follows:</p>
+<p>The path of the file to write the log output to. If not specified, <strong>wsddn</strong> outputs its log messages as follows:</p>
 <div class="ulist">
 <ul>
 <li>
@@ -547,27 +547,28 @@ Passing values bigger than 6 is equivalent to 6.</p>
 </dd>
 <dt class="hdlist1"><strong>--log-os-log</strong></dt>
 <dd>
-<p>Available on macOS only. If specified log output is sent to system log visible via Console app or <strong>log</strong> command line tool.
+<p>Available on macOS only. If specified, log output is sent to the system log visible via
+the Console app or <strong>log</strong> command-line tool.
 This option is mutually exclusive with <strong>--log-file</strong>.</p>
 </dd>
 <dt class="hdlist1"><strong>--pid-file</strong> <em>path</em></dt>
 <dd>
-<p>Set the path to PID file. If not specified no PID file is written. Send <strong>SIGHUP</strong> to the process ID in the PID file
-to reload configuration. If <strong>--user</strong> option is used, the directory of the pidfile must allow the specified user to
+<p>Set the path to the PID file. If not specified, no PID file is written. Send <strong>SIGHUP</strong> to the process ID in the PID file
+to reload configuration. If the <strong>--user</strong> option is used, the directory of the PID file must allow the specified user to
 create and delete files.</p>
 </dd>
 <dt class="hdlist1"><strong>--user</strong> <em>username</em>[:<em>groupname</em>], <strong>-U</strong> <em>username</em>[:<em>groupname</em>]</dt>
 <dd>
-<p>Set the identity under which the process that performs network communications will run. If group name is not
-specified, primary group of the username is used.</p>
+<p>Set the identity under which the process that performs network communications will run. If the group name is not
+specified, the primary group of the username is used.</p>
 <div class="paragraph">
-<p>If this option is not specified then the behavior is as follows:</p>
+<p>If this option is not specified, then the behavior is as follows:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>If wsddn process is run under the root account it tries to use a special unprivileged account name
-(<strong>_wsddn</strong>:<strong>_wsddn</strong> or <strong>wsddn</strong>:<strong>wsddn</strong> depending on a platform). The user and group are created if they do not exist.
+<p>If the wsddn process is run under the root account, it tries to use a special unprivileged account name
+(<strong>_wsddn</strong>:<strong>_wsddn</strong> or <strong>wsddn</strong>:<strong>wsddn</strong> depending on the platform). The user and group are created if they do not exist.
 Any failures in these steps stop the process.</p>
 </li>
 <li>
@@ -576,20 +577,20 @@ Any failures in these steps stop the process.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>The net effect of these rules is that wsddn under no circumstances will perform network communications under root account.</p>
+<p>The net effect of these rules is that wsddn will under no circumstances perform network communications under the root account.</p>
 </div>
 </dd>
 <dt class="hdlist1"><strong>--chroot</strong> <em>dir</em>, <strong>-r</strong> <em>dir</em></dt>
 <dd>
-<p>Set the directory into which process that performs network communications should chroot. This further limits any impact
-of potential network exploits into wsddn.</p>
+<p>Set the directory into which the process that performs network communications should chroot. This further limits any impact
+of potential network exploits against wsddn.</p>
 <div class="paragraph">
-<p>If not specified the behavior is as follows:</p>
+<p>If not specified, the behavior is as follows:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>If wsddn process is run under the root account: use <strong>/var/empty</strong> or <strong>/var/run/wsddn</strong> depending on a platform.
+<p>If the wsddn process is run under the root account: use <strong>/var/empty</strong> or <strong>/var/run/wsddn</strong> depending on the platform.
 This directory will be created if it does not exist.</p>
 </li>
 <li>
@@ -598,8 +599,8 @@ This directory will be created if it does not exist.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>Note: do not use external methods to chroot wsddn process (e.g. using launchd config plist). Non-networking parts
-of wsddn need access to the normal filesystem to detect SMB configuration etc.</p>
+<p>Note: do not use external methods to chroot the wsddn process (e.g., using launchd config plist). Non-networking parts
+of wsddn need access to the normal filesystem to detect SMB configuration, etc.</p>
 </div>
 </dd>
 </dl>
@@ -620,21 +621,21 @@ For interfaces with IPv6 addresses, only link-local addresses will be used.</p>
 </dd>
 <dt class="hdlist1"><strong>--ipv4only</strong>, <strong>-4</strong></dt>
 <dd>
-<p>Use only IPv4. By default both IPv4 and IPv6 are used. This option cannot be combined with <strong>--ipv6only</strong>.</p>
+<p>Use only IPv4. By default, both IPv4 and IPv6 are used. This option cannot be combined with <strong>--ipv6only</strong>.</p>
 <div class="paragraph">
 <p>The equivalent config file option is <strong>allowed-address-family</strong>.</p>
 </div>
 </dd>
 <dt class="hdlist1"><strong>--ipv6only</strong>, <strong>-6</strong></dt>
 <dd>
-<p>Use only IPv6. By default both IPv4 and IPv6 are used. This option cannot be combined with <strong>--ipv4only</strong>.</p>
+<p>Use only IPv6. By default, both IPv4 and IPv6 are used. This option cannot be combined with <strong>--ipv4only</strong>.</p>
 <div class="paragraph">
 <p>The equivalent config file option is <strong>allowed-address-family</strong>.</p>
 </div>
 </dd>
 <dt class="hdlist1"><strong>--hoplimit</strong> <em>number</em></dt>
 <dd>
-<p>Set the hop limit for multicast packets. The default is 1 which should prevent packets from leaving the local network segment.</p>
+<p>Set the hop limit for multicast packets. The default is 1, which should prevent packets from leaving the local network segment.</p>
 </dd>
 <dt class="hdlist1"><strong>--source-port</strong> <em>number</em></dt>
 <dd>
@@ -651,32 +652,32 @@ so the port needs to be fixed in order to be allowed manually.</p>
 <dl>
 <dt class="hdlist1"><strong>--uuid</strong> <em>uuid</em></dt>
 <dd>
-<p>WS-Discovery protocol requires your machine to have a unique identifier that is stable across reboots or changes
-in networks.  By default, <strong>wsddn</strong> uses UUID version 5 with private namespace and the host name of the machine.
+<p>The WS-Discovery protocol requires your machine to have a unique identifier that is stable across reboots or changes
+in networks. By default, <strong>wsddn</strong> uses UUID version 5 with a private namespace and the host name of the machine.
 This will remain stable as long as the hostname doesn&#8217;t change. If desired, you can override this with a fixed
 UUID using this option.</p>
 </dd>
 <dt class="hdlist1"><strong>--hostname</strong> <em>name</em>, <strong>-H</strong> <em>name</em></dt>
 <dd>
-<p>Override hostname to be reported to Windows machines. By default the local machine&#8217;s hostname
-(with domain part, if any, removed) is used. If you set the name to <strong>:NETBIOS:</strong> then Netbios
-hostname will be used. The Netbios hostname is either detected from SMB configuration, if found,
-or produced by capitalizing normal machine hostname.</p>
+<p>Override the hostname to be reported to Windows machines. By default, the local machine&#8217;s hostname
+(with domain part, if any, removed) is used. If you set the name to <strong>:NETBIOS:</strong>, then the NetBIOS
+hostname will be used. The NetBIOS hostname is either detected from SMB configuration, if found,
+or produced by capitalizing the normal machine hostname.</p>
 </dd>
 <dt class="hdlist1"><strong>--domain</strong> <em>name</em>, <strong>-D</strong> <em>name</em></dt>
 <dd>
-<p>Report this computer as a member of Windows domain <em>name</em>. Options <strong>--domain</strong> and <strong>--workgroup</strong>
-are mutually exclusive. If neither is specified domain/workgroup membership is auto-detected
-from SMB configuration. If no SMB configuration is found it is set to a workgroup named <strong>WORKGROUP</strong>.</p>
+<p>Report this computer as a member of a Windows domain <em>name</em>. Options <strong>--domain</strong> and <strong>--workgroup</strong>
+are mutually exclusive. If neither is specified, domain/workgroup membership is auto-detected
+from SMB configuration. If no SMB configuration is found, it is set to a workgroup named <strong>WORKGROUP</strong>.</p>
 <div class="paragraph">
-<p>The equivalent config file option is <strong>member-of</strong></p>
+<p>The equivalent config file option is <strong>member-of</strong>.</p>
 </div>
 </dd>
 <dt class="hdlist1"><strong>--workgroup</strong> <em>name</em>, <strong>-W</strong> <em>name</em></dt>
 <dd>
-<p>Report this computer as a member of Windows workgroup <em>name</em>. Options <strong>--domain</strong> and <strong>--workgroup</strong>
-are mutually exclusive. If neither is specified domain/workgroup membership is auto-detected from
-SMB configuration. If no SMB configuration is found it is set to a workgroup named <strong>WORKGROUP</strong>.</p>
+<p>Report this computer as a member of a Windows workgroup <em>name</em>. Options <strong>--domain</strong> and <strong>--workgroup</strong>
+are mutually exclusive. If neither is specified, domain/workgroup membership is auto-detected from
+SMB configuration. If no SMB configuration is found, it is set to a workgroup named <strong>WORKGROUP</strong>.</p>
 <div class="paragraph">
 <p>The equivalent config file option is <strong>member-of</strong>.</p>
 </div>
@@ -684,9 +685,9 @@ SMB configuration. If no SMB configuration is found it is set to a workgroup nam
 <dt class="hdlist1"><strong>--smb-conf</strong> <em>path</em></dt>
 <dd>
 <p>Path to <strong>smb.conf</strong>, <strong>samba.conf</strong>, or <strong>ksmbd.conf</strong> file to extract the SMB configuration from.
-This option is not available on macOS. By default <strong>wsddn</strong> tries to locate this file on its own by
-querying your local Samba installation. Use this option if auto-detection fails, picks wrong
-Samba instance or if you are using KSMBD on Linux. The equivalent config file option is <strong>smb-conf</strong>.</p>
+This option is not available on macOS. By default, <strong>wsddn</strong> tries to locate this file on its own by
+querying your local Samba installation. Use this option if auto-detection fails, picks the wrong
+Samba instance, or if you are using KSMBD on Linux. The equivalent config file option is <strong>smb-conf</strong>.</p>
 </dd>
 <dt class="hdlist1"><strong>--metadata</strong> <em>path</em>, <strong>-m</strong> <em>path</em></dt>
 <dd>
@@ -710,32 +711,33 @@ metadata format and content.</p>
 <dl>
 <dt class="hdlist1"><strong>NO_COLOR</strong></dt>
 <dd>
-<p>set to a non-empty value (1 is recommended) to prevent color output on <strong>stdout</strong>/<strong>stderr</strong></p>
+<p>Set to a non-empty value (1 is recommended) to prevent color output on <strong>stdout</strong>/<strong>stderr</strong>.</p>
 </dd>
 <dt class="hdlist1"><strong>FORCE_COLOR</strong></dt>
 <dd>
-<p>set to a non-empty value (1 is recommended) to force color output on <strong>stdout</strong>/<strong>stderr</strong>.</p>
+<p>Set to a non-empty value (1 is recommended) to force color output on <strong>stdout</strong>/<strong>stderr</strong>.</p>
 </dd>
 <dt class="hdlist1"><strong>CLICOLOR_FORCE</strong></dt>
 <dd>
-<p>if set to <strong>0</strong> or <strong>false</strong> prevents color output <strong>stdout</strong>/<strong>stderr</strong>. If set to any other non-empty value forces color output.</p>
+<p>If set to <strong>0</strong> or <strong>false</strong>, it prevents color output on <strong>stdout</strong>/<strong>stderr</strong>.
+If set to any other non-empty value, it forces color output.</p>
 </dd>
 <dt class="hdlist1"><strong>CLICOLOR</strong></dt>
 <dd>
-<p>same as <strong>CLICOLOR_FORCE</strong> but with lower precedence</p>
+<p>Same as <strong>CLICOLOR_FORCE</strong> but with lower precedence.</p>
 </dd>
 <dt class="hdlist1"><strong>COLORTERM</strong></dt>
 <dd>
-<p>if set to a non-empty value the terminal is assumed to support color output. Unless suppressed by
+<p>If set to a non-empty value, the terminal is assumed to support color output. Unless suppressed by
 higher precedence variables, the output to <strong>stdout</strong>/<strong>stderr</strong> will be colored <em>iff</em> they are connected
-to the terminal (as reported by <strong>isatty</strong>())</p>
+to the terminal (as reported by <strong>isatty</strong>()).</p>
 </dd>
 <dt class="hdlist1"><strong>TERM</strong></dt>
 <dd>
-<p>content of this variable is used to detect whether the terminal supports colors. The detection
+<p>The content of this variable is used to detect whether the terminal supports colors. The detection
 criteria are undocumented and subject to change. If the terminal is deemed to support colors
 and unless suppressed by higher precedence variables, the output to <strong>stdout</strong>/<strong>stderr</strong> will be colored
-<em>iff</em> they are connected to the terminal (as reported by <strong>isatty</strong>())</p>
+<em>iff</em> they are connected to the terminal (as reported by <strong>isatty</strong>()).</p>
 </dd>
 </dl>
 </div>
@@ -751,11 +753,11 @@ and unless suppressed by higher precedence variables, the output to <strong>stdo
 <dl>
 <dt class="hdlist1"><strong>SIGHUP</strong></dt>
 <dd>
-<p>gracefully stop network communications, reload configuration and re-start communications.</p>
+<p>Gracefully stop network communications, reload configuration and re-start communications.</p>
 </dd>
 <dt class="hdlist1"><strong>SIGTERM</strong>, <strong>SIGINT</strong></dt>
 <dd>
-<p>gracefully stop network communications and exit.</p>
+<p>Gracefully stop network communications and exit.</p>
 </dd>
 </dl>
 </div>
@@ -765,7 +767,7 @@ and unless suppressed by higher precedence variables, the output to <strong>stdo
 <h2 id="_exit_status">EXIT STATUS</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><strong>wsddn</strong> exit code is 0 upon normal termination (via <strong>SIGINT</strong> or <strong>SIGTERM</strong>) or non-zero upon error.</p>
+<p>The <strong>wsddn</strong> exit code is 0 upon normal termination (via <strong>SIGINT</strong> or <strong>SIGTERM</strong>) or non-zero upon error.</p>
 </div>
 </div>
 </div>
@@ -801,15 +803,15 @@ space for IPv6. Please note that IGMP traffic must be enabled in order to get IP
 <p>The syntax of the configuration file is TOML (<a href="https://toml.io/en/" class="bare">https://toml.io/en/</a>).</p>
 </div>
 <div class="paragraph">
-<p>Any options specified on command line take precedence over options in the config file. Most options are named and
-behave exactly the same as corresponding command line options. Exceptions are explained in-depth below.</p>
+<p>Any options specified on the command line take precedence over options in the config file. Most options are named and
+behave exactly the same as the corresponding command line options. Exceptions are explained in-depth below.</p>
 </div>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>allowed-address-family</strong> = "IPv4" | "IPv6"</dt>
 <dd>
-<p>Restrict communications to the given address family. Valid values are "IPv4" or "IPv6" case-insensitive.
-The equivalent command line options are <strong>--ipv4only</strong> and <strong>--ipv6only</strong></p>
+<p>Restrict communications to the given address family. Valid values are "IPv4" or "IPv6", case-insensitive.
+The equivalent command line options are <strong>--ipv4only</strong> and <strong>--ipv6only</strong>.</p>
 </dd>
 <dt class="hdlist1"><strong>chroot</strong> = "<em>path</em>"</dt>
 <dd>
@@ -829,10 +831,10 @@ The equivalent command line options are <strong>--ipv4only</strong> and <strong>
 </dd>
 <dt class="hdlist1"><strong>interfaces</strong> = [ "<em>name</em>", &#8230;&#8203; ]</dt>
 <dd>
-<p>Specify on which interfaces wsddn will be listening on. If no interfaces are specified,
-or the list is empty all suitable detected interfaces will be used. Loop-back interfaces
+<p>Specify which interfaces wsddn will be listening on. If no interfaces are specified,
+or the list is empty, all suitable detected interfaces will be used. Loop-back interfaces
 are never used, even when explicitly specified. For interfaces with IPv6 addresses,
-only link-local addresses will be used. The equivalent command line option is <strong>--interface</strong></p>
+only link-local addresses will be used. The equivalent command line option is <strong>--interface</strong>.</p>
 </dd>
 <dt class="hdlist1"><strong>log-level</strong> = <em>number</em></dt>
 <dd>
@@ -848,10 +850,10 @@ only link-local addresses will be used. The equivalent command line option is <s
 </dd>
 <dt class="hdlist1"><strong>member-of</strong> = "Workgroup/<em>name</em>" | "Domain/<em>name</em>"</dt>
 <dd>
-<p>Report whether the host is a member of a given workgroup or domain. To specify a workgroup
-use "Workgroup/name" syntax. To specify a domain use "Domain/name". The "workgroup/" and "domain/"
-prefixes are not case sensitive. If not specified workgroup/domain membership is detected
-from SMB configuration. If no SMB configuration is found it is set to a workgroup named WORKGROUP.
+<p>Report whether the host is a member of a given workgroup or domain. To specify a workgroup,
+use "Workgroup/name" syntax. To specify a domain, use "Domain/name". The "workgroup/" and "domain/"
+prefixes are not case-sensitive. If not specified, workgroup/domain membership is detected
+from SMB configuration. If no SMB configuration is found, it is set to a workgroup named WORKGROUP.
 The equivalent command line options are <strong>--domain</strong> and <strong>--workgroup</strong>.</p>
 </dd>
 <dt class="hdlist1"><strong>pid-file</strong> = "<em>path</em>"</dt>
@@ -926,7 +928,7 @@ The equivalent command line options are <strong>--domain</strong> and <strong>--
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-02-13 05:50:48 -0800
+Last updated 2026-05-04 22:18:14 -0700
 </div>
 </div>
 </body>
