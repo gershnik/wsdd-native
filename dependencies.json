@@ -28,11 +28,11 @@
         "md5": "574eb3ad0a8e5685cdc9e7712804900f"
     },
     "LibXml2": {
-        "version": "v2.15.1",
+        "version": "v2.15.3",
         "url": "https://gitlab.gnome.org/GNOME/libxml2/-/archive/${version}/libxml2-${version}.tar.gz",
         "homepage": "https://gitlab.gnome.org/GNOME/libxml2",
-        "sha256": "0a5ebf8fa131585748d661ae692503483aff39d9b29b6c4b342cd80d422f246c",
-        "md5": "d500a7dd8045bc23f552256188ba9ed3"
+        "sha256": "0da50c1415f4ec0364569d2119b1436ba837b31df44af28569d234272c23cf1f",
+        "md5": "74ffef29bd8d29532e860e3ce75c8178"
     },
     "modern-uuid": {
         "version": "v2.2",
@@ -42,11 +42,11 @@
         "md5": "1dc8918829dadaa85a96833ad6841ebc"
     },
     "outcome": {
-        "version": "v2.2.14",
+        "version": "v2.2.15",
         "url": "https://github.com/ned14/outcome/tarball/${version}",
         "homepage": "https://github.com/ned14/outcome",
-        "sha256": "9153fbbb13adc23fbd5cb84d617a9750e7f31ef73e9e0666ac43df540af91a4c",
-        "md5": "5b2fc2bab37dd43db5048892be53d226"
+        "sha256": "9461c08df6cfd7b887f1390df2f36db4aac196590191a24485df60778fdccfc5",
+        "md5": "0117279340558f87b69f9bc6d1434c5a"
     },
     "ptl": {
         "version": "v1.7",
