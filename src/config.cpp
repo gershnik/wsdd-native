@@ -81,7 +81,7 @@ Config::Config(const CommandLine & cmdline):
     }, m_winNetInfo.memberOf);
         
     if (cmdline.metadataFile) {
-        m_metadataDoc = loadMetadaFile(cmdline.metadataFile->native());
+        m_metadataDoc = loadMetadataFile(cmdline.metadataFile->native());
     }
 
     WSDLOG_INFO("Configuration:\n"
@@ -107,13 +107,13 @@ auto Config::getHostName() const -> sys_string {
     return builder.build();
 }
 
-auto Config::loadMetadaFile(const std::string & filename) const -> std::unique_ptr<XmlDoc> {
+auto Config::loadMetadataFile(const std::string & filename) const -> std::unique_ptr<XmlDoc> {
     auto file = ptl::FileDescriptor::open(filename, O_RDONLY);
     std::vector<uint8_t> buf(m_pageSize);
     try {
         auto read = readFile(file, buf.data(), buf.size());
         if (read < 4)
-            throw std::runtime_error(fmt::format("metada file {} is invalid", filename));
+            throw std::runtime_error(fmt::format("metadata file {} is invalid", filename));
         auto templateParsingCtx = XmlParserContext::createPush(buf.data(), int(read), filename.c_str());
         #if LIBXML_VERSION >= 21300
             templateParsingCtx->useOptions(XML_PARSE_NO_XXE, XML_PARSE_NO_XXE);
@@ -127,11 +127,11 @@ auto Config::loadMetadaFile(const std::string & filename) const -> std::unique_p
         }
         
         if (!templateParsingCtx->wellFormed())
-            throw std::runtime_error(fmt::format("metada file {} is not well formed XML", filename));
+            throw std::runtime_error(fmt::format("metadata file {} is not well formed XML", filename));
         return templateParsingCtx->extractDoc();
         
     } catch (XmlException & ex) {
-        throw std::runtime_error(fmt::format("metada file {} is not a valid XML", filename));
+        throw std::runtime_error(fmt::format("metadata file {} is not a valid XML", filename));
     }
     
 }

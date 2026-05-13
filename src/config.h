@@ -67,7 +67,7 @@ private:
     
     auto getHostName() const -> sys_string;
     
-    auto loadMetadaFile(const std::string & filename) const -> std::unique_ptr<XmlDoc>;
+    auto loadMetadataFile(const std::string & filename) const -> std::unique_ptr<XmlDoc>;
 private:
     size_t m_instanceIdentifier;
     sys_string m_fullHostName;
