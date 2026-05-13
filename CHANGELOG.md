@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - Official support for DragonFly BSD
 
+### Changed
+- Updated 3rd party dependencies
+- Hardened HTTP and XML parsing against denial-of-service attacks. 
+  This makes it a bit harder (but not impossible!) to mount DoS attacks against the server.
+  Remember to never expose the server to the open internet!
+- Docker image now runs under non-root account.
+
+### Fixed
+- Incorrect parsing of certain unexpected HTTP requests. In extremely rare cases this could cause
+  a (non-exploitable) crash.
+- Warnings when building under Xcode.
+
+
 ## [1.23] - 2026-02-13
 
 ### Changed
