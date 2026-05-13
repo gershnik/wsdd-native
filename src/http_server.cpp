@@ -276,7 +276,13 @@ auto HttpConnection::parseHeader(const std::byte * first, const std::byte * last
         m_response = HttpResponse::makeStockResponse(HttpResponse::BadRequest);
         return {ParseResult::Error, readEnd};
     }
-    m_contentRemaining = *contentLengthRes.assume_value();
+    auto contentLength = *contentLengthRes.assume_value();
+    if (contentLength > 256 * 1024) {
+        WSDLOG_INFO("{}: Content-Length larger than 256kB", m_connDesc);
+        m_response = HttpResponse::makeStockResponse(HttpResponse::BadRequest);
+        return {ParseResult::Error, readEnd};
+    }
+    m_contentRemaining = contentLength;
     
 
     auto contentTypeRes = m_request.getContentType();
