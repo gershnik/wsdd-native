@@ -1,10 +1,10 @@
 {
     "argum": {
-        "version": "v2.8",
+        "version": "v2.9",
         "url": "https://github.com/gershnik/argum/tarball/${version}",
         "homepage": "https://github.com/gershnik/argum",
-        "sha256": "a65a9853d61d63929c1f3480598df9155f4263b3fc0ef9696d261c037f68e54e",
-        "md5": "924711c86a676f84ae581e24124ef681"
+        "sha256": "f1881d1195864475da3ed8a388b8c077bf1406b4fe788047432b63bc6c259812",
+        "md5": "6a5eb56e45bdf3b37833e55b53644ad4"
     },
     "asio": {
         "version": "1.36.0",
