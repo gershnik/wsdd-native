@@ -63,6 +63,9 @@ private:
 struct XmlParserInit {
     XmlParserInit() {
         xmlInitParser();
+        xmlSetExternalEntityLoader([](const char*, const char*, xmlParserCtxtPtr) {
+            return (xmlParserInputPtr)nullptr;
+        });
 
     //libxml marked xmlThrDefXxx variants deprecated without providing any sane
     //alternative to suppress its idiotic default logging to stderr
@@ -444,6 +447,14 @@ public:
                 XmlException::raiseFromLastError(); 
         }
         return ret;
+    }
+
+    int useOptions(int options, int requiredOptions) {
+        int unknown = xmlCtxtUseOptions(this, options);
+        int missing = unknown & requiredOptions;
+        if (missing != 0)
+            throw std::runtime_error(fmt::format("required options 0x{:X} couldn't be set", unsigned(missing)));
+        return unknown;
     }
 
     void parseChunk(const uint8_t * chunk, int size, bool last) {

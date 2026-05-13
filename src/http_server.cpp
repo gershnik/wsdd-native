@@ -309,6 +309,10 @@ auto HttpConnection::parseHeader(const std::byte * first, const std::byte * last
         m_contentParser = XmlParserContext::createPush();
     }
 
+#if LIBXML_VERSION >= 21300
+    m_contentParser->useOptions(XML_PARSE_NO_XXE, XML_PARSE_NO_XXE);
+#endif
+
     m_keepAlive = m_request.getKeepAlive();
 
     m_headerParser.reset();
