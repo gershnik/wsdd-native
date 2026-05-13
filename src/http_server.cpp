@@ -178,7 +178,7 @@ void HttpServerImpl::handleConnection(ip::tcp::socket && socket) {
     refcnt_ptr<HttpConnection> oldestWithTheSameAddr;
     for(auto & con: m_connections) {
         if (con->remoteAddress() == remoteAddr) {
-            if (!oldestWithTheSameAddr || oldestWithTheSameAddr->startTime() < con->startTime())
+            if (!oldestWithTheSameAddr || oldestWithTheSameAddr->startTime() > con->startTime())
                 oldestWithTheSameAddr = con;
             ++sameAddrCount;
         }
