@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Incorrect parsing of certain unexpected HTTP requests. In extremely rare cases this could cause
   a (non-exploitable) crash.
 - Warnings when building under Xcode.
+- Typos in log messages.
 
 
 ## [1.23] - 2026-02-13
