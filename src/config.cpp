@@ -115,6 +115,9 @@ auto Config::loadMetadaFile(const std::string & filename) const -> std::unique_p
         if (read < 4)
             throw std::runtime_error(fmt::format("metada file {} is invalid", filename));
         auto templateParsingCtx = XmlParserContext::createPush(buf.data(), int(read), filename.c_str());
+        #if LIBXML_VERSION >= 21300
+            templateParsingCtx->useOptions(XML_PARSE_NO_XXE, XML_PARSE_NO_XXE);
+        #endif
         for ( ; ; ) {
             read = readFile(file, buf.data(), buf.size());
             templateParsingCtx->parseChunk(buf.data(), int(read), read == 0);

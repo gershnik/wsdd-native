@@ -65,7 +65,6 @@ void AppState::init() {
     }
 
     setPidFile();
-    XmlParserInit initXml;
     
     if (getuid() == 0) {
         

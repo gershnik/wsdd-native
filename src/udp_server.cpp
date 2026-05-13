@@ -250,7 +250,11 @@ private:
 
             std::optional<XmlCharBuffer> maybeReply;
             try {
-                auto doc = XmlDoc::parseMemory(m_recvBuffer.data(), int(bytesRecvd));
+                int options = 0;
+                #if LIBXML_VERSION >= 21300
+                    options = XML_PARSE_NO_XXE;
+                #endif
+                auto doc = XmlDoc::readMemory(m_recvBuffer.data(), int(bytesRecvd), nullptr, nullptr, options);
                 maybeReply = m_handler->handleUdpRequest(std::move(doc));
             } catch (std::exception & ex) {
                 WSDLOG_ERROR("{}: error handling request: {}", m_serverDesc, ex.what());

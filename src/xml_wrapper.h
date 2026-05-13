@@ -286,6 +286,14 @@ public:
         XmlException::raiseFromLastError();
     }
 
+    static std::unique_ptr<XmlDoc> readMemory(const void * ptr, int size, const char * url = nullptr, 
+                                              const char * encoding = nullptr, int options = 0) {
+    
+        if (auto ret = from(xmlReadMemory((const char *)ptr, size, url, encoding, options)))
+            return std::unique_ptr<XmlDoc>(ret);
+        XmlException::raiseFromLastError();
+    }
+
     static std::unique_ptr<XmlDoc> create(const char8_t * version) {
         if (auto ret = from(xmlNewDoc(asXml(version))))
             return std::unique_ptr<XmlDoc>(ret);
