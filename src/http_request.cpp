@@ -20,7 +20,7 @@ auto HttpRequest::getHeaderList(const sys_string & name) const -> std::optional<
         return std::nullopt;
     sys_string_builder builder;
     builder.append(first->second);
-    for (++first; first == last; ++first) {
+    for (++first; first != last; ++first) {
         builder.append(S(", "));
         builder.append(first->second);
     }

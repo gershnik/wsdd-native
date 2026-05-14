@@ -54,6 +54,7 @@ private:
     CommandLine m_origCommandLine;
     CommandLine m_currentCommandLine;
     pid_t m_mainPid;
+    XmlParserInit m_xmlInit;
     
     bool m_isInitialized = false;
     std::optional<spdlog::level::level_enum> m_logLevel;

@@ -15,6 +15,10 @@ namespace ip = asio::ip;
 
 class HttpServerImpl;
 
+static constexpr size_t g_httpMaxConnectionsFromSameAddress = 20;
+static constexpr size_t g_httpMaxContentLength = 256 * 1024;
+static constexpr auto g_httpMaxConnectionDuration = std::chrono::seconds(5);
+
 class HttpConnection : public ref_counted<HttpConnection> {
     friend ref_counted<HttpConnection>;
 
@@ -31,11 +35,20 @@ private:
 public:
     HttpConnection(const refcnt_ptr<Config> & config, ip::tcp::socket && socket):
         m_config(config),
-        m_socket(std::move(socket))
+        m_socket(std::move(socket)),
+        m_remoteAddr(m_socket.remote_endpoint().address()),
+        m_startTime(std::chrono::steady_clock::now())
     {}
 
     void start(HttpServerImpl & owner);
     void stop();
+
+    auto remoteAddress() const -> const ip::address & {
+        return m_remoteAddr;
+    }
+    auto startTime() const -> const std::chrono::steady_clock::time_point & {
+        return m_startTime;
+    }
 private:
     ~HttpConnection() noexcept {
     }
@@ -50,6 +63,8 @@ private:
 private:
     refcnt_ptr<Config> m_config;
     ip::tcp::socket m_socket;
+    ip::address m_remoteAddr;
+    std::chrono::steady_clock::time_point m_startTime;
     sys_string m_connDesc;
     
     HttpServerImpl * m_owner = nullptr;
@@ -80,6 +95,7 @@ public:
         WSDLOG_INFO("{}: stopping server", m_serverDesc);
         m_handler = nullptr;
         m_acceptor.close();
+        m_gcTimer.cancel();
         for(auto & con: m_connections) {
             con->stop();
         }
@@ -93,6 +109,7 @@ public:
         { return m_serverDesc; }
 private:
     void accept();
+    void scheduleGC();
 
 private:
     ~HttpServerImpl() noexcept {
@@ -103,6 +120,7 @@ private:
     refcnt_ptr<Config> m_config;
     Handler * m_handler = nullptr;
     ip::tcp::acceptor m_acceptor;
+    asio::steady_timer m_gcTimer;
     sys_string m_serverDesc;
 
     std::set<refcnt_ptr<HttpConnection>> m_connections;
@@ -119,6 +137,7 @@ HttpServerImpl::HttpServerImpl(asio::io_context & ctxt, const refcnt_ptr<Config>
                                const NetworkInterface & iface, const ip::tcp::endpoint & endpoint):
     m_config(config),
     m_acceptor(ctxt),
+    m_gcTimer(ctxt),
     m_serverDesc(sys_format("HTTP on {}({})", iface.name, endpoint.address().is_v6() ? "v6" : "v4")) {
 
     m_acceptor.open(endpoint.protocol());
@@ -151,14 +170,70 @@ void HttpServerImpl::accept() {
 }
 
 void HttpServerImpl::handleConnection(ip::tcp::socket && socket) {
+
+    bool wasEmpty = m_connections.empty();
+    
+    auto remoteAddr = socket.remote_endpoint().address();
+    size_t sameAddrCount = 0;
+    refcnt_ptr<HttpConnection> oldestWithTheSameAddr;
+    for(auto & con: m_connections) {
+        if (con->remoteAddress() == remoteAddr) {
+            if (!oldestWithTheSameAddr || oldestWithTheSameAddr->startTime() > con->startTime())
+                oldestWithTheSameAddr = con;
+            ++sameAddrCount;
+        }
+    }
+    if (sameAddrCount >= g_httpMaxConnectionsFromSameAddress) {
+        WSDLOG_INFO("{}: too many simultaneous connections from {}, dropping oldest", m_serverDesc, remoteAddr.to_string());
+        oldestWithTheSameAddr->stop();
+        m_connections.erase(oldestWithTheSameAddr);
+    }
+
     auto connection = make_refcnt<HttpConnection>(m_config, std::move(socket));
     m_connections.insert(connection);
     connection->start(*this);
+    if (wasEmpty)
+        scheduleGC();
+}
+
+void HttpServerImpl::scheduleGC() {
+    m_gcTimer.expires_after(g_httpMaxConnectionDuration);
+    m_gcTimer.async_wait([this, holder = refcnt_retain(this)](asio::error_code ec) {
+
+        if (!m_handler)
+            return;
+
+        if (ec) {
+            if (ec != asio::error::operation_aborted) {
+                WSDLOG_ERROR("{}: error waiting for gc timer: {}", m_serverDesc, ec.message());
+                m_handler->onFatalHttpError();
+            }
+            
+            return;
+        }
+
+        auto now = std::chrono::steady_clock::now();
+        for (auto it = m_connections.begin(), last = m_connections.end(); it != last; ) {
+            auto & con = *it;
+            if (now - con->startTime() > g_httpMaxConnectionDuration) {
+                WSDLOG_INFO("{}: dropping stale connection from {}", m_serverDesc, con->remoteAddress().to_string());
+                con->stop();
+                it = m_connections.erase(it);
+            } else {
+                ++it;
+            }
+        }
+
+        if (!m_connections.empty())
+            scheduleGC();
+    });
 }
 
 void HttpServerImpl::onConnectionFinished(const refcnt_ptr<HttpConnection> & connection) {
     m_connections.erase(connection);
     connection->stop();
+    if (m_connections.empty())
+        m_gcTimer.cancel();
 }
 
 auto HttpServerImpl::handleHttpRequest(std::unique_ptr<XmlDoc> doc) -> std::optional<XmlCharBuffer> {
@@ -170,7 +245,7 @@ auto HttpServerImpl::handleHttpRequest(std::unique_ptr<XmlDoc> doc) -> std::opti
 
 void HttpConnection::start(HttpServerImpl & owner) {
     m_owner = &owner;
-    m_connDesc = sys_format("{}, from {}", owner.serverDesc(), m_socket.remote_endpoint().address().to_string());
+    m_connDesc = sys_format("{}, from {}", owner.serverDesc(), m_remoteAddr.to_string());
     read();
     WSDLOG_DEBUG("{}: connection start", m_connDesc);
 }
@@ -276,7 +351,13 @@ auto HttpConnection::parseHeader(const std::byte * first, const std::byte * last
         m_response = HttpResponse::makeStockResponse(HttpResponse::BadRequest);
         return {ParseResult::Error, readEnd};
     }
-    m_contentRemaining = *contentLengthRes.assume_value();
+    auto contentLength = *contentLengthRes.assume_value();
+    if (contentLength > g_httpMaxContentLength) {
+        WSDLOG_INFO("{}: Content-Length {} is too big", m_connDesc, contentLength);
+        m_response = HttpResponse::makeStockResponse(HttpResponse::BadRequest);
+        return {ParseResult::Error, readEnd};
+    }
+    m_contentRemaining = contentLength;
     
 
     auto contentTypeRes = m_request.getContentType();
@@ -308,6 +389,10 @@ auto HttpConnection::parseHeader(const std::byte * first, const std::byte * last
     } else {
         m_contentParser = XmlParserContext::createPush();
     }
+
+#if LIBXML_VERSION >= 21300
+    m_contentParser->useOptions(XML_PARSE_NO_XXE, XML_PARSE_NO_XXE);
+#endif
 
     m_keepAlive = m_request.getKeepAlive();
 
