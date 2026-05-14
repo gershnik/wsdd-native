@@ -78,7 +78,7 @@ private:
     void read() {
         asio::mutable_buffer buffer(m_recvBuffer.data(), m_recvBuffer.size());
         m_socket.async_receive(buffer, 
-            [this, hodler = refcnt_retain(this)](const asio::error_code & ec, size_t bytesRead){
+            [this, holder = refcnt_retain(this)](const asio::error_code & ec, size_t bytesRead){
 
             if (!m_handler)
                 return;
