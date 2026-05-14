@@ -55,8 +55,8 @@ static auto waitForChild() -> std::optional<int> {
         }
     }
     ptl::setSignalHandler(SIGINT, oldSigInt);
-    ptl::setSignalHandler(SIGINT, oldSigTerm);
-    ptl::setSignalHandler(SIGINT, oldSigHup);
+    ptl::setSignalHandler(SIGTERM, oldSigTerm);
+    ptl::setSignalHandler(SIGHUP, oldSigHup);
     
     assert(!*g_maybeChildProcess);
     g_maybeChildProcess = std::nullopt;

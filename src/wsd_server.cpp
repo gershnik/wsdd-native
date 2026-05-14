@@ -513,7 +513,7 @@ private:
         xpathCtxt.setContextNode(*probeNode);
         auto scopesNode = xpathCtxt.eval(u8"./wsd:Scopes")->firstNode();
         if (scopesNode) {
-            WSDLOG_WARN("{}: No wsd:Scopes in Probe message", m_serverDesc);
+            WSDLOG_WARN("{}: Unexpected wsd:Scopes in Probe message", m_serverDesc);
             return false;
         }
 

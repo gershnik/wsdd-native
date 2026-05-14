@@ -72,7 +72,7 @@ Config::Config(const CommandLine & cmdline):
         using ArgType = std::remove_cvref_t<decltype(val)>;
         
         if constexpr (std::is_same_v<WindowsWorkgroup, ArgType>)
-            return std::make_pair(S("Workgoup"), val.name);
+            return std::make_pair(S("Workgroup"), val.name);
         else if constexpr (std::is_same_v<WindowsDomain, ArgType>)
             return std::make_pair(S("Domain"), val.name);
         else
