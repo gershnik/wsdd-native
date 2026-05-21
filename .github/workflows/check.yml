@@ -167,6 +167,7 @@ jobs:
           if [[ '${{ matrix.remote_host }}' == 'dragonfly' ]]; then
             export CC=gcc11
             export CXX=g++11
+            export CMAKE_TLS_VERIFY=0
           fi
           cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo
           cmake --build out --target wsddn
