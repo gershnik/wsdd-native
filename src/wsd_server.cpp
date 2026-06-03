@@ -143,7 +143,7 @@ private:
     void fill(const Hello & val, XmlNode & bodyNode, const Namespaces & ns) {
         auto & hello = bodyNode.newChild(ns.wsd, u8"Hello");
         addEndpointReference(ns, hello, val.endpointIdentifier);
-        auto xaddr = makeHttpUrl(val.httpEndpoint) + S("/") + val.httpPath;
+        sys_string xaddr = makeHttpUrl(val.httpEndpoint) + S("/") + val.httpPath;
         hello.newTextChild(ns.wsd, u8"XAddrs", xml_str(xaddr));
         addMetadataVersion(ns, hello);
     }
@@ -166,7 +166,7 @@ private:
         auto & resolveMatch = resolveMatches.newChild(ns.wsd, u8"ResolveMatch");
         addEndpointReference(ns, resolveMatch, val.endpointIdentifier);
         addTypes(ns, resolveMatch);
-        auto xaddr = makeHttpUrl(val.httpEndpoint) + S("/") + val.httpPath;
+        sys_string xaddr = makeHttpUrl(val.httpEndpoint) + S("/") + val.httpPath;
         resolveMatch.newTextChild(ns.wsd, u8"XAddrs", xml_str(xaddr));
         addMetadataVersion(ns, resolveMatch);
     }
