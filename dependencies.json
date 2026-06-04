@@ -1,10 +1,10 @@
 {
     "argum": {
-        "version": "v2.9",
+        "version": "v2.10",
         "url": "https://github.com/gershnik/argum/tarball/${version}",
         "homepage": "https://github.com/gershnik/argum",
-        "sha256": "f1881d1195864475da3ed8a388b8c077bf1406b4fe788047432b63bc6c259812",
-        "md5": "6a5eb56e45bdf3b37833e55b53644ad4"
+        "sha256": "c8fb170020e16e3c4dd2187932681fd24c845cb3afc9d87db85c40ff88b5cc85",
+        "md5": "d80c9efdf1b17abfbe0fd61f853dc476"
     },
     "asio": {
         "version": "1.36.0",
@@ -21,11 +21,11 @@
         "md5": "3638c6732b795a3eb4c9c7e2db1cca7d"
     },
     "isptr": {
-        "version": "v1.9",
+        "version": "v1.11",
         "url": "https://github.com/gershnik/intrusive_shared_ptr/tarball/${version}",
         "homepage": "https://github.com/gershnik/intrusive_shared_ptr",
-        "sha256": "f9095609a2226f3aa6dbfcd4726a8521a56f4fd2f426b0898d92acd1f133aa6d",
-        "md5": "574eb3ad0a8e5685cdc9e7712804900f"
+        "sha256": "15fdd2ab14b9e43c84d38c6bef569eca7766f2dcfc2e749877f613f4e6736679",
+        "md5": "c8811728a79465f7f07027d364015799"
     },
     "LibXml2": {
         "version": "v2.15.3",
@@ -35,11 +35,11 @@
         "md5": "74ffef29bd8d29532e860e3ce75c8178"
     },
     "modern-uuid": {
-        "version": "v2.2",
+        "version": "v2.3",
         "url": "https://github.com/gershnik/modern-uuid/tarball/${version}",
         "homepage": "https://github.com/gershnik/modern-uuid",
-        "sha256": "dcbf6d135957d43f304fc8f739911f9db7a31c150558ce45710031e2b3130ed3",
-        "md5": "1dc8918829dadaa85a96833ad6841ebc"
+        "sha256": "8e1a20632baa40cddddc54002829b612e5ca0d79da2c9a91c78f86b41e408c3b",
+        "md5": "755816a7c2e41163bc3fabac9a445c25"
     },
     "outcome": {
         "version": "v2.2.15",
@@ -49,11 +49,11 @@
         "md5": "0117279340558f87b69f9bc6d1434c5a"
     },
     "ptl": {
-        "version": "v1.7",
+        "version": "v1.8",
         "url": "https://github.com/gershnik/ptl/tarball/${version}",
         "homepage": "https://github.com/gershnik/ptl",
-        "sha256": "e3efb37f71846ba7d10165bef7f62a581dd3e7c8f4ac185bb86d4069bc4ec9ed",
-        "md5": "f4c503429bd1fa9c8db8823a64590a4b"
+        "sha256": "0ff5e87ac2b1ca92583c4e794a645f37948d129afb39668c38a26d4e6b8e74e5",
+        "md5": "dc08f8a48c8f1df441ac108d5683cdaa"
     },
     "spdlog": {
         "version": "v1.17.0",
@@ -63,11 +63,11 @@
         "md5": "ebfd0e3f97c3631723fa4d1bd0ce2b61"
     },
     "sys_string": {
-        "version": "v2.23",
+        "version": "v3.10",
         "url": "https://github.com/gershnik/sys_string/tarball/${version}",
         "homepage": "https://github.com/gershnik/sys_string",
-        "sha256": "da94ef50659c01bc2fbc66599d9fdee9c0a0aaddcb1e6ee315f4a42ae660859c",
-        "md5": "ededde145dbcb60ccace137663acbf98"
+        "sha256": "9cda05ad6621e0244f98edec9a48061501f2c4c1e83b192e271f798c4693fb00",
+        "md5": "6b0f9ab2a7df85c64421899aff8975ac"
     },
     "tomlplusplus": {
         "version": "v3.4.0",

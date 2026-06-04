@@ -123,6 +123,7 @@ PRIVATE
 
     "$<$<PLATFORM_ID:Darwin>:-framework SystemConfiguration>"
     "$<$<PLATFORM_ID:Darwin>:-framework OpenDirectory>"
+    "$<$<PLATFORM_ID:Darwin>:-framework CoreFoundation>"
 
     "$<$<OR:$<PLATFORM_ID:Linux>,$<BOOL:${HAVE_SYSTEMD}>>:dl>"
 
@@ -163,10 +164,17 @@ PRIVATE
     ${outcome_SOURCE_DIR}/single-header
 )
 
-target_precompile_headers(wsddn
-PRIVATE 
-    src/pch.h
-)
+if((CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang") AND
+   CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 13 AND
+   CMAKE_CXX_COMPILER_VERSION VERSION_LESS 14)
+    
+   target_compile_options(wsddn PRIVATE -include "${CMAKE_CURRENT_SOURCE_DIR}/src/pch.h")
+else()
+    target_precompile_headers(wsddn
+    PRIVATE 
+        src/pch.h
+    )
+endif()
 
 set(UTIL_SOURCES
     src/util.h

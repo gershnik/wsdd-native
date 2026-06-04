@@ -43,17 +43,17 @@ auto Config::detectAppleWinNetInfo(bool useNetbiosHostName) -> std::optional<Win
     sys_string_builder builder;
 
     if (domain.cf_str()) {
-        for(auto c: sys_string_cfstr::utf8_view(domain))
+        for(auto c: sys_string_cfstr::utf8_access(domain))
             builder.append(c);
         ret.memberOf.emplace<WindowsDomain>(builder.build());
     } else {
-        for(auto c: sys_string_cfstr::utf8_view(workgroup))
+        for(auto c: sys_string_cfstr::utf8_access(workgroup))
             builder.append(c);
         ret.memberOf.emplace<WindowsWorkgroup>(builder.build());
     }
     
     if (useNetbiosHostName && hostname.cf_str()) {
-        for(auto c: sys_string_cfstr::utf8_view(hostname))
+        for(auto c: sys_string_cfstr::utf8_access(hostname))
             builder.append(c);
         ret.hostName = builder.build();
     } else {
@@ -64,7 +64,7 @@ auto Config::detectAppleWinNetInfo(bool useNetbiosHostName) -> std::optional<Win
     }
     
     if (desc.cf_str()) {
-        for(auto c: sys_string_cfstr::utf8_view(desc))
+        for(auto c: sys_string_cfstr::utf8_access(desc))
             builder.append(c);
         ret.hostDescription = builder.build();
     } else {

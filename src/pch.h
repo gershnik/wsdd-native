@@ -26,6 +26,18 @@
     #define WSDDN_IGNORE_DEPRECATED_END
 #endif
 
+#if __has_include(<version>)
+    #include <version>
+#endif
+
+#if defined(_LIBCPP_VERSION)
+
+    #if _LIBCPP_VERSION >= 13000 && _LIBCPP_VERSION < 160000
+        #undef _LIBCPP_HAS_NO_INCOMPLETE_RANGES
+    #endif
+
+#endif
+
 #include <argum/argum.h>
 
 #include <spdlog/fmt/fmt.h>
