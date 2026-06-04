@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+- A currently harmless case of undefined behavior in WSD response generation. 
+
+### Changed
+- Updated 3rd party dependencies
+
 ## [1.24] - 2026-05-14
 
 ### Added
