@@ -84,7 +84,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: 
-        container: [gcc:12.5, gcc:13.4, gcc:14.3, gcc:15.2]
+        container: [gcc:12.5, gcc:13.4, gcc:14.3, gcc:15.2, gcc:16.1]
 
     steps:
     - name: Checkout
