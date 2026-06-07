@@ -63,11 +63,11 @@
         "md5": "ebfd0e3f97c3631723fa4d1bd0ce2b61"
     },
     "sys_string": {
-        "version": "d651e1572f08dca529b2f09f5564c3b3bc4b04a9",
+        "version": "v3.11",
         "url": "https://github.com/gershnik/sys_string/tarball/${version}",
         "homepage": "https://github.com/gershnik/sys_string",
-        "sha256": "45fcf93d6743f7c5bb2e376a14b52663e4e17d93bd46ca0e01e1a2a9c742db33",
-        "md5": "958ac8a38b2567afbf71d4519cd3baba"
+        "sha256": "d822f4ed6aec601818e1e7bac2a3a31ac1a3eaad7d1411a227add4e27a2bdc58",
+        "md5": "c3fdc2af7999f0843de9fca606fa2514"
     },
     "tomlplusplus": {
         "version": "v3.4.0",
