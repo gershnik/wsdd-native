@@ -113,16 +113,8 @@ log show --last 15m --debug --info \
 
 The Homebrew package ('cask') can be installed via a custom tap. 
 
-To set it up:
-
 ```bash
-brew tap gershnik/repo
-```
-
-Then:
-
-```bash
-brew install wsddn
+brew install --cask gershnik/repo/wsddn
 ```
 
 This installs exactly the same thing as the standalone installer would, so all the usage instructions under [Standalone installer](#standalone-installer) apply as well.
