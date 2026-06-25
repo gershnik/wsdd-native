@@ -125,3 +125,9 @@ void shell(const ptl::StringRefArray & args, bool suppressStdErr, std::function<
     }
     throw std::runtime_error(fmt::format("`{} finished with status 0x{:X}`", args, stat));
 }
+
+#if HAVE_OS_LOG &&  !__has_builtin(__builtin_os_log_format)
+    // Keep the format literal in the image so _os_log_impl's offset is resolvable.
+    __attribute__((used, section("__TEXT,__oslogstring")))
+    const char k_os_log_fmt[] = "%{public}s";
+#endif
