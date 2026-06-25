@@ -247,6 +247,11 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS src/sys_config.h.
 
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_options(wsddn PRIVATE -gdwarf-4)
+    endif()
+
     configure_file(src/Info.template.plist Info.plist @ONLY)
 
     target_link_options(wsddn 
