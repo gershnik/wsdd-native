@@ -270,7 +270,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
         )
     else()
         add_custom_command(TARGET wsddn POST_BUILD
-            COMMAND dsymutil "$<TARGET_FILE:wsddn>" -o "$<TARGET_FILE:wsddn>.dSYM"
+            COMMAND xcrun dsymutil "$<TARGET_FILE:wsddn>" -o "$<TARGET_FILE:wsddn>.dSYM"
         )
     endif()
 endif()
