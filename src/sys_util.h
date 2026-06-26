@@ -74,6 +74,29 @@ public:
 
 #if HAVE_OS_LOG
 
+    inline void emit_os_log(os_log_t log, os_log_type_t type, const char *s) noexcept {
+#if __has_builtin(__builtin_os_log_format)
+        os_log_with_type(log, type, "%{public}s", s);
+#else
+        extern const char k_os_log_fmt[];
+
+        // os_log argument buffer for a single public %s:
+        //   [0] summary flags: 0x02 = HAS_NON_SCALAR
+        //   [1] argument count: 1
+        //   [2] item descriptor: 0x20 (public) | 0x02 (string) = 0x22
+        //   [3] item size: sizeof(pointer)
+        //   [4..] the char* value itself (the daemon dereferences it)
+        uint8_t buf[4 + sizeof(const char *)];
+        buf[0] = 0x02;
+        buf[1] = 0x01;
+        buf[2] = 0x22;
+        buf[3] = (uint8_t)sizeof(const char *);
+        __builtin_memcpy(buf + 4, &s, sizeof(s));
+        _os_log_impl((void *)&__dso_handle, log, type,
+                     k_os_log_fmt, buf, (uint32_t)sizeof(buf));
+#endif
+    }
+
     class OsLogHandle {
     public:
         static auto get() noexcept -> os_log_t { 
@@ -113,7 +136,7 @@ public:
                 default:                      type = OS_LOG_TYPE_DEBUG;     break;
             }
 
-            os_log_with_type(OsLogHandle::get(), type, "%{public}s", formatted.data());
+            emit_os_log(OsLogHandle::get(), type, formatted.data());
         }
 
         void flush_() override {

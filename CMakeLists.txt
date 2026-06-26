@@ -7,7 +7,6 @@ if(POLICY CMP0135)
     cmake_policy(SET CMP0135 NEW) #set the timestamps of all extracted contents to the time of the extraction
 endif()
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.15)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_OBJCXX_VISIBILITY_PRESET hidden)
@@ -145,7 +144,6 @@ target_link_options(wsddn
 PRIVATE
     "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-object_path_lto,${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lto.o>"
     "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-cache_path_lto,${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/LTOCache>"
-    "$<$<CXX_COMPILER_ID:AppleClang>:-Wl,-no_adhoc_codesign>"
     "$<$<AND:$<CXX_COMPILER_ID:AppleClang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,13.5>>:-Wl,-reproducible>"
     "$<$<AND:$<CXX_COMPILER_ID:AppleClang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,15.0>>:LINKER:-no_warn_duplicate_libraries>" #see https://gitlab.kitware.com/cmake/cmake/-/issues/25297
 )
@@ -264,11 +262,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
             XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME YES
             XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS YES
             XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf-with-dsym
-        )
-    else()
-        add_custom_command(TARGET wsddn POST_BUILD
-            COMMAND dsymutil "$<TARGET_FILE:wsddn>" -o "$<TARGET_FILE:wsddn>.dSYM"
-            COMMAND codesign --force --sign - --timestamp=none --options runtime "$<TARGET_FILE:wsddn>" 
         )
     endif()
 endif()

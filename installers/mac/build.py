@@ -25,6 +25,9 @@ builddir: Path = args.builddir
 
 buildCode(builddir)
 
+subprocess.run(['xcrun', 'dsymutil', 'wsddn', '-o', 'wsddn.dSYM'],
+               cwd=builddir, check=True)
+
 VERSION = getVersion(builddir)
 
 workdir = builddir / 'stage/mac'

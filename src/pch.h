@@ -114,7 +114,25 @@
 #include <SystemConfiguration/SCNetworkConfiguration.h>
 #include <OpenDirectory/OpenDirectory.h>
 
-#include <os/log.h>
+#if __has_builtin(__builtin_os_log_format)
+    #include <os/log.h>
+#else
+    // GCC: os/log.h refuses to compile (needs __builtin_os_log_format).
+    // Declare the C ABI we actually call and build the messages by hand.
+    extern "C" {
+        typedef struct os_log_s *os_log_t;
+        typedef uint8_t          os_log_type_t;
+        os_log_t os_log_create(const char *subsystem, const char *category);
+        void     os_release(void *object);
+        void     _os_log_impl(void *dso, os_log_t log, os_log_type_t type,
+                              const char *format, uint8_t *buf, uint32_t size);
+    }
+    #define OS_LOG_TYPE_DEFAULT ((os_log_type_t)0x00)
+    #define OS_LOG_TYPE_INFO    ((os_log_type_t)0x01)
+    #define OS_LOG_TYPE_DEBUG   ((os_log_type_t)0x02)
+    #define OS_LOG_TYPE_ERROR   ((os_log_type_t)0x10)
+    #define OS_LOG_TYPE_FAULT   ((os_log_type_t)0x11)
+#endif
 
 #include <intrusive_shared_ptr/apple_cf_ptr.h>
 
