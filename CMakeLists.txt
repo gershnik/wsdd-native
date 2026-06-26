@@ -248,10 +248,6 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS src/sys_config.h.
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        target_compile_options(wsddn PRIVATE -gdwarf-4)
-    endif()
-
     configure_file(src/Info.template.plist Info.plist @ONLY)
 
     target_link_options(wsddn 
@@ -267,10 +263,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
             XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME YES
             XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS YES
             XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf-with-dsym
-        )
-    else()
-        add_custom_command(TARGET wsddn POST_BUILD
-            COMMAND xcrun dsymutil "$<TARGET_FILE:wsddn>" -o "$<TARGET_FILE:wsddn>.dSYM"
         )
     endif()
 endif()
