@@ -103,7 +103,7 @@ jobs:
         cmake -G Ninja -S . -B out \
           -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
-    - name: Build and Test
+    - name: Build
       shell: bash
       run: |
         cmake --build out
@@ -136,6 +136,30 @@ jobs:
       - name: Build
         run: |
           installers/mac/build.py . out
+
+  macgcc:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup system
+        run: |
+          major=$(ls "$(brew --prefix)"/bin/g++-[0-9]* 2>/dev/null | sed 's/.*-//' | sort -n | tail -1)
+          echo "CC=gcc-$major" >> $GITHUB_ENV
+          echo "CXX=g++-$major" >> $GITHUB_ENV
+        
+      - name: Configure
+        run: |
+          [ -d "out" ] && tools/uncache out
+          cmake -S . -B out \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DWSDDN_MACOS_SUPPRESS_WRAPPER=ON \
+            -DWSDDN_PREFER_SYSTEM_LIBXML2=OFF
+
+      - name: Build
+        run: |
+          cmake --build out
 
   others:
     concurrency: ${{ matrix.remote_host }}
