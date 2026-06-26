@@ -154,6 +154,7 @@ jobs:
           [ -d "out" ] && tools/uncache out
           cmake -S . -B out \
             -DCMAKE_BUILD_TYPE=Release \
+            -DWSDDN_MACOS_SUPPRESS_WRAPPER=ON \
             -DWSDDN_PREFER_SYSTEM_LIBXML2=OFF
 
       - name: Build
