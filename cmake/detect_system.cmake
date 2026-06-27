@@ -17,6 +17,8 @@ HAVE_NETLINK)
 if (NOT HAVE_NETLINK)
 
     check_cxx_source_compiles("
+        #include <sys/socket.h>
+        #include <sys/types.h>
         #include <net/if.h>
         #include <net/if_dl.h>
         #include <net/route.h>
@@ -28,6 +30,8 @@ if (NOT HAVE_NETLINK)
     HAVE_PF_ROUTE)
 
     check_cxx_source_compiles("
+        #include <sys/socket.h>
+        #include <sys/types.h>
         #include <net/if.h>
         #include <net/if_dl.h>
         #include <sys/socket.h>
