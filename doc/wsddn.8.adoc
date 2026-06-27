@@ -70,7 +70,7 @@ The path of the file to write the log output to. If not specified, *wsddn* outpu
 
 
 *--log-os-log*::
-Available on macOS only. If specified, log output is sent to the system log visible via 
+Available only on macOS 10.12 or higher. If specified, log output is sent to the system log visible via 
 the Console app or *log* command-line tool. 
 This option is mutually exclusive with *--log-file*.
 
