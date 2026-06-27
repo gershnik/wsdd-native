@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Eugene Gershnik
 // SPDX-License-Identifier: BSD-3-Clause
 
-#if HAVE_APPLE_SAMBA
+#if CAN_HAVE_APPLE_SAMBA
 
 #include "config.h"
 

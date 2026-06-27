@@ -2,12 +2,12 @@
 .\"     Title: wsddn
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2026-05-04
+.\"      Date: 2026-06-27
 .\"    Manual: System Manager's Manual
 .\"    Source: WS-Discovery Host Daemon
 .\"  Language: English
 .\"
-.TH "WSDDN" "8" "2026-05-04" "WS\-Discovery Host Daemon" "System Manager\*(Aqs Manual"
+.TH "WSDDN" "8" "2026-06-27" "WS\-Discovery Host Daemon" "System Manager\*(Aqs Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -298,9 +298,10 @@ The equivalent config file option is \fBmember\-of\fP.
 \fB\-\-smb\-conf\fP \fIpath\fP
 .RS 4
 Path to \fBsmb.conf\fP, \fBsamba.conf\fP, or \fBksmbd.conf\fP file to extract the SMB configuration from.
-This option is not available on macOS. By default, \fBwsddn\fP tries to locate this file on its own by
-querying your local Samba installation. Use this option if auto\-detection fails, picks the wrong
-Samba instance, or if you are using KSMBD on Linux. The equivalent config file option is \fBsmb\-conf\fP.
+By default, \fBwsddn\fP tries to locate this file on its own by querying your local Samba installation.
+Use this option if auto\-detection fails, picks the wrong Samba instance, or if you are using
+KSMBD on Linux. The equivalent config file option is \fBsmb\-conf\fP. On macOS, using this option
+overrides normal Apple SMB detection and allows you to use a custom Samba instance
 .RE
 .sp
 \fB\-\-metadata\fP \fIpath\fP, \fB\-m\fP \fIpath\fP

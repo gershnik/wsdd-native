@@ -20,9 +20,7 @@ struct CommandLine {
     std::optional<sys_string> hostname;
     std::optional<MemberOf> memberOf;
     
-#if CAN_HAVE_SAMBA
     std::optional<std::filesystem::path> smbConf;
-#endif
     
     std::optional<std::filesystem::path> metadataFile;
     

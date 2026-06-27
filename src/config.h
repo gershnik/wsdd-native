@@ -59,7 +59,7 @@ private:
     Config(const CommandLine & cmdline);
     ~Config() {};
 
-#if HAVE_APPLE_SAMBA
+#if CAN_HAVE_APPLE_SAMBA
     auto detectAppleWinNetInfo(bool useNetbiosHostName) -> std::optional<WinNetInfo>;
 #endif
     auto detectWinNetInfo(std::optional<std::filesystem::path> smbConf, bool useNetbiosHostName) -> std::optional<WinNetInfo>;

@@ -131,3 +131,32 @@ void shell(const ptl::StringRefArray & args, bool suppressStdErr, std::function<
     __attribute__((used, section("__TEXT,__oslogstring")))
     const char k_os_log_fmt[] = "%{public}s";
 #endif
+
+#if WSDDN_PLATFORM_APPLE
+
+int darwinMajor() {
+    size_t len = 0;
+    if (sysctlbyname("kern.osrelease", nullptr, &len, nullptr, 0) != 0)
+        ptl::throwErrorCode(errno, "sysctlbyname(kern.osrelease)");
+
+    if (len == 0)
+        throw std::runtime_error("0-length for kern.osrelease");
+
+    std::string buf(len, '\0');
+    if (sysctlbyname("kern.osrelease", buf.data(), &len, nullptr, 0) != 0)
+        ptl::throwErrorCode(errno, "sysctlbyname(kern.osrelease)");
+
+    // sysctl reports len including the NUL; trim to the actual string
+    if (len > 0 && buf[len - 1] == '\0')
+        buf.resize(len - 1);
+    else
+        buf.resize(len);
+
+    int major = 0;
+    auto [p, ec] = std::from_chars(buf.data(), buf.data() + buf.size(), major);
+    if (ec != std::errc{})
+        throw std::system_error(std::make_error_code(ec), "invalid value in kern.osrelease");
+    return major;   // "10.8.0" -> 10, "23.5.0" -> 23
+}
+
+#endif

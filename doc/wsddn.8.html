@@ -685,9 +685,10 @@ SMB configuration. If no SMB configuration is found, it is set to a workgroup na
 <dt class="hdlist1"><strong>--smb-conf</strong> <em>path</em></dt>
 <dd>
 <p>Path to <strong>smb.conf</strong>, <strong>samba.conf</strong>, or <strong>ksmbd.conf</strong> file to extract the SMB configuration from.
-This option is not available on macOS. By default, <strong>wsddn</strong> tries to locate this file on its own by
-querying your local Samba installation. Use this option if auto-detection fails, picks the wrong
-Samba instance, or if you are using KSMBD on Linux. The equivalent config file option is <strong>smb-conf</strong>.</p>
+By default, <strong>wsddn</strong> tries to locate this file on its own by querying your local Samba installation.
+Use this option if auto-detection fails, picks the wrong Samba instance, or if you are using
+KSMBD on Linux. The equivalent config file option is <strong>smb-conf</strong>. On macOS, using this option
+overrides normal Apple SMB detection and allows you to use a custom Samba instance</p>
 </dd>
 <dt class="hdlist1"><strong>--metadata</strong> <em>path</em>, <strong>-m</strong> <em>path</em></dt>
 <dd>
@@ -928,7 +929,7 @@ The equivalent command line options are <strong>--domain</strong> and <strong>--
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-05-04 22:18:14 -0700
+Last updated 2026-06-27 00:35:18 -0700
 </div>
 </div>
 </body>

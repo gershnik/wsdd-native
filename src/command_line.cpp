@@ -122,7 +122,6 @@ static auto setMemberOf(CommandLine & cmdline, sys_string val) {
     }
 }
 
-#if CAN_HAVE_SAMBA
 static auto setSmbConf(CommandLine & cmdline, std::string_view val) {
     if (val.empty())
         throw Parser::ValidationError("smb.conf path cannot be empty");
@@ -131,7 +130,6 @@ static auto setSmbConf(CommandLine & cmdline, std::string_view val) {
         throw Parser::ValidationError("smb.conf path does not exist");
     cmdline.smbConf.emplace(std::move(value));
 }
-#endif
 
 static auto setMetadataFile(CommandLine & cmdline, std::string_view val) {
     if (val.empty())
@@ -423,7 +421,6 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
     }));
     parser.addValidator(oneOrNoneOf(optionPresent("--domain"), optionPresent("--workgroup")),
                         "--domain and --workgroup cannot be used together");
-#if CAN_HAVE_SAMBA
     parser.add(Option("--smb-conf").
                argName("PATH").
                help(colorTagged(
@@ -433,7 +430,6 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
                handler([this](std::string_view val){
         setSmbConf(*this, val);
     }));
-#endif
     
     parser.add(Option("--metadata", "-m").
                argName("PATH").
@@ -576,13 +572,9 @@ void CommandLine::parseConfigKey(std::string_view keyName, const toml::node & va
         });
         
     } else if (keyName == "smb-conf"sv) {
-    #if CAN_HAVE_SAMBA
         setConfigValue<std::string>(bool(this->smbConf), keyName, value, [this](const toml::value<std::string> & val) {
             setSmbConf(*this, *val);
         });
-    #else
-        throw ConfigFileError("smb.conf parsing is not available on Mac", spdlog::level::err, value.source());
-    #endif
         
     } else if (keyName == "metadata"sv) {
         

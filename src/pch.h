@@ -110,6 +110,7 @@
 
 #if WSDDN_PLATFORM_APPLE
 
+#include <sys/sysctl.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <SystemConfiguration/SCNetworkConfiguration.h>
 #include <OpenDirectory/OpenDirectory.h>

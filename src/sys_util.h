@@ -224,5 +224,8 @@ private:
 int run(const ptl::StringRefArray & args);
 void shell(const ptl::StringRefArray & args, bool suppressStdErr, std::function<void (const ptl::FileDescriptor & fd)> reader);
 
+#if WSDDN_PLATFORM_APPLE
+    int darwinMajor();
+#endif
 
 #endif

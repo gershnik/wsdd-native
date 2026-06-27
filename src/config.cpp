@@ -29,9 +29,14 @@ Config::Config(const CommandLine & cmdline):
     bool useNetbiosHostName = cmdline.hostname && cmdline.hostname->empty();
         
     std::optional<WinNetInfo> systemWinNetInfo;
-#if HAVE_APPLE_SAMBA
-    systemWinNetInfo = detectAppleWinNetInfo(useNetbiosHostName);
-#elif CAN_HAVE_SAMBA
+#if CAN_HAVE_APPLE_SAMBA
+    int darwinVer = darwinMajor();
+    if (cmdline.smbConf || darwinVer < 11) {
+        systemWinNetInfo = detectWinNetInfo(cmdline.smbConf, useNetbiosHostName);
+    } else {
+        systemWinNetInfo = detectAppleWinNetInfo(useNetbiosHostName);
+    }
+#else
     systemWinNetInfo = detectWinNetInfo(cmdline.smbConf, useNetbiosHostName);
 #endif
        
