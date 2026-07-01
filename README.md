@@ -311,20 +311,18 @@ To set up the repository:
 
 1. Import the repository PGP key
   ```bash
-  wget -qO wsddn.gpg  https://download.copr.fedorainfracloud.org/results/gershnik/wsddn/pubkey.gpg \
-    && sudo rpm --import wsddn.gpg \
-    && rm wsddn.gpg
+  sudo rpm --import https://download.copr.fedorainfracloud.org/results/gershnik/wsddn/pubkey.gpg
   ```
 2. Add the repository configuration to `zypper`
   ```bash
-  sudo zypper addrepo -f https://download.copr.fedorainfracloud.org/results/gershnik/wsddn/opensuse-tumbleweed-$(arch) wsddn
+  sudo zypper addrepo --gpgcheck-allow-unsigned-repo \
+    -f https://download.copr.fedorainfracloud.org/results/gershnik/wsddn/opensuse-tumbleweed-$(arch) 
+    wsddn
   ```
 3. Refresh `zypper`
   ```bash
   sudo zypper refresh
   ```
-  You will receive a warning saying something like `Warning: File 'repomd.xml' from repository 'wsddn' is unsigned ...`. This is expected as Fedora Copr doesn't sign the repository itself, only actual RPMs.
-  Answer `y` to allow.
 
 Once the repository is set up you can install `wsddn` as usual via:
 
