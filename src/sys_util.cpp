@@ -21,11 +21,8 @@ const char * OsLogHandle::s_category = "main";
 
     #elif defined(__linux__) && defined(IS_ALPINE_LINUX) && defined(ADDUSER_PATH) && defined(ADDGROUP_PATH)
     
-        //The second addgroup instead of -G for adduser is necessary since for some reason -G doesn't 
-        //modify /etc/group when run from here
         (void)run({ADDGROUP_PATH, "-S", name.c_str()});
-        (void)run({ADDUSER_PATH, "-S", "-D", "-H", "-h", "/var/empty", "-s", "/sbin/nologin", "-g", name.c_str(), name.c_str()});
-        (void)run({ADDGROUP_PATH, name.c_str(), name.c_str()});
+        (void)run({ADDUSER_PATH, "-S", "-D", "-H", "-G", name.c_str(), "-h", "/var/empty", "-s", "/sbin/nologin", "-g", name.c_str(), name.c_str()});
         return true;
 
     #elif defined(__OpenBSD__) && defined(USERADD_PATH)
