@@ -16,6 +16,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   It directs wsddn to use SMB configuration from a standalone Samba installation 
   rather than from built-in Apple SMB config.
 
+### Fixed
+- Daemon account creation now works again under NetBSD
+- Daemon account now has proper group membership on Alpine Linux
 
 ## [1.25] - 2026-06-23
 
