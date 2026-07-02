@@ -23,6 +23,12 @@ const char * OsLogHandle::s_category = "main";
     
         (void)run({ADDGROUP_PATH, "-S", name.c_str()});
         (void)run({ADDUSER_PATH, "-S", "-D", "-H", "-G", name.c_str(), "-h", "/var/empty", "-s", "/sbin/nologin", "-g", name.c_str(), name.c_str()});
+        //without this the group entry in the /etc/group does not point back to the user, which 
+        //apparently is the needed thing on Alpine because a) other daemons do it and b) without
+        //it the `deluser wsddn` command reports "deluser: can't find wsddn in /etc/group"
+        //The flip side is that `id wsddn` will report double group membership but this holds
+        //for many other daemons too
+        (void)run({ADDGROUP_PATH, name.c_str(), name.c_str()});
         return true;
 
     #elif defined(__OpenBSD__) && defined(USERADD_PATH)
