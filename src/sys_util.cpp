@@ -28,10 +28,16 @@ const char * OsLogHandle::s_category = "main";
         (void)run({ADDGROUP_PATH, name.c_str(), name.c_str()});
         return true;
 
-    #elif (defined(__OpenBSD__) || defined(__NetBSD__)) && defined(USERADD_PATH)
+    #elif defined(__OpenBSD__) && defined(USERADD_PATH)
 
         createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
         (void)run({USERADD_PATH, "-L", "daemon", "-g", "=uid", "-d", WSDDN_DEFAULT_CHROOT_DIR, "-s", "/sbin/nologin", "-c", "WS-Discovery Daemon", name.c_str()});
+        return true;
+
+    #elif defined(__NetBSD__) && defined(USERADD_PATH)
+
+        createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
+        (void)run({USERADD_PATH, "-g", "=uid", "-d", WSDDN_DEFAULT_CHROOT_DIR, "-s", "/sbin/nologin", "-c", "WS-Discovery Daemon", name.c_str()});
         return true;
 
     #elif defined(__HAIKU__) && defined(USERADD_PATH) && defined(GROUPADD_PATH)
