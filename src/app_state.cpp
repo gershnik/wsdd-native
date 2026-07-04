@@ -87,11 +87,13 @@ void AppState::init() {
                     exit(EXIT_FAILURE);
                 }
             }
+            m_origCommandLine.runAs = m_currentCommandLine.runAs;
         }
         if (!m_currentCommandLine.chrootDir) {
             WSDLOG_DEBUG("Running as root but no chroot specified in configuration. Using {}", WSDDN_DEFAULT_CHROOT_DIR);
             createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
             m_currentCommandLine.chrootDir = WSDDN_DEFAULT_CHROOT_DIR;
+            m_origCommandLine.chrootDir = m_currentCommandLine.chrootDir;
         }
     }
 
