@@ -33,7 +33,10 @@ void AppState::reload() {
         
         m_currentCommandLine = m_origCommandLine;
         m_currentCommandLine.mergeConfigFile(*m_origCommandLine.configFile);
-        m_isInitialized ? refresh() : init();
+        if (!m_isInitialized)
+            init();
+        else
+            refresh();
         
     } else if (!m_isInitialized) {
 
@@ -66,42 +69,15 @@ void AppState::init() {
 
     setPidFile();
     
-    if (getuid() == 0) {
-        
-        if (!m_currentCommandLine.runAs) {
-            WSDLOG_DEBUG("Running as root but no account to run under is specified in configuration. Using {}", WSDDN_DEFAULT_USER_NAME);
-            auto pwd = ptl::Passwd::getByName(WSDDN_DEFAULT_USER_NAME);
-            if (pwd) {
-                m_currentCommandLine.runAs = Identity(pwd->pw_uid, pwd->pw_gid);
-            } else  {
-                WSDLOG_INFO("User {} does not exist, trying to create", WSDDN_DEFAULT_USER_NAME);
-                m_currentCommandLine.runAs = Identity::createDaemonUser(WSDDN_DEFAULT_USER_NAME);
-            
-                if (!m_currentCommandLine.runAs) {
-                    WSDLOG_INFO("User creation is not supported on this platform");
-                    WSDLOG_CRITICAL("Running network service as a root is extremely insecure and is not allowed.\n"
-                                    "Please use one of the following approaches: \n"
-                                    "  * pass `--user username` command line option to specify which account to run network code under\n"
-                                    "  * start " WSDDN_PROGNAME " under a non-root account (if using systemd consider DynamicUser approach)"
-                    );
-                    exit(EXIT_FAILURE);
-                }
-            }
-            m_origCommandLine.runAs = m_currentCommandLine.runAs;
-        }
-        if (!m_currentCommandLine.chrootDir) {
-            WSDLOG_DEBUG("Running as root but no chroot specified in configuration. Using {}", WSDDN_DEFAULT_CHROOT_DIR);
-            createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
-            m_currentCommandLine.chrootDir = WSDDN_DEFAULT_CHROOT_DIR;
-            m_origCommandLine.chrootDir = m_currentCommandLine.chrootDir;
-        }
-    }
+    ensureNonRoot();
 
     m_mainPid = getpid();
     m_isInitialized = true;
 }
 
 void AppState::refresh() {
+
+    ensureNonRoot();
     
     if (m_currentCommandLine.logLevel != m_logLevel)
         setLogLevel();
@@ -115,6 +91,37 @@ void AppState::refresh() {
 
     if ( m_currentCommandLine.pidFile != m_pidFilePath)
         setPidFile();
+}
+
+void AppState::ensureNonRoot() {
+    if (getuid() != 0) 
+        return;
+        
+    if (!m_currentCommandLine.runAs) {
+        WSDLOG_DEBUG("Running as root but no account to run under is specified in configuration. Using {}", WSDDN_DEFAULT_USER_NAME);
+        auto pwd = ptl::Passwd::getByName(WSDDN_DEFAULT_USER_NAME);
+        if (pwd) {
+            m_currentCommandLine.runAs = Identity(pwd->pw_uid, pwd->pw_gid);
+        } else  {
+            WSDLOG_INFO("User {} does not exist, trying to create", WSDDN_DEFAULT_USER_NAME);
+            m_currentCommandLine.runAs = Identity::createDaemonUser(WSDDN_DEFAULT_USER_NAME);
+        
+            if (!m_currentCommandLine.runAs) {
+                WSDLOG_INFO("User creation is not supported on this platform");
+                WSDLOG_CRITICAL("Running network service as a root is extremely insecure and is not allowed.\n"
+                                "Please use one of the following approaches: \n"
+                                "  * pass `--user username` command line option to specify which account to run network code under\n"
+                                "  * start " WSDDN_PROGNAME " under a non-root account (if using systemd consider DynamicUser approach)"
+                );
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
+    if (!m_currentCommandLine.chrootDir) {
+        WSDLOG_DEBUG("Running as root but no chroot specified in configuration. Using {}", WSDDN_DEFAULT_CHROOT_DIR);
+        createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
+        m_currentCommandLine.chrootDir = WSDDN_DEFAULT_CHROOT_DIR;
+    }
 }
 
 void AppState::preFork() {

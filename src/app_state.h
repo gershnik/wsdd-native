@@ -38,6 +38,7 @@ public:
 private:
     void init();
     void refresh();
+    void ensureNonRoot();
 
     void daemonize();
 
