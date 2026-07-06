@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.26] - 2026-07-05
+
 ### Added
 - Support for building on macOS using GCC
 - Support for building and running on older macOS versions (>= 10.6 a.k.a. Snow Leopard).
@@ -273,3 +275,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.23]: https://github.com/gershnik/wsdd-native/releases/v1.23
 [1.24]: https://github.com/gershnik/wsdd-native/releases/v1.24
 [1.25]: https://github.com/gershnik/wsdd-native/releases/v1.25
+[1.26]: https://github.com/gershnik/wsdd-native/releases/v1.26
