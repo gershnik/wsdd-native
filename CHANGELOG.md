@@ -8,17 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - Support for building on macOS using GCC
 - Support for building and running on older macOS versions (>= 10.6 a.k.a. Snow Leopard).
-  Note that building on such systems requires a newer, C++20 capable compiler. 
+  Note that building on such systems requires a newer, C++20 capable compiler.
   The provided pre-built binaries still only support macOS 10.15 or above.
 
 ### Changed
-- It is now possible to use `--smb-conf` command line argument on macOS too. 
-  It directs wsddn to use SMB configuration from a standalone Samba installation 
+- It is now possible to use `--smb-conf` command line argument on macOS too.
+  It directs wsddn to use SMB configuration from a standalone Samba installation
   rather than from built-in Apple SMB config.
 
 ### Fixed
-- Daemon account creation now works again under NetBSD
-- Daemon account now has proper group membership on Alpine Linux
+- Daemon account creation now works again under NetBSD.
+- Daemon account now has proper group membership on Alpine Linux.
+- SIGHUP handling no longer loses track of which account to run under.
 
 ## [1.25] - 2026-06-23
 
