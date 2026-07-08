@@ -298,7 +298,7 @@ journalctl -u wsddn
 
 ### OpenSUSE
 
-Pre-built OpenSUSE packages for Tumbleweed are available via the [Fedora Copr](https://copr.fedorainfracloud.org/coprs/gershnik/wsddn/). 
+Pre-built OpenSUSE packages for Tumbleweed are available via the [Open Build Service](https://build.opensuse.org/package/show/home:gershnik/wsddn). 
 
 Architectures supported: `x86_64` and `aarch64`
 
@@ -309,20 +309,10 @@ Architectures supported: `x86_64` and `aarch64`
 
 To set up the repository:
 
-1. Import the repository PGP key
-  ```bash
-  sudo rpm --import https://download.copr.fedorainfracloud.org/results/gershnik/wsddn/pubkey.gpg
-  ```
-2. Add the repository configuration to `zypper`
-  ```bash
-  sudo zypper addrepo --gpgcheck-allow-unsigned-repo \
-    -f https://download.copr.fedorainfracloud.org/results/gershnik/wsddn/opensuse-tumbleweed-$(arch) 
-    wsddn
-  ```
-3. Refresh `zypper`
-  ```bash
-  sudo zypper refresh
-  ```
+```
+sudo zypper addrepo --refresh obs://home:gershnik/openSUSE_Tumbleweed wsddn
+sudo zypper refresh
+```
 
 Once the repository is set up you can install `wsddn` as usual via:
 
