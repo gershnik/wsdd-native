@@ -155,7 +155,7 @@ log show --last 15m --debug --info \
 
 ### Ubuntu/Debian/Mint/Raspberry Pi 
 
-Pre-built packages are available in a custom apt repository for systems newer than Ubuntu 20.04 (focal) or
+Pre-built packages are available in a custom apt repository for systems starting from Ubuntu 20.04 (focal) or
 Debian 11 (bullseye). Any Debian system based upon those or newer should work.
 
 Architectures supported: `amd64` (aka `x86_64`), `arm64` (aka `aarch64`) and `armhf`.
