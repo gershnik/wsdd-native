@@ -13,8 +13,7 @@ It implements the WS-Discovery protocol that Windows now uses to discover machin
 - [Features](#features)
 - [Binary packages](#binary-packages)
     - [macOS](#macos)
-        - [Standalone installer](#standalone-installer)
-        - [Homebrew](#homebrew)
+        - [Standalone installer or Homebrew](#standalone-installer-or-homebrew)
         - [MacPorts](#macports)
     - [Ubuntu/Debian/Mint/Raspberry Pi](#ubuntudebianmintraspberry-pi)
     - [RedHat/CentOS/Fedora](#redhatcentosfedora)
@@ -56,19 +55,18 @@ There are a couple of similar projects available: [wsdd][wsdd] written in Python
 
 On macOS there are 3 ways to install `wsddn`: via a standalone installer package, [Homebrew][homebrew] or [MacPorts][macports]. 
 Using a standalone installer is simpler, but you will have to manually install any future updates as well.
-Homebrew/MacPorts are a bit more complicated to set up, if you haven't got them available already, but they provide automatic updates. 
+Homebrew/MacPorts are a bit more complicated to set up if you don't already have them, but they provide automatic updates. 
 
-For standalone and Homebrew methods, the supported platforms are:
+The details for these methods are given below:
+
+
+#### Standalone installer or Homebrew
+
+<a id="standalone-installer"></a><a id="homebrew"></a>
+
+Both methods install the same underlying package. Its supported platforms are:
 - macOS Catalina (10.15) and above.
-- Both Intel and Apple Silicon (as applicable to each OS version).
-
-For MacPorts, the supported platforms are:
-- macOS Snow Leopard (10.6) and above
-- All applicable architectures: Apple Silicon, Intel (both 64 and 32-bit) and even PowerPC (in case you have a Snow Leopard running it)
-
-The installation and usage instructions for each method are given below:
-
-#### Standalone installer
+- Intel and Apple Silicon (as applicable to each OS version).
 
 <details>
 
@@ -79,15 +77,19 @@ To install via standalone `.pkg` installer:
 
 * Download [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.26/wsddn-macos-1.26.pkg)
 * Double-click it to run and follow the prompts.
+* If you prefer the command line, you can also install via:
+  ```bash
+  sudo installer -pkg /path/to/wsddn-macos-1.26.pkg -target /
+  ```
+* To fully uninstall `wsddn`, run `/usr/local/bin/wsddn-uninstall`.
 
-If you prefer the command line, you can also install via:
+To install using Homebrew:
+
 ```bash
-sudo installer -pkg /path/to/wsddn-macos-1.26.pkg -target /
+brew install --cask gershnik/repo/wsddn
 ```
 
-To fully uninstall `wsddn`, run `/usr/local/bin/wsddn-uninstall`.
-
-The daemon will start automatically on install. 
+The daemon will start automatically on install.
 
 To start/stop/reload the daemon use:
 
@@ -110,25 +112,12 @@ log show --last 15m --debug --info \
 
 </details>
 
-#### Homebrew
-
-<details>
-
-<summary>Setup and usage (click to expand)</summary>
-<br>
-
-The Homebrew package ('cask') can be installed via a custom tap. 
-
-```bash
-brew install --cask gershnik/repo/wsddn
-```
-
-This installs exactly the same thing as the standalone installer would, so all the usage instructions under [Standalone installer](#standalone-installer) apply as well.
-
-</details>
-
 
 #### MacPorts
+
+For MacPorts, the supported platforms are:
+- macOS Snow Leopard (10.6) and above.
+- All applicable architectures: Apple Silicon, Intel (both 64- and 32-bit) and even PowerPC (if you have a PowerPC Snow Leopard system).
 
 <details>
 
@@ -141,7 +130,7 @@ The MacPorts package can be installed via:
 sudo port install wsddn
 ```
 
-The daemon will start automatically on install. 
+The daemon will start automatically on install.
 
 To start/stop/reload the daemon use:
 
