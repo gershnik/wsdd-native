@@ -59,10 +59,9 @@ Homebrew/MacPorts are a bit more complicated to set up if you don't already have
 
 The details for these methods are given below:
 
+<a id="standalone-installer"></a><a id="homebrew"></a>
 
 #### Standalone installer or Homebrew
-
-<a id="standalone-installer"></a><a id="homebrew"></a>
 
 Both methods install the same underlying package. Its supported platforms are:
 - macOS Catalina (10.15) and above.
