@@ -1,4 +1,4 @@
-#! /usr/bin/env -S python3 -u
+#! /usr/bin/env python3
 
 # Copyright (c) 2022, Eugene Gershnik
 # SPDX-License-Identifier: BSD-3-Clause
