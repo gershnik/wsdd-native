@@ -56,11 +56,17 @@ There are a couple of similar projects available: [wsdd][wsdd] written in Python
 
 On macOS there are 3 ways to install `wsddn`: via a standalone installer package, [Homebrew][homebrew] or [MacPorts][macports]. 
 Using a standalone installer is simpler, but you will have to manually install any future updates as well.
-Homebrew/MacPorts are a bit more complicated to set up, but they provide updatability similar to Linux/BSD package managers. 
+Homebrew/MacPorts are a bit more complicated to set up, if you haven't got them available already, but they provide automatic updates. 
 
-For all 3 methods, the supported platforms are:
-- macOS Catalina (10.15) and above
-- Both Intel and Apple Silicon
+For standalone and Homebrew methods, the supported platforms are:
+- macOS Catalina (10.15) and above.
+- Both Intel and Apple Silicon (as applicable to each OS version).
+
+For MacPorts, the supported platforms are:
+- macOS Snow Leopard (10.6) and above
+- All applicable architectures: Apple Silicon, Intel (both 64 and 32-bit) and even PowerPC (in case you have a Snow Leopard running it)
+
+The installation and usage instructions for each method are given below:
 
 #### Standalone installer
 
@@ -641,9 +647,9 @@ configurable settings.
 ```bash
 git clone https://github.com/gershnik/wsdd-native.git
 cd wsdd-native
-cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
+cmake -S . -B out 
 cmake --build out
-sudo cmake --install out --strip
+sudo cmake --install out 
 ```
 
 The `wsddn` executable will be installed into `/usr/local/bin` and the manpage added to section 8 of the manual.
