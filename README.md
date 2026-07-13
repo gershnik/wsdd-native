@@ -134,21 +134,25 @@ The daemon will start automatically on install.
 To start/stop/reload the daemon use:
 
 ```bash
-sudo launchctl kickstart system/org.macports.wsddn
-sudo launchctl kill TERM system/org.macports.wsddn
+sudo launchctl start org.macports.wsddn
+sudo launchctl stop org.macports.wsddn
 sudo launchctl kill HUP system/org.macports.wsddn
+# or on systems older than Yosemite (10.10)
+sudo kill -HUP $(</var/run/wsddn/wsddn.pid)
 ```
 
 The configuration file will be at `/opt/local/etc/wsddn.conf`. Comments inside indicate available options and their meaning. 
 You can also use `man wsddn` to learn about configuration or see an online version [here][manpage] or [here](doc/wsddn.8.adoc).
 
-Daemon and related logs can be viewed in the system log by searching for subsystem or
+On macOS Sierra (10.12) or newer, daemon and related logs can be viewed in the system log by searching for subsystem or
 process names containing the string `wsddn`. For example:
 
 ```bash
 log show --last 15m --debug --info \
   --predicate 'subsystem CONTAINS "wsddn" OR process CONTAINS "wsddn"'
 ```
+
+On older macOS versions the log file is located at `/var/log/wsddn.log`. Log file rotation is configured via `newsyslogd`. To modify rotation settings, edit `/usr/local/etc/newsyslog.d/wsddn.conf`.
 
 </details>
 
