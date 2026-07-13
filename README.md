@@ -305,12 +305,14 @@ Architectures supported: `x86_64` and `aarch64`
 <summary>Setup and usage (click to expand)</summary>
 <br>
 
-To set up the repository:
+To set up the repository manually:
 
-```
+```bash
 sudo zypper addrepo --refresh obs://home:gershnik/openSUSE_Tumbleweed wsddn
 sudo zypper refresh
 ```
+
+Alternativly, you can follow various methods provided at [software.opensuse.org](https://software.opensuse.org/package/wsddn?search_term=wsddn) page.
 
 Once the repository is set up you can install `wsddn` as usual via:
 
