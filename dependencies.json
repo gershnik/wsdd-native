@@ -14,11 +14,11 @@
         "md5": "a3fc4f4ebd5baac595a7b3fea90f2117"
     },
     "fmt": {
-        "version": "12.2.0",
+        "version": "12.1.0",
         "url": "https://github.com/fmtlib/fmt/tarball/${version}",
         "homepage": "https://github.com/fmtlib/fmt",
-        "sha256": "8d964cf2f9682694736efbd7791c16bb4849ed484c270a29d14aa8865183e26f",
-        "md5": "c042edfeb045a8191013ba1c514438f3"
+        "sha256": "882f71002bff720ca6d0dbebd0952684da8fb521b0b448277a36f3759518afcb",
+        "md5": "3638c6732b795a3eb4c9c7e2db1cca7d"
     },
     "isptr": {
         "version": "v1.13",
