@@ -161,6 +161,34 @@ jobs:
         run: |
           cmake --build out
 
+  i386:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup system
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y ninja-build cmake gcc-multilib g++-multilib
+          sudo apt-get install -y python3-dev libsystemd-dev:i386
+
+      - name: Configure
+        shell: bash
+        run: |
+          [ -d "out" ] && tools/uncache out
+          export CFLAGS=-m32
+          export CXXFLAGS=-m32
+          export PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig
+          cmake -G Ninja -S . -B out \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+      - name: Build
+        shell: bash
+        run: |
+          cmake --build out
+
   others:
     concurrency: ${{ matrix.remote_host }}
     runs-on: [self-hosted, server]
