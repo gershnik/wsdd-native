@@ -308,7 +308,13 @@ Architectures supported: `x86_64` and `aarch64`
 To set up the repository manually:
 
 ```bash
+# For Tumbleweed
 sudo zypper addrepo --refresh obs://home:gershnik/openSUSE_Tumbleweed wsddn
+# For Slowroll
+sudo zypper addrepo --refresh obs://home:gershnik/openSUSE_Slowroll wsddn
+# For Leap 16
+sudo zypper addrepo --refresh obs://home:gershnik/16.0 wsddn
+
 sudo zypper refresh
 ```
 
