@@ -296,7 +296,7 @@ journalctl -u wsddn
 
 ### OpenSUSE
 
-Pre-built OpenSUSE packages for Tumbleweed are available via the [Open Build Service](https://build.opensuse.org/package/show/home:gershnik/wsddn). 
+Pre-built OpenSUSE packages for Tumbleweed, Slowroll, and Leap 16 are available via the [Open Build Service](https://build.opensuse.org/package/show/home:gershnik/wsddn). 
 
 Architectures supported: `x86_64` and `aarch64`
 
