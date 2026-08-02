@@ -171,6 +171,11 @@ if (WSDDN_WITH_SYSTEMD STREQUAL "yes" OR WSDDN_WITH_SYSTEMD STREQUAL "auto" AND 
             set(LIBSYSTEMD_SO "${LIBSYSTEMD_LIBRARY}")
         endif()
 
+        # dlopen() resolves a bare soname through the runtime loader search
+        # path. Recording the configure-time path breaks cross compilation,
+        # where it names a sysroot copy that does not exist on the target.
+        get_filename_component(LIBSYSTEMD_SO "${LIBSYSTEMD_SO}" NAME)
+
         set(LIBSYSTEMD_SO "${LIBSYSTEMD_SO}"  CACHE INTERNAL "" FORCE)
     endif()
 
