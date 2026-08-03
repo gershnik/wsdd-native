@@ -48,9 +48,7 @@ public:
     auto enableIPv4() const -> bool                         { return m_allowedAddressFamily != IPv6Only; }
     auto enableIPv6() const -> bool                         { return m_allowedAddressFamily != IPv4Only; }
     auto hopLimit() const -> int                            { return m_hopLimit; }
-    auto isAllowedInterface(const sys_string & name) const -> bool {
-        return m_interfaceWhitelist.empty() || m_interfaceWhitelist.contains(name);
-    }
+    auto isAllowedInterface(const sys_string & name) const -> bool;
     auto sourcePort() const -> uint16_t                     { return m_sourcePort; }
     
     auto pageSize() const -> size_t                         { return m_pageSize; }
@@ -81,6 +79,7 @@ private:
     AllowedAddressFamily m_allowedAddressFamily = BothIPv4AndIPv6;
     int m_hopLimit = 1;
     std::set<sys_string> m_interfaceWhitelist;
+    std::vector<sys_string> m_interfaceExcludePatterns;
     uint16_t m_sourcePort;
     
     size_t m_pageSize;

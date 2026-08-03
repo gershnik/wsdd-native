@@ -119,6 +119,16 @@ For interfaces with IPv6 addresses, only link-local addresses will be used.
 +
 The equivalent config file option is *interfaces*.
 
+*--exclude-interface* _pattern_, *-x* _pattern_::
+
+Network interface to skip, given as a glob pattern such as `veth*`. Pass this option multiple times for
+multiple patterns. Exclusion is applied after *--interface*, so an interface matching any pattern is
+skipped even if it was explicitly included. This is intended for packagers who ship a single
+configuration for many machines and cannot know the name of the real interface, but do know the names
+used by container and virtual networking, such as `veth*`, `docker0` or `br-*`.
++
+The equivalent config file option is *exclude-interfaces*.
+
 *--ipv4only*, *-4*::
 Use only IPv4. By default, both IPv4 and IPv6 are used. This option cannot be combined with *--ipv6only*.
 +
@@ -257,6 +267,11 @@ Specify which interfaces wsddn will be listening on. If no interfaces are specif
 or the list is empty, all suitable detected interfaces will be used. Loop-back interfaces 
 are never used, even when explicitly specified. For interfaces with IPv6 addresses, 
 only link-local addresses will be used. The equivalent command line option is *--interface*.
+
+*exclude-interfaces* = [ "_pattern_", ... ]::
+Interfaces to skip, given as glob patterns. Exclusion is applied after the *interfaces* list, so an
+interface matching any pattern is skipped even if it was explicitly included. The equivalent command
+line option is *--exclude-interface*.
 
 *log-level* = _number_:: 
 Same as *--log-level* command line option.

@@ -4,6 +4,8 @@
 #include "config.h"
 #include "command_line.h"
 
+#include <fnmatch.h>
+
 Config::Config(const CommandLine & cmdline):
     m_instanceIdentifier(time(nullptr)),
     m_pageSize(size_t(ptl::systemConfig(_SC_PAGESIZE).value_or(4096))) {
@@ -11,6 +13,7 @@ Config::Config(const CommandLine & cmdline):
     m_hopLimit = cmdline.hoplimit.value_or(1);
     m_allowedAddressFamily = cmdline.allowedAddressFamily.value_or(BothIPv4AndIPv6);
     m_interfaceWhitelist.insert(cmdline.interfaces.begin(), cmdline.interfaces.end());
+    m_interfaceExcludePatterns.assign(cmdline.excludedInterfaces.begin(), cmdline.excludedInterfaces.end());
     m_sourcePort = cmdline.sourcePort.value_or(0);
 
     m_fullHostName = getHostName();
@@ -100,6 +103,19 @@ Config::Config(const CommandLine & cmdline):
                 m_winNetInfo.hostDescription,
                 endpointIdentifier(),
                 m_metadataDoc ? cmdline.metadataFile->c_str() : "default");
+}
+
+auto Config::isAllowedInterface(const sys_string & name) const -> bool {
+
+    if (!m_interfaceWhitelist.empty() && !m_interfaceWhitelist.contains(name))
+        return false;
+
+    for (auto & pattern: m_interfaceExcludePatterns) {
+        if (fnmatch(pattern.c_str(), name.c_str(), 0) == 0)
+            return false;
+    }
+
+    return true;
 }
 
 auto Config::getHostName() const -> sys_string {

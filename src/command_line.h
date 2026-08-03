@@ -12,6 +12,7 @@ struct CommandLine {
     std::optional<DaemonType> daemonType;
     
     std::vector<sys_string> interfaces;
+    std::vector<sys_string> excludedInterfaces;
     std::optional<AllowedAddressFamily> allowedAddressFamily;
     std::optional<int> hoplimit;
     std::optional<uint16_t> sourcePort;
