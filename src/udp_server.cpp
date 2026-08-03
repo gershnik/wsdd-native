@@ -208,7 +208,7 @@ private:
             msg.msg_iovlen = std::size(iov);
             msg.msg_control = control.data();
             msg.msg_controllen = control.size();
-
+            
             size_t bytesRecvd = 0;
             for ( ; ; ) {
                 bytesRecvd = ptl::receiveSocket(m_recvSocket, &msg, 0, ec);
@@ -216,8 +216,10 @@ private:
                     break;
                 if (ec == std::errc::interrupted)
                     continue;
-                if (ec == std::errc::operation_would_block || ec == std::errc::resource_unavailable_try_again)
+                if (ec == std::errc::operation_would_block || ec == std::errc::resource_unavailable_try_again) {
+                    read();
                     return;
+                }
                     
                 WSDLOG_ERROR("{}: error reading: {}", m_serverDesc, ec.message());
                 m_handler->onFatalUdpError();
