@@ -180,9 +180,9 @@ private:
 #endif
 
     void read() {
-        m_recvSocket.async_receive_from(asio::null_buffers(), m_recvSender,
-            [this, holder = refcnt_retain(this)](asio::error_code ec, size_t bytesRecvd) {
-
+        m_recvSocket.async_wait(ip::udp::socket::wait_read,
+            [this, holder = refcnt_retain(this)](asio::error_code ec) {
+            
             if (!m_handler)
                 return;
             
@@ -208,7 +208,8 @@ private:
             msg.msg_iovlen = std::size(iov);
             msg.msg_control = control.data();
             msg.msg_controllen = control.size();
-            
+
+            size_t bytesRecvd = 0;
             for ( ; ; ) {
                 bytesRecvd = ptl::receiveSocket(m_recvSocket, &msg, 0, ec);
                 if (!ec)
