@@ -180,8 +180,10 @@ private:
 #endif
 
     void read() {
-        m_recvSocket.async_receive_from(asio::null_buffers(), m_recvSender,
-            [this, holder = refcnt_retain(this)](asio::error_code ec, size_t bytesRecvd) {
+        m_recvSocket.async_wait(ip::udp::socket::wait_read,
+            [this, holder = refcnt_retain(this)](asio::error_code ec) {
+
+            size_t bytesRecvd = 0;
 
             if (!m_handler)
                 return;
