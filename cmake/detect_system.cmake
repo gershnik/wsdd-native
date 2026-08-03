@@ -91,7 +91,12 @@ HAVE_ABI_CXA_THROW)
 if (NOT DEFINED USERADD_PATH)
     find_program(USERADD_PATH useradd PATHS /usr/sbin /bin NO_DEFAULT_PATH)
     if (USERADD_PATH)
-        message(STATUS "Looking for useradd - found at ${USERADD_PATH}")
+        # The program is spawned via posix_spawnp() so the name is enough.
+        # Recording the full path breaks cross compilation, where it is the
+        # build host's copy rather than the target's.
+        get_filename_component(USERADD_PATH "${USERADD_PATH}" NAME)
+        set(USERADD_PATH "${USERADD_PATH}" CACHE INTERNAL "" FORCE)
+        message(STATUS "Looking for useradd - found as ${USERADD_PATH}")
     else()
         message(STATUS "Looking for useradd - not found")
     endif()
@@ -100,7 +105,12 @@ endif()
 if (NOT DEFINED GROUPADD_PATH)
     find_program(GROUPADD_PATH groupadd PATHS /usr/sbin /bin NO_DEFAULT_PATH)
     if (GROUPADD_PATH)
-        message(STATUS "Looking for groupadd - found at ${GROUPADD_PATH}")
+        # The program is spawned via posix_spawnp() so the name is enough.
+        # Recording the full path breaks cross compilation, where it is the
+        # build host's copy rather than the target's.
+        get_filename_component(GROUPADD_PATH "${GROUPADD_PATH}" NAME)
+        set(GROUPADD_PATH "${GROUPADD_PATH}" CACHE INTERNAL "" FORCE)
+        message(STATUS "Looking for groupadd - found as ${GROUPADD_PATH}")
     else()
         message(STATUS "Looking for groupadd - not found")
     endif()
@@ -109,7 +119,12 @@ endif()
 if (NOT DEFINED PW_PATH)
     find_program(PW_PATH pw PATHS /usr/sbin NO_DEFAULT_PATH)
     if (PW_PATH)
-        message(STATUS "Looking for pw - found at ${PW_PATH}")
+        # The program is spawned via posix_spawnp() so the name is enough.
+        # Recording the full path breaks cross compilation, where it is the
+        # build host's copy rather than the target's.
+        get_filename_component(PW_PATH "${PW_PATH}" NAME)
+        set(PW_PATH "${PW_PATH}" CACHE INTERNAL "" FORCE)
+        message(STATUS "Looking for pw - found as ${PW_PATH}")
     else()
         message(STATUS "Looking for pw - not found")
     endif()
@@ -137,7 +152,12 @@ if(IS_ALPINE_LINUX)
     if (NOT DEFINED ADDUSER_PATH)
         find_program(ADDUSER_PATH adduser PATHS /usr/sbin NO_DEFAULT_PATH)
         if (ADDUSER_PATH)
-            message(STATUS "Looking for adduser - found at ${ADDUSER_PATH}")
+            # The program is spawned via posix_spawnp() so the name is enough.
+            # Recording the full path breaks cross compilation, where it is the
+            # build host's copy rather than the target's.
+            get_filename_component(ADDUSER_PATH "${ADDUSER_PATH}" NAME)
+            set(ADDUSER_PATH "${ADDUSER_PATH}" CACHE INTERNAL "" FORCE)
+            message(STATUS "Looking for adduser - found as ${ADDUSER_PATH}")
         else()
             message(STATUS "Looking for adduser - not found")
         endif()
@@ -146,7 +166,12 @@ if(IS_ALPINE_LINUX)
     if (NOT DEFINED ADDGROUP_PATH)
         find_program(ADDGROUP_PATH addgroup PATHS /usr/sbin NO_DEFAULT_PATH)
         if (ADDGROUP_PATH)
-            message(STATUS "Looking for addgroup - found at ${ADDGROUP_PATH}")
+            # The program is spawned via posix_spawnp() so the name is enough.
+            # Recording the full path breaks cross compilation, where it is the
+            # build host's copy rather than the target's.
+            get_filename_component(ADDGROUP_PATH "${ADDGROUP_PATH}" NAME)
+            set(ADDGROUP_PATH "${ADDGROUP_PATH}" CACHE INTERNAL "" FORCE)
+            message(STATUS "Looking for addgroup - found as ${ADDGROUP_PATH}")
         else()
             message(STATUS "Looking for addgroup - not found")
         endif()
