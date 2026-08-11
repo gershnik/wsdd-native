@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Added
+- Added ability to suppress lookup of runtime paths at build time via WSDDN_NO_TARGET_PATHS_DETECTION 
+  CMake flag.
+
+### Changed
+- Warning about deprecated features being used when building with newer versions of Asio.
+
 ## [1.26] - 2026-07-05
 
 ### Added
