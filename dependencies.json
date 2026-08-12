@@ -7,11 +7,11 @@
         "md5": "7db59ab086ae4ed4cd567e3b8367a906"
     },
     "asio": {
-        "version": "1.36.0",
+        "version": "1.38.2",
         "url": "https://downloads.sourceforge.net/asio/asio-${version}.tar.gz",
         "homepage": "https://think-async.com/Asio/",
-        "sha256": "55d5c64e78b1bedd0004423e695c2cfc191fc71914eaaa7f042329ff99ee6155",
-        "md5": "a3fc4f4ebd5baac595a7b3fea90f2117"
+        "sha256": "4893ad026013d1f64bf111c606e6abd857bb953823a4744e449969f1063fd9ce",
+        "md5": "fb227b184113fc8265efa3215c8e19d8"
     },
     "fmt": {
         "version": "12.1.0",
@@ -63,11 +63,11 @@
         "md5": "ebfd0e3f97c3631723fa4d1bd0ce2b61"
     },
     "sys_string": {
-        "version": "v3.14",
+        "version": "v3.15",
         "url": "https://github.com/gershnik/sys_string/tarball/${version}",
         "homepage": "https://github.com/gershnik/sys_string",
-        "sha256": "c6b971d9e967b5fd3977d8821d53da2b1bbb2518fb414ba57314abb43a481db0",
-        "md5": "c1d89aa0151e1a2aaba981f7efce7dc1"
+        "sha256": "a9fd6fc575e1f633d74e18cd17c07d870a9539e1c32ff1e61b2a7984107584eb",
+        "md5": "b0e45801ce902005e4d8ff74017726e6"
     },
     "tomlplusplus": {
         "version": "v3.4.0",
