@@ -61,6 +61,21 @@ static auto addInterface(CommandLine & cmdline, sys_string val) {
     cmdline.interfaces.emplace_back(val);
 }
 
+static auto addPattern(CommandLine & cmdline, bool include, sys_string val) {
+    if (val.empty())
+        throw Parser::ValidationError("interface pattern cannot be empty");
+    
+    try {
+        std::regex(sys_string::char_access(val).c_str(), std::regex::ECMAScript);
+    } catch (std::regex_error & ex) {
+        throw Parser::ValidationError("invalid interface pattern: "s + ex.what());
+    }
+    if (include)
+        cmdline.includePatterns.emplace_back(val);
+    else
+        cmdline.excludePatterns.emplace_back(val);
+}
+
 static auto setUuid(CommandLine & cmdline, sys_string val) {
     if (auto maybeUuid = Uuid::from_chars(std::span(val.c_str(), val.storage_size())))
         cmdline.uuid = *maybeUuid;
@@ -355,6 +370,18 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
                handler([this](std::string_view arg) {
         addInterface(*this, sys_string(arg).trim());
     }));
+    parser.add(Option("--include-pattern").
+               argName("REGEX").
+               help("a regular expression pattern for interfaces to include. Pass this option multiple times for multiple patterns").
+               handler([this](std::string_view arg) {
+        addPattern(*this, true, sys_string(arg).trim());
+    }));
+    parser.add(Option("--exclude-pattern").
+               argName("REGEX").
+               help("a regular expression pattern for interfaces to exclude. Pass this option multiple times for multiple patterns").
+               handler([this](std::string_view arg) {
+        addPattern(*this, false, sys_string(arg).trim());
+    }));
     parser.add(Option("--ipv4only", "-4").
                help("use only IPv4. By default both IPv4 and IPv6 are used.").
                handler([this](){
@@ -375,6 +402,7 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
         this->hoplimit = Argum::parseIntegral<unsigned>(val);
     }));
     parser.add(Option("--source-port").
+               argName("NUMBER").
                help("send multicast traffic and receive replies on this port.").
                handler([this](std::string_view val){
         this->sourcePort = Argum::parseIntegral<unsigned>(val);
@@ -524,6 +552,36 @@ void CommandLine::parseConfigKey(std::string_view keyName, const toml::node & va
                     continue;
                 }
                 addInterface(*this, sys_string(name->get()).trim());
+            }
+        });
+
+    } else if (keyName == "include-patterns"sv) {
+        
+        setConfigValue<toml::array>(!this->includePatterns.empty(), keyName, value, [this](const toml::array & val) {
+            
+            for(auto & el : val) {
+                auto * name = el.as_string();
+                if (!name) {
+                    auto & source = val.source();
+                    WSDLOG_WARN("{}, line {}, col: {}: interface patterns must be strings, ignoring", *source.path, source.begin.line, source.begin.column);
+                    continue;
+                }
+                addPattern(*this, true, sys_string(name->get()).trim());
+            }
+        });
+
+    } else if (keyName == "exclude-patterns"sv) {
+        
+        setConfigValue<toml::array>(!this->excludePatterns.empty(), keyName, value, [this](const toml::array & val) {
+            
+            for(auto & el : val) {
+                auto * name = el.as_string();
+                if (!name) {
+                    auto & source = val.source();
+                    WSDLOG_WARN("{}, line {}, col: {}: interface patterns must be strings, ignoring", *source.path, source.begin.line, source.begin.column);
+                    continue;
+                }
+                addPattern(*this, false, sys_string(name->get()).trim());
             }
         });
         

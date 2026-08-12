@@ -454,8 +454,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><strong>wsddn</strong> <strong>--help</strong><br>
 <strong>wsddn</strong> <strong>--version</strong><br>
 <strong>wsddn</strong> [<strong>--unixd</strong>|<strong>--systemd</strong>|<strong>--launchd</strong>]
-    [<strong>-c</strong> <em>path</em>] [<strong>-i</strong> <em>name</em>]&#8230;&#8203; [<strong>-4</strong>|<strong>-6</strong>] [<strong>--hoplimit</strong> <em>number</em>] [<strong>--uuid</strong> <em>uuid</em>]
-    [<strong>-H</strong> <em>name</em>] [<strong>-D</strong>|<strong>-W</strong> <em>name</em>] [<strong>--log-level</strong> <em>level</em>] [<strong>--log-file</strong> <em>path</em> | <strong>--log-os-log</strong>]
+    [<strong>-c</strong> <em>path</em>] [<strong>-i</strong> <em>name</em>]&#8230;&#8203; [<strong>--include-pattern</strong> <em>regex</em>]&#8230;&#8203; [<strong>--exclude-pattern</strong> <em>regex</em>]&#8230;&#8203;
+    [<strong>-4</strong>|<strong>-6</strong>] [<strong>--hoplimit</strong> <em>number</em>] [<strong>--source-port</strong> <em>number</em>] [<strong>--uuid</strong> <em>uuid</em>]
+    [<strong>-H</strong> <em>name</em>] [<strong>-D</strong>|<strong>-W</strong> <em>name</em>] [<strong>--smb-conf</strong> <em>path</em>] [<strong>--metadata</strong> <em>path</em>]
+    [<strong>--log-level</strong> <em>level</em>] [<strong>--log-file</strong> <em>path</em> | <strong>--log-os-log</strong>]
     [<strong>--pid-file</strong> <em>path</em>] [<strong>-U</strong> <em>user</em>[:<em>group</em>]] [<strong>-r</strong> <em>dir</em>]</p>
 </div>
 </div>
@@ -509,7 +511,7 @@ command-line options override values specified in the configuration file.</p>
 <dt class="hdlist1"><strong>--config</strong> <em>path</em>, <strong>-c</strong> <em>path</em></dt>
 <dd>
 <p>Path to the configuration file. The file does not need to exist. If it exists, the file is read and options
-specified in it are applied <em>if not already specified on the command line</em>. See [CONFIG FILE] below for information
+specified in it are applied <em>if not already specified on the command line</em>. See "CONFIG FILE" below for information
 about its syntax and content. Content of the configuration file is re-read upon <strong>SIGHUP</strong> signal. By default,
 if this option isn&#8217;t specified, no configuration file is read.</p>
 </dd>
@@ -612,11 +614,28 @@ of wsddn need access to the normal filesystem to detect SMB configuration, etc.<
 <dl>
 <dt class="hdlist1"><strong>--interface</strong> <em>name</em>, <strong>-i</strong> <em>name</em></dt>
 <dd>
-<p>Network interface to use. Pass this option multiple times for multiple interfaces. If not specified, all
-eligible interfaces will be used. Loop-back interfaces are never used, even when explicitly specified.
-For interfaces with IPv6 addresses, only link-local addresses will be used.</p>
+<p>Network interface to use. Pass this option multiple times for multiple interfaces.
+See "INTERFACE SELECTION LOGIC" section for details on how this option is used.</p>
 <div class="paragraph">
 <p>The equivalent config file option is <strong>interfaces</strong>.</p>
+</div>
+</dd>
+<dt class="hdlist1"><strong>--include-pattern</strong> <em>regex</em></dt>
+<dd>
+<p>A regular expression pattern to select which network interfaces to use.
+The regular expression syntax is ECMAScript. Pass this option multiple times for multiple patterns.
+See "INTERFACE SELECTION LOGIC" section for details on how this option is used.</p>
+<div class="paragraph">
+<p>The equivalent config file option is <strong>include-patterns</strong>.</p>
+</div>
+</dd>
+<dt class="hdlist1"><strong>--exclude-pattern</strong> <em>regex</em></dt>
+<dd>
+<p>A regular expression pattern to select which network interfaces NOT to use.
+The regular expression syntax is ECMAScript. Pass this option multiple times for multiple patterns.
+See "INTERFACE SELECTION LOGIC" section for details on how this option is used.</p>
+<div class="paragraph">
+<p>The equivalent config file option is <strong>exclude-patterns</strong>.</p>
 </div>
 </dd>
 <dt class="hdlist1"><strong>--ipv4only</strong>, <strong>-4</strong></dt>
@@ -688,7 +707,7 @@ SMB configuration. If no SMB configuration is found, it is set to a workgroup na
 By default, <strong>wsddn</strong> tries to locate this file on its own by querying your local Samba installation.
 Use this option if auto-detection fails, picks the wrong Samba instance, or if you are using
 KSMBD on Linux. The equivalent config file option is <strong>smb-conf</strong>. On macOS, using this option
-overrides normal Apple SMB detection and allows you to use a custom Samba instance</p>
+overrides normal Apple SMB detection and allows you to use a custom Samba instance.</p>
 </dd>
 <dt class="hdlist1"><strong>--metadata</strong> <em>path</em>, <strong>-m</strong> <em>path</em></dt>
 <dd>
@@ -832,10 +851,20 @@ The equivalent command line options are <strong>--ipv4only</strong> and <strong>
 </dd>
 <dt class="hdlist1"><strong>interfaces</strong> = [ "<em>name</em>", &#8230;&#8203; ]</dt>
 <dd>
-<p>Specify which interfaces wsddn will be listening on. If no interfaces are specified,
-or the list is empty, all suitable detected interfaces will be used. Loop-back interfaces
-are never used, even when explicitly specified. For interfaces with IPv6 addresses,
-only link-local addresses will be used. The equivalent command line option is <strong>--interface</strong>.</p>
+<p>Network interfaces to use. See "INTERFACE SELECTION LOGIC" section for
+details on how this option is used. The equivalent command line option is <strong>--interface</strong>.</p>
+</dd>
+<dt class="hdlist1"><strong>include-patterns</strong> = [ "<em>regex</em>", &#8230;&#8203;]</dt>
+<dd>
+<p>Regular expression patterns to select which network interfaces to use.
+The regular expression syntax is ECMAScript. See "INTERFACE SELECTION LOGIC" section for
+details on how this option is used. The equivalent command line option is <strong>--include-pattern</strong>.</p>
+</dd>
+<dt class="hdlist1"><strong>exclude-patterns</strong> = [ "<em>regex</em>", &#8230;&#8203;]</dt>
+<dd>
+<p>Regular expression patterns to select which network interfaces NOT to use.
+The regular expression syntax is ECMAScript. See "INTERFACE SELECTION LOGIC" section for
+details on how this option is used. The equivalent command line option is <strong>--exclude-pattern</strong>.</p>
 </dd>
 <dt class="hdlist1"><strong>log-level</strong> = <em>number</em></dt>
 <dd>
@@ -854,7 +883,7 @@ only link-local addresses will be used. The equivalent command line option is <s
 <p>Report whether the host is a member of a given workgroup or domain. To specify a workgroup,
 use "Workgroup/name" syntax. To specify a domain, use "Domain/name". The "workgroup/" and "domain/"
 prefixes are not case-sensitive. If not specified, workgroup/domain membership is detected
-from SMB configuration. If no SMB configuration is found, it is set to a workgroup named WORKGROUP.
+from SMB configuration. If no SMB configuration is found, it is set to a workgroup named <strong>WORKGROUP</strong>.
 The equivalent command line options are <strong>--domain</strong> and <strong>--workgroup</strong>.</p>
 </dd>
 <dt class="hdlist1"><strong>pid-file</strong> = "<em>path</em>"</dt>
@@ -878,6 +907,46 @@ The equivalent command line options are <strong>--domain</strong> and <strong>--
 <p>Same as <strong>--uuid</strong> command line option.</p>
 </dd>
 </dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_interface_selection_logic">INTERFACE SELECTION LOGIC</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The interfaces to use are selected using the following rules:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Loop-back interfaces are never used, even when explicitly requested.</p>
+</li>
+<li>
+<p>An interface must have an address in a selected address family (IPv4, IPv6, or both).
+For IPv6, only the link-local addresses are used.</p>
+</li>
+<li>
+<p>If neither <strong>--interface</strong> nor <strong>--include-pattern</strong> are specified, all interfaces NOT matching any <strong>--exclude-pattern</strong>
+are used. In particular, this means that if no interface selection options are specified, all non-loop-back
+interfaces are used.</p>
+</li>
+<li>
+<p>Otherwise:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Any interface named by <strong>--interface</strong> is used. The <strong>--include-pattern</strong> and <strong>--exclude-pattern</strong> options do not apply to it.</p>
+</li>
+<li>
+<p>Any interface that matches an <strong>--include-pattern</strong> and doesn&#8217;t match any <strong>--exclude-pattern</strong> is also used.</p>
+</li>
+<li>
+<p>All other interfaces are not used.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -908,6 +977,22 @@ The equivalent command line options are <strong>--domain</strong> and <strong>--
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_handle_traffic_only_on_interfaces_named_ethsomething">Handle traffic only on interfaces named eth&lt;something&gt;</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>wsddn --include-pattern "eth.*"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_handle_traffic_only_on_interfaces_not_named_vethsomething">Handle traffic only on interfaces NOT named veth&lt;something&gt;</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>wsddn --exclude-pattern "veth.*"</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -929,7 +1014,7 @@ The equivalent command line options are <strong>--domain</strong> and <strong>--
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-06-27 02:55:02 -0700
+Last updated 2026-08-11 23:45:52 -0700
 </div>
 </div>
 </body>

@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## Unreleased
 
 ### Added
-- Added ability to suppress lookup of runtime paths at build time via WSDDN_NO_TARGET_PATHS_DETECTION 
+- `--include-pattern` and `--exclude-pattern` command line options and equivalent 
+  config file settings to allow interface inclusion and exclusion via a regex.
+  ([#31](https://github.com/gershnik/wsdd-native/issues/31))
+- Ability to suppress lookup of runtime paths at build time via WSDDN_NO_TARGET_PATHS_DETECTION 
   CMake flag.
 
 ### Changed

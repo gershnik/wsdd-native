@@ -13,8 +13,10 @@ wsddn - WS-Discovery Host Daemon
 *wsddn* *--help* +
 *wsddn* *--version* +
 *wsddn* [*--unixd*|*--systemd*|*--launchd*] 
-    [*-c* _path_] [*-i* _name_]... [*-4*|*-6*] [*--hoplimit* _number_] [*--uuid* _uuid_] 
-    [*-H* _name_] [*-D*|*-W* _name_] [*--log-level* _level_] [*--log-file* _path_ | *--log-os-log*] 
+    [*-c* _path_] [*-i* _name_]... [*--include-pattern* _regex_]... [*--exclude-pattern* _regex_]...
+    [*-4*|*-6*] [*--hoplimit* _number_] [*--source-port* _number_] [*--uuid* _uuid_] 
+    [*-H* _name_] [*-D*|*-W* _name_] [*--smb-conf* _path_] [*-m* _path_] 
+    [*--log-level* _level_] [*--log-file* _path_ | *--log-os-log*] 
     [*--pid-file* _path_] [*-U* _user_[:__group__]] [*-r* _dir_]
 
 == DESCRIPTION
@@ -50,7 +52,7 @@ Run as a launchd daemon. This option is only available on macOS.
 
 *--config* _path_, *-c* _path_::
 Path to the configuration file. The file does not need to exist. If it exists, the file is read and options 
-specified in it are applied _if not already specified on the command line_. See [CONFIG FILE] below for information 
+specified in it are applied _if not already specified on the command line_. See "CONFIG FILE" below for information 
 about its syntax and content. Content of the configuration file is re-read upon *SIGHUP* signal. By default, 
 if this option isn't specified, no configuration file is read.
 
@@ -113,11 +115,26 @@ of wsddn need access to the normal filesystem to detect SMB configuration, etc.
 
 *--interface* _name_, *-i* _name_::
 
-Network interface to use. Pass this option multiple times for multiple interfaces. If not specified, all 
-eligible interfaces will be used. Loop-back interfaces are never used, even when explicitly specified. 
-For interfaces with IPv6 addresses, only link-local addresses will be used.
+Network interface to use. Pass this option multiple times for multiple interfaces.
+See "INTERFACE SELECTION LOGIC" section for details on how this option is used.
 +
 The equivalent config file option is *interfaces*.
+
+*--include-pattern* _regex_::
+
+A regular expression pattern to select which network interfaces to use. 
+The regular expression syntax is ECMAScript. Pass this option multiple times for multiple patterns.
+See "INTERFACE SELECTION LOGIC" section for details on how this option is used.
++
+The equivalent config file option is *include-patterns*.
+
+*--exclude-pattern* _regex_::
+
+A regular expression pattern to select which network interfaces NOT to use. 
+The regular expression syntax is ECMAScript. Pass this option multiple times for multiple patterns.
+See "INTERFACE SELECTION LOGIC" section for details on how this option is used.
++
+The equivalent config file option is *exclude-patterns*.
 
 *--ipv4only*, *-4*::
 Use only IPv4. By default, both IPv4 and IPv6 are used. This option cannot be combined with *--ipv6only*.
@@ -136,6 +153,7 @@ Set the hop limit for multicast packets. The default is 1, which should prevent 
 Set the source port for outgoing multicast messages, so that replies will use this as the destination port. 
 This is useful for firewalls that do not detect incoming unicast replies to a multicast as part of the flow, 
 so the port needs to be fixed in order to be allowed manually.
+
 
 === Machine information options
 
@@ -170,7 +188,7 @@ Path to *smb.conf*, *samba.conf*, or *ksmbd.conf* file to extract the SMB config
 By default, *wsddn* tries to locate this file on its own by querying your local Samba installation. 
 Use this option if auto-detection fails, picks the wrong Samba instance, or if you are using 
 KSMBD on Linux. The equivalent config file option is *smb-conf*. On macOS, using this option
-overrides normal Apple SMB detection and allows you to use a custom Samba instance
+overrides normal Apple SMB detection and allows you to use a custom Samba instance.
 
 *--metadata* _path_, *-m* _path_::
 Path to a custom metadata XML file. Custom metadata allows you to completely replace the information 
@@ -253,10 +271,18 @@ Same as *--source-port* command line option.
 Same as *--hostname* command line option.
 
 *interfaces* = [ "_name_", ... ]:: 
-Specify which interfaces wsddn will be listening on. If no interfaces are specified, 
-or the list is empty, all suitable detected interfaces will be used. Loop-back interfaces 
-are never used, even when explicitly specified. For interfaces with IPv6 addresses, 
-only link-local addresses will be used. The equivalent command line option is *--interface*.
+Network interfaces to use. See "INTERFACE SELECTION LOGIC" section for 
+details on how this option is used. The equivalent command line option is *--interface*.
+
+*include-patterns* = [ "_regex_", ...]::
+Regular expression patterns to select which network interfaces to use. 
+The regular expression syntax is ECMAScript. See "INTERFACE SELECTION LOGIC" section for 
+details on how this option is used. The equivalent command line option is *--include-pattern*.
+
+*exclude-patterns* = [ "_regex_", ...]::
+Regular expression patterns to select which network interfaces NOT to use. 
+The regular expression syntax is ECMAScript. See "INTERFACE SELECTION LOGIC" section for 
+details on how this option is used. The equivalent command line option is *--exclude-pattern*.
 
 *log-level* = _number_:: 
 Same as *--log-level* command line option.
@@ -271,7 +297,7 @@ Same as *--log-os-log* command line option.
 Report whether the host is a member of a given workgroup or domain. To specify a workgroup,
 use "Workgroup/name" syntax. To specify a domain, use "Domain/name". The "workgroup/" and "domain/" 
 prefixes are not case-sensitive. If not specified, workgroup/domain membership is detected 
-from SMB configuration. If no SMB configuration is found, it is set to a workgroup named WORKGROUP. 
+from SMB configuration. If no SMB configuration is found, it is set to a workgroup named *WORKGROUP*. 
 The equivalent command line options are *--domain* and *--workgroup*.
 
 *pid-file* = "_path_":: 
@@ -288,6 +314,21 @@ Same as *--user* command line option.
 
 *uuid* = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx":: 
 Same as *--uuid* command line option.
+
+== INTERFACE SELECTION LOGIC
+
+The interfaces to use are selected using the following rules:
+
+* Loop-back interfaces are never used, even when explicitly requested.
+* An interface must have an address in a selected address family (IPv4, IPv6, or both).
+  For IPv6, only the link-local addresses are used.
+* If neither *--interface* nor *--include-pattern* are specified, all interfaces NOT matching any *--exclude-pattern* 
+  are used. In particular, this means that if no interface selection options are specified, all non-loop-back
+  interfaces are used.
+* Otherwise:
+** Any interface named by *--interface* is used. The *--include-pattern* and *--exclude-pattern* options do not apply to it.
+** Any interface that matches an *--include-pattern* and doesn't match any *--exclude-pattern* is also used.
+** All other interfaces are not used.
 
 == EXAMPLES
 
@@ -310,6 +351,20 @@ wsddn --systemd --config=/etc/wsddn.conf
 [source]
 ----
 wsddn -i eth0 -i eth2 -6
+----
+
+=== Handle traffic only on interfaces named eth<something> 
+
+[source]
+----
+wsddn --include-pattern "eth.*" 
+----
+
+=== Handle traffic only on interfaces NOT named veth<something> 
+
+[source]
+----
+wsddn --exclude-pattern "veth.*" 
 ----
 
 == AUTHOR

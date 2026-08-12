@@ -11,6 +11,20 @@ Config::Config(const CommandLine & cmdline):
     m_hopLimit = cmdline.hoplimit.value_or(1);
     m_allowedAddressFamily = cmdline.allowedAddressFamily.value_or(BothIPv4AndIPv6);
     m_interfaceWhitelist.insert(cmdline.interfaces.begin(), cmdline.interfaces.end());
+    m_interfacePatternsWhitelist.reserve(cmdline.includePatterns.size());
+    for(auto & str: cmdline.includePatterns) {
+        m_interfacePatternsWhitelist.emplace_back(sys_string::char_access(str).c_str(), 
+                                                    std::regex::ECMAScript |
+                                                    std::regex::optimize |
+                                                    std::regex::nosubs);
+    }
+    m_interfacePatternsBlacklist.reserve(cmdline.excludePatterns.size());
+    for(auto & str: cmdline.excludePatterns) {
+        m_interfacePatternsBlacklist.emplace_back(sys_string::char_access(str).c_str(), 
+                                                    std::regex::ECMAScript |
+                                                    std::regex::optimize |
+                                                    std::regex::nosubs);
+    }
     m_sourcePort = cmdline.sourcePort.value_or(0);
 
     m_fullHostName = getHostName();
@@ -100,6 +114,30 @@ Config::Config(const CommandLine & cmdline):
                 m_winNetInfo.hostDescription,
                 endpointIdentifier(),
                 m_metadataDoc ? cmdline.metadataFile->c_str() : "default");
+}
+
+auto Config::isAllowedInterface(const sys_string & name) const -> bool {
+    if (m_interfaceWhitelist.contains(name))
+        return true;
+
+    bool includeViaPattern = false;
+    sys_string::char_access access(name);
+    for (auto & exp: m_interfacePatternsWhitelist) {
+        if (std::regex_match(access.c_str(), exp)) {
+            includeViaPattern = true;
+            break;
+        }
+    }
+    bool includeByDefault = m_interfaceWhitelist.empty() &&
+                            m_interfacePatternsWhitelist.empty();
+    if (!includeViaPattern && !includeByDefault)
+        return false;
+
+    for (auto & exp: m_interfacePatternsBlacklist) {
+        if (std::regex_match(access.c_str(), exp))
+            return false;
+    }
+    return true;
 }
 
 auto Config::getHostName() const -> sys_string {

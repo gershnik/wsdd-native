@@ -2,12 +2,12 @@
 .\"     Title: wsddn
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2026-06-27
+.\"      Date: 2026-08-11
 .\"    Manual: System Manager's Manual
 .\"    Source: WS-Discovery Host Daemon
 .\"  Language: English
 .\"
-.TH "WSDDN" "8" "2026-06-27" "WS\-Discovery Host Daemon" "System Manager\*(Aqs Manual"
+.TH "WSDDN" "8" "2026-08-11" "WS\-Discovery Host Daemon" "System Manager\*(Aqs Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -36,8 +36,10 @@ wsddn \- WS\-Discovery Host Daemon
 \fBwsddn\fP \fB\-\-version\fP
 .br
 \fBwsddn\fP [\fB\-\-unixd\fP|\fB\-\-systemd\fP|\fB\-\-launchd\fP]
-[\fB\-c\fP \fIpath\fP] [\fB\-i\fP \fIname\fP].\|.\|. [\fB\-4\fP|\fB\-6\fP] [\fB\-\-hoplimit\fP \fInumber\fP] [\fB\-\-uuid\fP \fIuuid\fP]
-[\fB\-H\fP \fIname\fP] [\fB\-D\fP|\fB\-W\fP \fIname\fP] [\fB\-\-log\-level\fP \fIlevel\fP] [\fB\-\-log\-file\fP \fIpath\fP | \fB\-\-log\-os\-log\fP]
+[\fB\-c\fP \fIpath\fP] [\fB\-i\fP \fIname\fP].\|.\|. [\fB\-\-include\-pattern\fP \fIregex\fP].\|.\|. [\fB\-\-exclude\-pattern\fP \fIregex\fP].\|.\|.
+[\fB\-4\fP|\fB\-6\fP] [\fB\-\-hoplimit\fP \fInumber\fP] [\fB\-\-source\-port\fP \fInumber\fP] [\fB\-\-uuid\fP \fIuuid\fP]
+[\fB\-H\fP \fIname\fP] [\fB\-D\fP|\fB\-W\fP \fIname\fP] [\fB\-\-smb\-conf\fP \fIpath\fP] [\fB\-\-metadata\fP \fIpath\fP]
+[\fB\-\-log\-level\fP \fIlevel\fP] [\fB\-\-log\-file\fP \fIpath\fP | \fB\-\-log\-os\-log\fP]
 [\fB\-\-pid\-file\fP \fIpath\fP] [\fB\-U\fP \fIuser\fP[:\fIgroup\fP]] [\fB\-r\fP \fIdir\fP]
 .SH "DESCRIPTION"
 .sp
@@ -81,7 +83,7 @@ Run as a launchd daemon. This option is only available on macOS.
 \fB\-\-config\fP \fIpath\fP, \fB\-c\fP \fIpath\fP
 .RS 4
 Path to the configuration file. The file does not need to exist. If it exists, the file is read and options
-specified in it are applied \fIif not already specified on the command line\fP. See [CONFIG FILE] below for information
+specified in it are applied \fIif not already specified on the command line\fP. See "CONFIG FILE" below for information
 about its syntax and content. Content of the configuration file is re\-read upon \fBSIGHUP\fP signal. By default,
 if this option isn\(cqt specified, no configuration file is read.
 .RE
@@ -227,11 +229,28 @@ of wsddn need access to the normal filesystem to detect SMB configuration, etc.
 .sp
 \fB\-\-interface\fP \fIname\fP, \fB\-i\fP \fIname\fP
 .RS 4
-Network interface to use. Pass this option multiple times for multiple interfaces. If not specified, all
-eligible interfaces will be used. Loop\-back interfaces are never used, even when explicitly specified.
-For interfaces with IPv6 addresses, only link\-local addresses will be used.
+Network interface to use. Pass this option multiple times for multiple interfaces.
+See "INTERFACE SELECTION LOGIC" section for details on how this option is used.
 .sp
 The equivalent config file option is \fBinterfaces\fP.
+.RE
+.sp
+\fB\-\-include\-pattern\fP \fIregex\fP
+.RS 4
+A regular expression pattern to select which network interfaces to use.
+The regular expression syntax is ECMAScript. Pass this option multiple times for multiple patterns.
+See "INTERFACE SELECTION LOGIC" section for details on how this option is used.
+.sp
+The equivalent config file option is \fBinclude\-patterns\fP.
+.RE
+.sp
+\fB\-\-exclude\-pattern\fP \fIregex\fP
+.RS 4
+A regular expression pattern to select which network interfaces NOT to use.
+The regular expression syntax is ECMAScript. Pass this option multiple times for multiple patterns.
+See "INTERFACE SELECTION LOGIC" section for details on how this option is used.
+.sp
+The equivalent config file option is \fBexclude\-patterns\fP.
 .RE
 .sp
 \fB\-\-ipv4only\fP, \fB\-4\fP
@@ -301,7 +320,7 @@ Path to \fBsmb.conf\fP, \fBsamba.conf\fP, or \fBksmbd.conf\fP file to extract th
 By default, \fBwsddn\fP tries to locate this file on its own by querying your local Samba installation.
 Use this option if auto\-detection fails, picks the wrong Samba instance, or if you are using
 KSMBD on Linux. The equivalent config file option is \fBsmb\-conf\fP. On macOS, using this option
-overrides normal Apple SMB detection and allows you to use a custom Samba instance
+overrides normal Apple SMB detection and allows you to use a custom Samba instance.
 .RE
 .sp
 \fB\-\-metadata\fP \fIpath\fP, \fB\-m\fP \fIpath\fP
@@ -442,10 +461,22 @@ Same as \fB\-\-hostname\fP command line option.
 .sp
 \fBinterfaces\fP = [ "\fIname\fP", .\|.\|. ]
 .RS 4
-Specify which interfaces wsddn will be listening on. If no interfaces are specified,
-or the list is empty, all suitable detected interfaces will be used. Loop\-back interfaces
-are never used, even when explicitly specified. For interfaces with IPv6 addresses,
-only link\-local addresses will be used. The equivalent command line option is \fB\-\-interface\fP.
+Network interfaces to use. See "INTERFACE SELECTION LOGIC" section for
+details on how this option is used. The equivalent command line option is \fB\-\-interface\fP.
+.RE
+.sp
+\fBinclude\-patterns\fP = [ "\fIregex\fP", .\|.\|.]
+.RS 4
+Regular expression patterns to select which network interfaces to use.
+The regular expression syntax is ECMAScript. See "INTERFACE SELECTION LOGIC" section for
+details on how this option is used. The equivalent command line option is \fB\-\-include\-pattern\fP.
+.RE
+.sp
+\fBexclude\-patterns\fP = [ "\fIregex\fP", .\|.\|.]
+.RS 4
+Regular expression patterns to select which network interfaces NOT to use.
+The regular expression syntax is ECMAScript. See "INTERFACE SELECTION LOGIC" section for
+details on how this option is used. The equivalent command line option is \fB\-\-exclude\-pattern\fP.
 .RE
 .sp
 \fBlog\-level\fP = \fInumber\fP
@@ -468,7 +499,7 @@ Same as \fB\-\-log\-os\-log\fP command line option.
 Report whether the host is a member of a given workgroup or domain. To specify a workgroup,
 use "Workgroup/name" syntax. To specify a domain, use "Domain/name". The "workgroup/" and "domain/"
 prefixes are not case\-sensitive. If not specified, workgroup/domain membership is detected
-from SMB configuration. If no SMB configuration is found, it is set to a workgroup named WORKGROUP.
+from SMB configuration. If no SMB configuration is found, it is set to a workgroup named \fBWORKGROUP\fP.
 The equivalent command line options are \fB\-\-domain\fP and \fB\-\-workgroup\fP.
 .RE
 .sp
@@ -496,6 +527,89 @@ Same as \fB\-\-user\fP command line option.
 .RS 4
 Same as \fB\-\-uuid\fP command line option.
 .RE
+.SH "INTERFACE SELECTION LOGIC"
+.sp
+The interfaces to use are selected using the following rules:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Loop\-back interfaces are never used, even when explicitly requested.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+An interface must have an address in a selected address family (IPv4, IPv6, or both).
+For IPv6, only the link\-local addresses are used.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+If neither \fB\-\-interface\fP nor \fB\-\-include\-pattern\fP are specified, all interfaces NOT matching any \fB\-\-exclude\-pattern\fP
+are used. In particular, this means that if no interface selection options are specified, all non\-loop\-back
+interfaces are used.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Otherwise:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Any interface named by \fB\-\-interface\fP is used. The \fB\-\-include\-pattern\fP and \fB\-\-exclude\-pattern\fP options do not apply to it.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Any interface that matches an \fB\-\-include\-pattern\fP and doesn\(cqt match any \fB\-\-exclude\-pattern\fP is also used.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+All other interfaces are not used.
+.RE
+.RE
 .SH "EXAMPLES"
 .SS "Run as a traditional Unix daemon"
 .sp
@@ -521,6 +635,24 @@ wsddn \-\-systemd \-\-config=/etc/wsddn.conf
 .nf
 .fam C
 wsddn \-i eth0 \-i eth2 \-6
+.fam
+.fi
+.if n .RE
+.SS "Handle traffic only on interfaces named eth<something>"
+.sp
+.if n .RS 4
+.nf
+.fam C
+wsddn \-\-include\-pattern "eth.*"
+.fam
+.fi
+.if n .RE
+.SS "Handle traffic only on interfaces NOT named veth<something>"
+.sp
+.if n .RS 4
+.nf
+.fam C
+wsddn \-\-exclude\-pattern "veth.*"
 .fam
 .fi
 .if n .RE
