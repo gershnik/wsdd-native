@@ -32,7 +32,7 @@ public:
         m_multicastSendSocket.open(prot);
         m_unicastSendSocket.open(prot);
         
-        m_recvSocket.non_blocking();
+        m_recvSocket.non_blocking(true);
 
         m_recvSocket.set_option(ip::udp::socket::reuse_address(true));
         m_unicastSendSocket.set_option(ip::udp::socket::reuse_address(true));
@@ -125,6 +125,7 @@ private:
         m_recvSocket.bind(ip::udp::endpoint(ip::address_v6(multicastGroupAddress.to_bytes(), iface.index), g_WsdUdpPort));
         m_unicastSendSocket.bind(ip::udp::endpoint(ip::address_v6(addr.to_bytes(), iface.index), g_WsdUdpPort));
 
+        setSocketOption(m_unicastSendSocket, ptl::SockOptIPv6MulticastLoop, false);
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv6MulticastLoop, false);
         m_multicastSendSocket.set_option(ip::multicast::hops(m_config->hopLimit()));
         setSocketOption(m_multicastSendSocket, ptl::SockOptIPv6MulticastIface, iface.index);
@@ -195,79 +196,80 @@ private:
                 return;
             }
             
-            sockaddr_storage from{};
-            
-            iovec iov[] = {{m_recvBuffer.data(), m_recvBuffer.size()}};
-            
-            ReadMessageControl control;
-            
-            msghdr msg{};
-            msg.msg_name = &from;
-            msg.msg_namelen = sizeof(from);
-            msg.msg_iov = iov;
-            msg.msg_iovlen = std::size(iov);
-            msg.msg_control = control.data();
-            msg.msg_controllen = control.size();
-            
-            size_t bytesRecvd = 0;
             for ( ; ; ) {
-                bytesRecvd = ptl::receiveSocket(m_recvSocket, &msg, 0, ec);
-                if (!ec)
-                    break;
-                if (ec == std::errc::interrupted)
-                    continue;
-                if (ec == std::errc::operation_would_block || ec == std::errc::resource_unavailable_try_again) {
+                sockaddr_storage from{};
+                
+                iovec iov[] = {{m_recvBuffer.data(), m_recvBuffer.size()}};
+                
+                ReadMessageControl control;
+                
+                msghdr msg{};
+                msg.msg_name = &from;
+                msg.msg_namelen = sizeof(from);
+                msg.msg_iov = iov;
+                msg.msg_iovlen = std::size(iov);
+                msg.msg_control = control.data();
+                msg.msg_controllen = control.size();
+                
+                size_t bytesRecvd = 0;
+                for ( ; ; ) {
+                    bytesRecvd = ptl::receiveSocket(m_recvSocket, &msg, 0, ec);
+                    if (!ec)
+                        break;
+                    if (ec == std::errc::interrupted)
+                        continue;
+                    if (ec == std::errc::operation_would_block || ec == std::errc::resource_unavailable_try_again) {
+                        read();
+                        return;
+                    }
+                        
+                    WSDLOG_ERROR("{}: error reading: {}", m_serverDesc, ec.message());
+                    m_handler->onFatalUdpError();
+                    return;
+                }
+                
+                if (from.ss_family == AF_INET) {
+                    auto from4 = (const sockaddr_in *)&from;
+                    m_recvSender = ip::udp::endpoint(makeAddress(*from4), ntohs(from4->sin_port));
+                } else if (from.ss_family == AF_INET6) {
+                    auto from6 = (const sockaddr_in6 *)&from;
+                    m_recvSender = ip::udp::endpoint(makeAddress(*from6), ntohs(from6->sin6_port));
+                } else {
+                    WSDLOG_DEBUG("{}: received invalid source address, ignoring", m_serverDesc);
                     read();
                     return;
                 }
-                    
-                WSDLOG_ERROR("{}: error reading: {}", m_serverDesc, ec.message());
-                m_handler->onFatalUdpError();
-                return;
-            }
-            
-            if (from.ss_family == AF_INET) {
-                auto from4 = (const sockaddr_in *)&from;
-                m_recvSender = ip::udp::endpoint(makeAddress(*from4), ntohs(from4->sin_port));
-            } else if (from.ss_family == AF_INET6) {
-                auto from6 = (const sockaddr_in6 *)&from;
-                m_recvSender = ip::udp::endpoint(makeAddress(*from6), ntohs(from6->sin6_port));
-            } else {
-                WSDLOG_DEBUG("{}: received invalid source address, ignoring", m_serverDesc);
-                read();
-                return;
-            }
-            
-            if (msg.msg_flags & MSG_TRUNC)
-                WSDLOG_ERROR("{}: read data truncated", m_serverDesc);
-            
-            if (m_isV4 && !ReadMessageControl::checkInterfaceIndexV4(msg, m_ifaceIdx, m_serverDesc)) {
-                read();
-                return;
-            }
+                
+                if (msg.msg_flags & MSG_TRUNC)
+                    WSDLOG_ERROR("{}: read data truncated", m_serverDesc);
+                
+                if (m_isV4 && !ReadMessageControl::checkInterfaceIndexV4(msg, m_ifaceIdx, m_serverDesc)) {
+                    read();
+                    return;
+                }
 
-            if (spdlog::should_log(spdlog::level::trace))
-                WSDLOG_TRACE("{}: received from {}:{}: {}", m_serverDesc, m_recvSender.address().to_string(), m_recvSender.port(),
-                              std::string_view((const char *)m_recvBuffer.data(), bytesRecvd));
-            else
-                WSDLOG_DEBUG("{}: received {} bytes from {}:{}", m_serverDesc, bytesRecvd, m_recvSender.address().to_string(), m_recvSender.port());
+                if (spdlog::should_log(spdlog::level::trace))
+                    WSDLOG_TRACE("{}: received from {}:{}: {}", m_serverDesc, m_recvSender.address().to_string(), m_recvSender.port(),
+                                std::string_view((const char *)m_recvBuffer.data(), bytesRecvd));
+                else
+                    WSDLOG_DEBUG("{}: received {} bytes from {}:{}", m_serverDesc, bytesRecvd, m_recvSender.address().to_string(), m_recvSender.port());
 
-            std::optional<XmlCharBuffer> maybeReply;
-            try {
-                int options = 0;
-                #if LIBXML_VERSION >= 21300
-                    options = XML_PARSE_NO_XXE;
-                #endif
-                auto doc = XmlDoc::readMemory(m_recvBuffer.data(), int(bytesRecvd), nullptr, nullptr, options);
-                maybeReply = m_handler->handleUdpRequest(std::move(doc));
-            } catch (std::exception & ex) {
-                WSDLOG_ERROR("{}: error handling request: {}", m_serverDesc, ex.what());
-                WSDLOG_TRACE("{}", formatCaughtExceptionBacktrace());
+                std::optional<XmlCharBuffer> maybeReply;
+                try {
+                    int options = 0;
+                    #if LIBXML_VERSION >= 21300
+                        options = XML_PARSE_NO_XXE;
+                    #endif
+                    auto doc = XmlDoc::readMemory(m_recvBuffer.data(), int(bytesRecvd), nullptr, nullptr, options);
+                    maybeReply = m_handler->handleUdpRequest(std::move(doc));
+                } catch (std::exception & ex) {
+                    WSDLOG_ERROR("{}: error handling request: {}", m_serverDesc, ex.what());
+                    WSDLOG_TRACE("{}", formatCaughtExceptionBacktrace());
+                }
+
+                if (maybeReply)
+                    write(std::move(*maybeReply), &UdpServerImpl::m_unicastSendSocket, m_recvSender, true);
             }
-
-            if (maybeReply)
-                write(std::move(*maybeReply), &UdpServerImpl::m_unicastSendSocket, m_recvSender, true);
-            read();
         });
     }
 
