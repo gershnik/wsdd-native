@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   CMake flag.
 
 ### Changed
-- Warning about deprecated features being used when building with newer versions of Asio.
+- Addressed warning about deprecated features being used when building with newer versions of Asio.
 
 ## [1.26] - 2026-07-05
 
