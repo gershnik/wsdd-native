@@ -93,6 +93,8 @@ private:
             
         m_recvSocket.bind(ip::udp::endpoint(multicastGroupAddress, g_WsdUdpPort));
         m_unicastSendSocket.bind(ip::udp::endpoint(addr, g_WsdUdpPort));
+
+        setSocketOption(m_unicastSendSocket, ptl::SockOptIPv4MulticastLoop, false);
         
     #if !defined(__NetBSD__) && !defined(__sun) && !defined(__HAIKU__) && \
         !( defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED < 1070 )
@@ -236,16 +238,14 @@ private:
                     m_recvSender = ip::udp::endpoint(makeAddress(*from6), ntohs(from6->sin6_port));
                 } else {
                     WSDLOG_DEBUG("{}: received invalid source address, ignoring", m_serverDesc);
-                    read();
-                    return;
+                    continue;
                 }
                 
                 if (msg.msg_flags & MSG_TRUNC)
                     WSDLOG_ERROR("{}: read data truncated", m_serverDesc);
                 
                 if (m_isV4 && !ReadMessageControl::checkInterfaceIndexV4(msg, m_ifaceIdx, m_serverDesc)) {
-                    read();
-                    return;
+                    continue;
                 }
 
                 if (spdlog::should_log(spdlog::level::trace))
