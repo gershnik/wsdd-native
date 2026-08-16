@@ -217,7 +217,7 @@ private:
                 
                 size_t bytesRecvd = 0;
                 for ( ; ; ) {
-                    bytesRecvd = ptl::receiveSocket(m_recvSocket, &msg, 0, ec);
+                    bytesRecvd = ptl::receiveSocket(this->*socketPtr, &msg, 0, ec);
                     if (!ec)
                         break;
                     if (ec == std::errc::interrupted)
