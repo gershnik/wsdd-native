@@ -46,7 +46,8 @@ public:
 
     void start(Handler & handler) override {
         m_handler = &handler;
-        read();
+        read(&UdpServerImpl::m_recvSocket);
+        read(&UdpServerImpl::m_unicastSendSocket);
         WSDLOG_INFO("{}: starting server", m_serverDesc);
     }
     
@@ -182,9 +183,9 @@ private:
     };
 #endif
 
-    void read() {
-        m_recvSocket.async_wait(ip::udp::socket::wait_read,
-            [this, holder = refcnt_retain(this)](asio::error_code ec) {
+    void read(ip::udp::socket UdpServerImpl::*socketPtr) {
+        (this->*socketPtr).async_wait(ip::udp::socket::wait_read,
+            [this, socketPtr, holder = refcnt_retain(this)](asio::error_code ec) {
             
             if (!m_handler)
                 return;
@@ -221,7 +222,7 @@ private:
                     if (ec == std::errc::interrupted)
                         continue;
                     if (ec == std::errc::operation_would_block || ec == std::errc::resource_unavailable_try_again) {
-                        read();
+                        read(socketPtr);
                         return;
                     }
                         

@@ -3,7 +3,7 @@
 
 #include "wsd_server.h"
 
-static constexpr size_t g_maxKnownMessages = 10;
+static constexpr size_t g_maxKnownMessages = 50;
 
 const sys_string g_soapUri = S("http://www.w3.org/2003/05/soap-envelope");
 const sys_string g_wsaUri  = S("http://schemas.xmlsoap.org/ws/2004/08/addressing");
