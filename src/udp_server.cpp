@@ -33,6 +33,7 @@ public:
         m_unicastSendSocket.open(prot);
         
         m_recvSocket.non_blocking(true);
+        m_unicastSendSocket.non_blocking(true);
 
         m_recvSocket.set_option(ip::udp::socket::reuse_address(true));
         m_unicastSendSocket.set_option(ip::udp::socket::reuse_address(true));
