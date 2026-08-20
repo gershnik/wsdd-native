@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.27] - 2026-08-19
+
 ### Added
 - `--include-pattern` and `--exclude-pattern` command line options and equivalent 
   config file settings to allow interface inclusion and exclusion via a regex.
@@ -291,3 +293,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.24]: https://github.com/gershnik/wsdd-native/releases/v1.24
 [1.25]: https://github.com/gershnik/wsdd-native/releases/v1.25
 [1.26]: https://github.com/gershnik/wsdd-native/releases/v1.26
+[1.27]: https://github.com/gershnik/wsdd-native/releases/v1.27
