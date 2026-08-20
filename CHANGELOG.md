@@ -14,9 +14,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 - Addressed warning about deprecated features being used when building with newer versions of Asio.
+- Updated 3rd party dependencies
 
 ### Fixed
-- Receive queue on one UDP socket grows to maximum value. This was benign and not affecting functionality
+- Receive queue on one UDP socket growing to a maximum value. This was benign and not affecting functionality
   but has now been fixed ([#30](https://github.com/gershnik/wsdd-native/issues/30))
 
 ## [1.26] - 2026-07-05
