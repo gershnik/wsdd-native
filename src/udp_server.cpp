@@ -139,7 +139,42 @@ private:
 
     }
     
-#if !defined(__linux__) && defined(IP_RECVIF)
+#if defined(__sun) && defined(IP_RECVIF)
+    // illumos documents IP_RECVIF as an int containing the inbound interface
+    // index. BSD systems use a sockaddr_dl payload instead (handled below).
+    class ReadMessageControl {
+    private:
+        alignas(cmsghdr) uint8_t m_data[CMSG_SPACE(sizeof(int))];
+    public:
+        static constexpr size_t size() noexcept { return sizeof(m_data); }
+        cmsghdr * data() noexcept { return reinterpret_cast<cmsghdr *>(m_data); }
+
+        static bool checkInterfaceIndexV4(msghdr & msg, int ifIndex, const sys_string & serverDesc) {
+            if (msg.msg_flags & MSG_CTRUNC) {
+                WSDLOG_ERROR("{}: control info is truncated", serverDesc);
+                return true;
+            }
+
+            if (msg.msg_controllen < sizeof(struct cmsghdr))
+                return true;
+
+            for (cmsghdr * cmptr = CMSG_FIRSTHDR(&msg); cmptr; cmptr = CMSG_NXTHDR(&msg, cmptr)) {
+                if (cmptr->cmsg_level == IPPROTO_IP && cmptr->cmsg_type == IP_RECVIF) {
+                    int receivedIfIndex{};
+                    memcpy(&receivedIfIndex, CMSG_DATA(cmptr), sizeof(receivedIfIndex));
+                    return receivedIfIndex == ifIndex;
+                }
+            }
+
+            return true;
+        }
+
+        static void applyV4(ip::udp::socket & sock) {
+            int val = 1;
+            ptl::setSocketOption(sock, IPPROTO_IP, IP_RECVIF, &val, sizeof(val));
+        }
+    };
+#elif !defined(__linux__) && defined(IP_RECVIF)
     class ReadMessageControl {
     private:
         alignas(cmsghdr) uint8_t m_data[CMSG_SPACE(sizeof(sockaddr_dl))];
