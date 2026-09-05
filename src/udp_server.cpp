@@ -142,11 +142,11 @@ private:
 #if !defined(__linux__) && defined(IP_RECVIF)
     class ReadMessageControl {
     private:
-        #ifdef __sun
-            using PayloadType = int;
-        #else
-            using PayloadType = sockaddr_dl;
-        #endif
+    #ifdef __sun
+        using PayloadType = int;
+    #else
+        using PayloadType = sockaddr_dl;
+    #endif
 
         alignas(cmsghdr) uint8_t m_data[CMSG_SPACE(sizeof(PayloadType))];
     public:
@@ -167,9 +167,9 @@ private:
                     PayloadType sdl;
                     memcpy(&sdl, CMSG_DATA(cmptr), sizeof(sdl));
                     #ifdef __sun
-                    return sdl == ifIndex;
+                        return sdl == ifIndex;
                     #else
-                    return sdl.sdl_index == ifIndex;
+                        return sdl.sdl_index == ifIndex;
                     #endif
                 }
             }
