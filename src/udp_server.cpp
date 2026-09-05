@@ -142,7 +142,13 @@ private:
 #if !defined(__linux__) && defined(IP_RECVIF)
     class ReadMessageControl {
     private:
-        alignas(cmsghdr) uint8_t m_data[CMSG_SPACE(sizeof(sockaddr_dl))];
+        #ifdef __sun
+            using PayloadType = int;
+        #else
+            using PayloadType = sockaddr_dl;
+        #endif
+
+        alignas(cmsghdr) uint8_t m_data[CMSG_SPACE(sizeof(PayloadType))];
     public:
         static constexpr size_t size() noexcept { return sizeof(m_data); }
         cmsghdr * data() noexcept { return reinterpret_cast<cmsghdr *>(m_data); }
@@ -158,9 +164,13 @@ private:
             
             for (cmsghdr * cmptr = CMSG_FIRSTHDR(&msg); cmptr; cmptr = CMSG_NXTHDR(&msg, cmptr)) {
                 if (cmptr->cmsg_level == IPPROTO_IP && cmptr->cmsg_type == IP_RECVIF) {
-                    sockaddr_dl sdl;
+                    PayloadType sdl;
                     memcpy(&sdl, CMSG_DATA(cmptr), sizeof(sdl));
+                    #ifdef __sun
+                    return sdl == ifIndex;
+                    #else
                     return sdl.sdl_index == ifIndex;
+                    #endif
                 }
             }
             
