@@ -47,7 +47,8 @@ It implements the WS-Discovery protocol that Windows now uses to discover machin
 * Written with security in mind first and foremost. 
 * Will never run any network code as root. The designated user account to run under is created automatically, if needed.
 
-There are a couple of similar projects available: [wsdd][wsdd] written in Python and [wsdd2][wsdd2] written in C. Neither of them, however, fully provides the features above. 
+There are a couple of similar projects available: [wsdd][wsdd] written in Python and ~~wsdd2~~ (discontinued, forks 
+[here][wsdd2-f1] and [here][wsdd2-f2]) written in C. Neither of them, however, fully provides the features above. 
 
 ## Binary packages
 
@@ -753,6 +754,8 @@ For vulnerability disclosures or other security concerns, see [Security Policy](
 [issues]: https://github.com/gershnik/wsdd-native/issues
 [wsdd]: https://github.com/christgau/wsdd
 [wsdd2]: https://github.com/Netgear/wsdd2
+[wsdd2-f1]: https://github.com/oldium/wsdd2
+[wsdd2-f2]: https://salsa.debian.org/debian/wsdd2
 [chroot_jail]: https://en.wikipedia.org/wiki/Chroot
 [macports]: https://www.macports.org
 [homebrew]: https://brew.sh
