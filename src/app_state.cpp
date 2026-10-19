@@ -3,6 +3,51 @@
 
 #include "app_state.h"
 
+#if CAN_HAVE_FAILFS
+
+#include <sys/syscall.h>
+
+#ifndef __NR_fchroot
+    #define __NR_fchroot 472
+#endif
+
+#ifndef FD_FAILFS_ROOT
+    #define FD_FAILFS_ROOT -10004
+#endif
+
+static bool failFsAvailable() {
+    int fd = open(".", O_RDONLY | O_DIRECTORY);
+    if (fd < 0)
+        return false;
+
+    bool available = fchdir(FD_FAILFS_ROOT) == 0;
+
+    if (available && fchdir(fd) < 0) {
+        WSDLOG_ERROR("Unable to restore current directory after FailFS probe: {}", errno);
+        std::terminate();
+    }
+
+    close(fd);
+    return available;
+}
+
+static void enterFailFs() {
+    if (syscall(__NR_fchroot, FD_FAILFS_ROOT, 0) < 0)
+        ptl::throwErrorCode(errno, "syscall(__NR_fchroot, FD_FAILFS_ROOT, 0)");
+
+    ptl::changeDirectory(FD_FAILFS_ROOT);
+}
+
+#else
+
+static bool failFsAvailable() 
+    { return false; }
+
+static void enterFailFs()
+    { throw std::runtime_error("FileFS is not supported on this operating system"); }
+
+#endif
+
 AppState::AppState(int argc, char ** argv, std::set<int> untouchedSignals):
     m_untouchedSignals(std::move(untouchedSignals)),
     m_envColorStatus(Argum::environmentColorStatus()),
@@ -118,9 +163,15 @@ void AppState::ensureNonRoot() {
         }
     }
     if (!m_currentCommandLine.chrootDir) {
-        WSDLOG_DEBUG("Running as root but no chroot specified in configuration. Using {}", WSDDN_DEFAULT_CHROOT_DIR);
-        createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
-        m_currentCommandLine.chrootDir = WSDDN_DEFAULT_CHROOT_DIR;
+        bool haveFailFs = failFsAvailable();
+        if (haveFailFs) {
+            WSDLOG_DEBUG("Running as root but no chroot specified in configuration. Using FailFS");
+            m_currentCommandLine.chrootDir = "failfs:/";
+        } else {
+            WSDLOG_DEBUG("Running as root but no chroot specified in configuration. Using {}", WSDDN_DEFAULT_CHROOT_DIR);
+            createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
+            m_currentCommandLine.chrootDir = WSDDN_DEFAULT_CHROOT_DIR;
+        }
     }
 }
 
@@ -137,8 +188,12 @@ void AppState::postForkInServerProcess() noexcept {
     
     if (m_currentCommandLine.chrootDir) {
         WSDLOG_DEBUG("Changing root directory");
-        ptl::changeRoot(*m_currentCommandLine.chrootDir);
-        ptl::changeDirectory("/");
+        if (*m_currentCommandLine.chrootDir == "failfs:/") {
+            enterFailFs();
+        } else {
+            ptl::changeRoot(*m_currentCommandLine.chrootDir);
+            ptl::changeDirectory("/");
+        }
     }
     if (m_currentCommandLine.runAs) {
         WSDLOG_DEBUG("Changing identity");
