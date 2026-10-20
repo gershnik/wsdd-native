@@ -456,7 +456,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <strong>wsddn</strong> [<strong>--unixd</strong>|<strong>--systemd</strong>|<strong>--launchd</strong>]
     [<strong>-c</strong> <em>path</em>] [<strong>-i</strong> <em>name</em>]&#8230;&#8203; [<strong>--include-pattern</strong> <em>regex</em>]&#8230;&#8203; [<strong>--exclude-pattern</strong> <em>regex</em>]&#8230;&#8203;
     [<strong>-4</strong>|<strong>-6</strong>] [<strong>--hoplimit</strong> <em>number</em>] [<strong>--source-port</strong> <em>number</em>] [<strong>--uuid</strong> <em>uuid</em>]
-    [<strong>-H</strong> <em>name</em>] [<strong>-D</strong>|<strong>-W</strong> <em>name</em>] [<strong>--smb-conf</strong> <em>path</em>] [<strong>--metadata</strong> <em>path</em>]
+    [<strong>-H</strong> <em>name</em>] [<strong>-D</strong>|<strong>-W</strong> <em>name</em>] [<strong>--smb-conf</strong> <em>path</em>] [<strong>-m</strong> <em>path</em>]
     [<strong>--log-level</strong> <em>level</em>] [<strong>--log-file</strong> <em>path</em> | <strong>--log-os-log</strong>]
     [<strong>--pid-file</strong> <em>path</em>] [<strong>-U</strong> <em>user</em>[:<em>group</em>]] [<strong>-r</strong> <em>dir</em>]</p>
 </div>
@@ -587,13 +587,17 @@ Any failures in these steps stop the process.</p>
 <p>Set the directory into which the process that performs network communications should chroot. This further limits any impact
 of potential network exploits against wsddn.</p>
 <div class="paragraph">
+<p>Use <strong>failfs:/</strong> to select FailFS if your system supports it (Linux 7.3 and later).</p>
+</div>
+<div class="paragraph">
 <p>If not specified, the behavior is as follows:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>If the wsddn process is run under the root account: use <strong>/var/empty</strong> or <strong>/var/run/wsddn</strong> depending on the platform.
-This directory will be created if it does not exist.</p>
+<p>If the wsddn process is run under the root account: use FailFS if available. Otherwise use a system appropriate directory
+(e.g. <strong>/var/run/wsddn</strong>, <strong>/var/empty</strong> or <strong>/var/chroot/wsddn</strong> depending on the platform). This directory will be created
+if it does not exist.</p>
 </li>
 <li>
 <p>Otherwise: do not chroot.</p>
@@ -1014,7 +1018,7 @@ interfaces are used.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-08-11 23:45:52 -0700
+Last updated 2026-10-20 02:52:30 -0700
 </div>
 </div>
 </body>

@@ -6,6 +6,34 @@
 
 #include "util.h"
 
+#if CAN_HAVE_FAILFS
+
+    #include <sys/syscall.h>
+
+    #ifndef __NR_fchroot
+        //Linux 7.3: scripts/syscall.tbl and arch/*/kernel/syscalls/syscall*.tbl
+        #if defined(__alpha__)
+            #define __NR_fchroot 582
+        #elif defined(__mips__)
+            #if _MIPS_SIM == _ABIO32
+                #define __NR_fchroot (4000 + 472)
+            #elif _MIPS_SIM == _ABI64
+                #define __NR_fchroot (5000 + 472)
+            #elif _MIPS_SIM == _ABIN32
+                #define __NR_fchroot (6000 + 472)
+            #endif
+        #elif defined(__x86_64__) && defined(__ILP32__)
+            #define __NR_fchroot (0x40000000 + 472) //__X32_SYSCALL_BIT + 472
+        #else
+            #define __NR_fchroot 472
+        #endif
+    #endif
+
+    #ifndef FD_FAILFS_ROOT
+        #define FD_FAILFS_ROOT -10004
+    #endif
+#endif
+
 /*
  OS-dependent (or potentially OS-dependant) utilities
  */
@@ -226,6 +254,32 @@ void shell(const ptl::StringRefArray & args, bool suppressStdErr, std::function<
 
 #if WSDDN_PLATFORM_APPLE
     int darwinMajor();
+#endif
+
+#if CAN_HAVE_FAILFS
+
+inline bool failFsAvailable() {
+    static bool ret = []() {
+        return syscall(__NR_fchroot, -1, 0) < 0 && errno == EBADF;
+    }();
+    return ret;
+}
+
+inline void enterFailFs() {
+    if (syscall(__NR_fchroot, FD_FAILFS_ROOT, 0) < 0)
+        ptl::throwErrorCode(errno, "syscall(__NR_fchroot, FD_FAILFS_ROOT, 0)");
+
+    ptl::changeDirectory(FD_FAILFS_ROOT);
+}
+
+#else
+
+inline bool failFsAvailable() 
+    { return false; }
+
+inline void enterFailFs()
+    { throw std::runtime_error("FailFS is not supported on this operating system"); }
+
 #endif
 
 #endif

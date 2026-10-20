@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Changed
+- Use [FailFS](https://docs.kernel.org/filesystems/failfs.html) as an automatic or a user-selected chroot destination when available (currently only Linux 7.3 or later).
+  You can select it via `-r failfs:/` on command line or `chroot="failfs:/"` in config file.
+- macOS installer is now signed with a new Apple certificate. Old installers 
+  (1.27 and earlier) may stop working after Feb 1, 2027 
+  ([why](https://eclecticlight.co/2026/10/16/changing-developer-certificates-might-affect-installers-next-year/)).
+
 ### Fixed
 - Interfaces being filtered out incorrectly on Illumos.
 

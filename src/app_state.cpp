@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "app_state.h"
+#include "sys_util.h"
 
 AppState::AppState(int argc, char ** argv, std::set<int> untouchedSignals):
     m_untouchedSignals(std::move(untouchedSignals)),
@@ -118,9 +119,15 @@ void AppState::ensureNonRoot() {
         }
     }
     if (!m_currentCommandLine.chrootDir) {
-        WSDLOG_DEBUG("Running as root but no chroot specified in configuration. Using {}", WSDDN_DEFAULT_CHROOT_DIR);
-        createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
-        m_currentCommandLine.chrootDir = WSDDN_DEFAULT_CHROOT_DIR;
+        bool haveFailFs = failFsAvailable();
+        if (haveFailFs) {
+            WSDLOG_DEBUG("Running as root but no chroot specified in configuration. Using FailFS");
+            m_currentCommandLine.chrootDir = "failfs:/";
+        } else {
+            WSDLOG_DEBUG("Running as root but no chroot specified in configuration. Using {}", WSDDN_DEFAULT_CHROOT_DIR);
+            createMissingDirs(WSDDN_DEFAULT_CHROOT_DIR, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP, Identity::admin());
+            m_currentCommandLine.chrootDir = WSDDN_DEFAULT_CHROOT_DIR;
+        }
     }
 }
 
@@ -137,8 +144,12 @@ void AppState::postForkInServerProcess() noexcept {
     
     if (m_currentCommandLine.chrootDir) {
         WSDLOG_DEBUG("Changing root directory");
-        ptl::changeRoot(*m_currentCommandLine.chrootDir);
-        ptl::changeDirectory("/");
+        if (*m_currentCommandLine.chrootDir == "failfs:/") {
+            enterFailFs();
+        } else {
+            ptl::changeRoot(*m_currentCommandLine.chrootDir);
+            ptl::changeDirectory("/");
+        }
     }
     if (m_currentCommandLine.runAs) {
         WSDLOG_DEBUG("Changing identity");
