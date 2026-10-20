@@ -713,7 +713,7 @@ Currently, the implementation ignores the second concern. The things **wsdd-nati
 
 The first concern is by far the most significant one. All software contains bugs, and despite the developer's best efforts, there is always a risk that a bad actor can discover some kind of input that allows him to hijack the server process. To address this possibility, **wsdd-native** takes the following measures (apart from general secure coding practices):
 * The process performing network communications never runs as root. If launched as root, it will create an unprivileged account (`_wsddn:_wsddn` or `wsddn:wsddn` based on platform conventions) and run the network process under it.
-* Similarly, when started as root, the daemon will lock the network process in a [chroot jail][chroot_jail] (usually `/var/empty` or `/var/run/wsddn` or another platform-appropriate location). 
+* Similarly, when started as root, the daemon will lock the network process in a [chroot jail][chroot_jail]. On Linux 7.3 and later, this is [FailFS][failfs]. Otherwise, it is a platform-appropriate directory such as `/var/empty` or `/var/run/wsddn`. 
 
 These measures are automatic and cannot be bypassed. Taken together, they should limit the fallout of any vulnerability, though, of course, nothing ever can be claimed to be 100% secure.
 
@@ -757,6 +757,7 @@ For vulnerability disclosures or other security concerns, see [Security Policy](
 [wsdd2-f1]: https://github.com/oldium/wsdd2
 [wsdd2-f2]: https://salsa.debian.org/debian/wsdd2
 [chroot_jail]: https://en.wikipedia.org/wiki/Chroot
+[failfs]: https://docs.kernel.org/filesystems/failfs.html
 [macports]: https://www.macports.org
 [homebrew]: https://brew.sh
 [aur]: https://wiki.archlinux.org/title/Arch_User_Repository
