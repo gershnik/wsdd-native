@@ -2,55 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "app_state.h"
-
-#if HAVE_FAILFS || CAN_HAVE_FAILFS
-
-#include <sys/syscall.h>
-
-#ifndef __NR_fchroot
-    #define __NR_fchroot 472
-#endif
-
-#ifndef FD_FAILFS_ROOT
-    #define FD_FAILFS_ROOT -10004
-#endif
-
-static bool failFsAvailable() {
-#if HAVE_FAILFS
-    return true;
-#else
-    int fd = open(".", O_RDONLY | O_DIRECTORY);
-    if (fd < 0)
-        return false;
-
-    bool available = fchdir(FD_FAILFS_ROOT) == 0;
-
-    if (available && fchdir(fd) < 0) {
-        WSDLOG_ERROR("Unable to restore current directory after FailFS probe: {}", errno);
-        std::terminate();
-    }
-
-    close(fd);
-    return available;
-#endif
-}
-
-static void enterFailFs() {
-    if (syscall(__NR_fchroot, FD_FAILFS_ROOT, 0) < 0)
-        ptl::throwErrorCode(errno, "syscall(__NR_fchroot, FD_FAILFS_ROOT, 0)");
-
-    ptl::changeDirectory(FD_FAILFS_ROOT);
-}
-
-#else
-
-static bool failFsAvailable() 
-    { return false; }
-
-static void enterFailFs()
-    { throw std::runtime_error("FailFS is not supported on this operating system"); }
-
-#endif
+#include "sys_util.h"
 
 AppState::AppState(int argc, char ** argv, std::set<int> untouchedSignals):
     m_untouchedSignals(std::move(untouchedSignals)),

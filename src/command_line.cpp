@@ -4,6 +4,7 @@
 #include "command_line.h"
 #include "sys_config.h"
 #include "util.h"
+#include "sys_util.h"
 
 
 using namespace Argum;
@@ -204,9 +205,16 @@ static auto setChrootDir(CommandLine & cmdline, std::string_view val) {
         throw Parser::ValidationError("you must start " WSDDN_PROGNAME " as root to use chroot path");
     if (val.empty())
         throw Parser::ValidationError("chroot path cannot be empty");
-    auto value = absolute(std::filesystem::path(val));
-    if ( !exists(value))
-        throw Parser::ValidationError("chroot path does not exist");
+    std::filesystem::path value;
+    if (val == "failfs:/") {
+        if (!failFsAvailable())
+            throw Parser::ValidationError("FailFS is not supported on this operating system");
+        value = val;
+    } else {
+        value = absolute(std::filesystem::path(val));
+        if (!exists(value))
+            throw Parser::ValidationError("chroot path does not exist");
+    }
     cmdline.chrootDir.emplace(std::move(value));
 }
 
@@ -521,7 +529,7 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
     }));
     parser.add(Option("--chroot", "-r").
                argName("DIR").
-               help("chroot to specified directory").
+               help("chroot to specified directory. Use failfs:/ to select FailFS if your systems supports it.").
                occurs(Argum::neverOrOnce).
                handler([this](std::string_view val){
         setChrootDir(*this, val);

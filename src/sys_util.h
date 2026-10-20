@@ -6,6 +6,19 @@
 
 #include "util.h"
 
+#if HAVE_FAILFS || CAN_HAVE_FAILFS
+
+    #include <sys/syscall.h>
+
+    #ifndef __NR_fchroot
+        #define __NR_fchroot 472
+    #endif
+
+    #ifndef FD_FAILFS_ROOT
+        #define FD_FAILFS_ROOT -10004
+    #endif
+#endif
+
 /*
  OS-dependent (or potentially OS-dependant) utilities
  */
@@ -226,6 +239,48 @@ void shell(const ptl::StringRefArray & args, bool suppressStdErr, std::function<
 
 #if WSDDN_PLATFORM_APPLE
     int darwinMajor();
+#endif
+
+#if HAVE_FAILFS || CAN_HAVE_FAILFS
+
+inline bool failFsAvailable() {
+#if HAVE_FAILFS
+    return true;
+#else
+    static bool ret = []() {
+        int fd = open(".", O_RDONLY | O_DIRECTORY);
+        if (fd < 0)
+            return false;
+
+        bool available = fchdir(FD_FAILFS_ROOT) == 0;
+
+        if (available && fchdir(fd) < 0) {
+            WSDLOG_ERROR("Unable to restore current directory after FailFS probe: {}", errno);
+            std::terminate();
+        }
+
+        close(fd);
+        return available;
+    }();
+    return ret;
+#endif
+}
+
+inline void enterFailFs() {
+    if (syscall(__NR_fchroot, FD_FAILFS_ROOT, 0) < 0)
+        ptl::throwErrorCode(errno, "syscall(__NR_fchroot, FD_FAILFS_ROOT, 0)");
+
+    ptl::changeDirectory(FD_FAILFS_ROOT);
+}
+
+#else
+
+inline bool failFsAvailable() 
+    { return false; }
+
+inline void enterFailFs()
+    { throw std::runtime_error("FailFS is not supported on this operating system"); }
+
 #endif
 
 #endif
