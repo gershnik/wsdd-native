@@ -88,6 +88,16 @@ check_cxx_source_compiles("
     }"
 HAVE_ABI_CXA_THROW)
 
+check_cxx_source_compiles("
+    #include <sys/syscall.h>
+    #include <linux/fcntl.h>
+    int main() {
+        int x = __NR_fchroot;
+        int y = FD_FAILFS_ROOT;
+    }
+    "
+HAVE_FAILFS)
+
 # The following section looks up runtime paths at build time. 
 # Depending on a setup this might or might not work for cross-compiling
 # Thus the kill-switch WSDDN_NO_TARGET_PATHS_DETECTION. 

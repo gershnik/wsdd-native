@@ -3,7 +3,7 @@
 
 #include "app_state.h"
 
-#if CAN_HAVE_FAILFS
+#if HAVE_FAILFS || CAN_HAVE_FAILFS
 
 #include <sys/syscall.h>
 
@@ -16,6 +16,9 @@
 #endif
 
 static bool failFsAvailable() {
+#if HAVE_FAILFS
+    return true;
+#else
     int fd = open(".", O_RDONLY | O_DIRECTORY);
     if (fd < 0)
         return false;
@@ -29,6 +32,7 @@ static bool failFsAvailable() {
 
     close(fd);
     return available;
+#endif
 }
 
 static void enterFailFs() {
@@ -44,7 +48,7 @@ static bool failFsAvailable()
     { return false; }
 
 static void enterFailFs()
-    { throw std::runtime_error("FileFS is not supported on this operating system"); }
+    { throw std::runtime_error("FailFS is not supported on this operating system"); }
 
 #endif
 
