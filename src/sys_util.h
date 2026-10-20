@@ -6,12 +6,27 @@
 
 #include "util.h"
 
-#if HAVE_FAILFS || CAN_HAVE_FAILFS
+#if CAN_HAVE_FAILFS
 
     #include <sys/syscall.h>
 
     #ifndef __NR_fchroot
-        #define __NR_fchroot 472
+        //Linux 7.3: scripts/syscall.tbl and arch/*/kernel/syscalls/syscall*.tbl
+        #if defined(__alpha__)
+            #define __NR_fchroot 582
+        #elif defined(__mips__)
+            #if _MIPS_SIM == _ABIO32
+                #define __NR_fchroot (4000 + 472)
+            #elif _MIPS_SIM == _ABI64
+                #define __NR_fchroot (5000 + 472)
+            #elif _MIPS_SIM == _ABIN32
+                #define __NR_fchroot (6000 + 472)
+            #endif
+        #elif defined(__x86_64__) && defined(__ILP32__)
+            #define __NR_fchroot (0x40000000 + 472) //__X32_SYSCALL_BIT + 472
+        #else
+            #define __NR_fchroot 472
+        #endif
     #endif
 
     #ifndef FD_FAILFS_ROOT
@@ -241,29 +256,13 @@ void shell(const ptl::StringRefArray & args, bool suppressStdErr, std::function<
     int darwinMajor();
 #endif
 
-#if HAVE_FAILFS || CAN_HAVE_FAILFS
+#if CAN_HAVE_FAILFS
 
 inline bool failFsAvailable() {
-#if HAVE_FAILFS
-    return true;
-#else
     static bool ret = []() {
-        int fd = open(".", O_RDONLY | O_DIRECTORY);
-        if (fd < 0)
-            return false;
-
-        bool available = fchdir(FD_FAILFS_ROOT) == 0;
-
-        if (available && fchdir(fd) < 0) {
-            WSDLOG_ERROR("Unable to restore current directory after FailFS probe: {}", errno);
-            std::terminate();
-        }
-
-        close(fd);
-        return available;
+        return syscall(__NR_fchroot, -1, 0) < 0 && errno == EBADF;
     }();
     return ret;
-#endif
 }
 
 inline void enterFailFs() {

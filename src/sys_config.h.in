@@ -14,7 +14,6 @@
 #cmakedefine01 HAVE_CXXABI_H
 #cmakedefine01 HAVE_ABI_CXA_THROW
 #cmakedefine01 HAVE_SYSTEMD
-#cmakedefine01 HAVE_FAILFS
 #cmakedefine01 IS_ALPINE_LINUX
 
 #cmakedefine LIBSYSTEMD_SO "${LIBSYSTEMD_SO}"
@@ -60,14 +59,11 @@
 #define HAVE_LAUNCHD WSDDN_PLATFORM_APPLE
 #define HAVE_OS_LOG WSDDN_PLATFORM_APPLE && __MAC_OS_X_VERSION_MIN_REQUIRED >= 101200
 
-#if HAVE_FAILFS
+#if defined(__linux__) && \
+      (!defined(__mips__) || _MIPS_SIM == _ABIO32 || _MIPS_SIM == _ABI64 || _MIPS_SIM == _ABIN32)
     #define CAN_HAVE_FAILFS 1
 #else
-    #ifdef __linux__
-        #define CAN_HAVE_FAILFS 1
-    #else
-        #define CAN_HAVE_FAILFS 0
-    #endif
+    #define CAN_HAVE_FAILFS 0
 #endif
 
 
