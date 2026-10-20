@@ -101,10 +101,13 @@ The net effect of these rules is that wsddn will under no circumstances perform 
 Set the directory into which the process that performs network communications should chroot. This further limits any impact 
 of potential network exploits against wsddn.
 +
+Use *failfs:/* to select FailFS if your system supports it (Linux 7.3 and later).
++
 If not specified, the behavior is as follows:
 
-* If the wsddn process is run under the root account: use */var/empty* or */var/run/wsddn* depending on the platform. 
-  This directory will be created if it does not exist.
+* If the wsddn process is run under the root account: use FailFS if available. Otherwise use a system appropriate directory
+  (e.g. */var/run/wsddn*, */var/empty* or */var/chroot/wsddn* depending on the platform). This directory will be created
+  if it does not exist.
 * Otherwise: do not chroot.
 
 +

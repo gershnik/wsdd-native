@@ -2,12 +2,12 @@
 .\"     Title: wsddn
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2026-08-11
+.\"      Date: 2026-10-20
 .\"    Manual: System Manager's Manual
 .\"    Source: WS-Discovery Host Daemon
 .\"  Language: English
 .\"
-.TH "WSDDN" "8" "2026-08-11" "WS\-Discovery Host Daemon" "System Manager\*(Aqs Manual"
+.TH "WSDDN" "8" "2026-10-20" "WS\-Discovery Host Daemon" "System Manager\*(Aqs Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -38,7 +38,7 @@ wsddn \- WS\-Discovery Host Daemon
 \fBwsddn\fP [\fB\-\-unixd\fP|\fB\-\-systemd\fP|\fB\-\-launchd\fP]
 [\fB\-c\fP \fIpath\fP] [\fB\-i\fP \fIname\fP].\|.\|. [\fB\-\-include\-pattern\fP \fIregex\fP].\|.\|. [\fB\-\-exclude\-pattern\fP \fIregex\fP].\|.\|.
 [\fB\-4\fP|\fB\-6\fP] [\fB\-\-hoplimit\fP \fInumber\fP] [\fB\-\-source\-port\fP \fInumber\fP] [\fB\-\-uuid\fP \fIuuid\fP]
-[\fB\-H\fP \fIname\fP] [\fB\-D\fP|\fB\-W\fP \fIname\fP] [\fB\-\-smb\-conf\fP \fIpath\fP] [\fB\-\-metadata\fP \fIpath\fP]
+[\fB\-H\fP \fIname\fP] [\fB\-D\fP|\fB\-W\fP \fIname\fP] [\fB\-\-smb\-conf\fP \fIpath\fP] [\fB\-m\fP \fIpath\fP]
 [\fB\-\-log\-level\fP \fIlevel\fP] [\fB\-\-log\-file\fP \fIpath\fP | \fB\-\-log\-os\-log\fP]
 [\fB\-\-pid\-file\fP \fIpath\fP] [\fB\-U\fP \fIuser\fP[:\fIgroup\fP]] [\fB\-r\fP \fIdir\fP]
 .SH "DESCRIPTION"
@@ -197,6 +197,8 @@ The net effect of these rules is that wsddn will under no circumstances perform 
 Set the directory into which the process that performs network communications should chroot. This further limits any impact
 of potential network exploits against wsddn.
 .sp
+Use \fBfailfs:/\fP to select FailFS if your system supports it (Linux 7.3 and later).
+.sp
 If not specified, the behavior is as follows:
 .sp
 .RS 4
@@ -207,8 +209,9 @@ If not specified, the behavior is as follows:
 .  sp -1
 .  IP \(bu 2.3
 .\}
-If the wsddn process is run under the root account: use \fB/var/empty\fP or \fB/var/run/wsddn\fP depending on the platform.
-This directory will be created if it does not exist.
+If the wsddn process is run under the root account: use FailFS if available. Otherwise use a system appropriate directory
+(e.g. \fB/var/run/wsddn\fP, \fB/var/empty\fP or \fB/var/chroot/wsddn\fP depending on the platform). This directory will be created
+if it does not exist.
 .RE
 .sp
 .RS 4
