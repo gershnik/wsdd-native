@@ -540,7 +540,7 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
     } catch (ParsingException & ex) {
         auto colorizer = colorizerForFile(envColorStatus, stderr);
         fmt::print(stderr, "{}\n\n", colorizer.error(ex.message()));
-        fmt::print(stderr, "{}", parser.formatUsage(progname, terminalWidth(stderr), colorizer));
+        fmt::print(stderr, "{}\n", parser.formatUsage(progname, terminalWidth(stderr), colorizer));
         exit(EXIT_FAILURE);
     }
 }
