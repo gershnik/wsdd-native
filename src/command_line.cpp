@@ -529,7 +529,7 @@ void CommandLine::parse(int argc, char * argv[], ColorStatus envColorStatus) {
     }));
     parser.add(Option("--chroot", "-r").
                argName("DIR").
-               help("chroot to specified directory. Use failfs:/ to select FailFS if your systems supports it.").
+               help("chroot to specified directory. Use failfs:/ to select FailFS if your system supports it.").
                occurs(Argum::neverOrOnce).
                handler([this](std::string_view val){
         setChrootDir(*this, val);
