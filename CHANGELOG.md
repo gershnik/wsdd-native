@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.28] - 2026-10-20
+
 ### Changed
 - Use [FailFS](https://docs.kernel.org/filesystems/failfs.html) as an automatic or a user-selected chroot destination when available (currently only Linux 7.3 or later).
   You can select it via `-r failfs:/` on command line or `chroot="failfs:/"` in config file.
@@ -304,3 +306,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.25]: https://github.com/gershnik/wsdd-native/releases/v1.25
 [1.26]: https://github.com/gershnik/wsdd-native/releases/v1.26
 [1.27]: https://github.com/gershnik/wsdd-native/releases/v1.27
+[1.28]: https://github.com/gershnik/wsdd-native/releases/v1.28

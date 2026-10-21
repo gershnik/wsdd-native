@@ -75,11 +75,11 @@ Both methods install the same underlying package. Its supported platforms are:
 
 To install via standalone `.pkg` installer:
 
-* Download [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.27/wsddn-macos-1.27.pkg)
+* Download [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.28/wsddn-macos-1.28.pkg)
 * Double-click it to run and follow the prompts.
 * If you prefer the command line, you can also install via:
   ```bash
-  sudo installer -pkg /path/to/wsddn-macos-1.27.pkg -target /
+  sudo installer -pkg /path/to/wsddn-macos-1.28.pkg -target /
   ```
 * To fully uninstall `wsddn`, run `/usr/local/bin/wsddn-uninstall`.
 
@@ -561,10 +561,10 @@ architecture is currently supported. The package is available from [Releases][re
 
 To install:
 
-* Download [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.27/wsddn-1.27-OpenBSD-amd64.tgz)
-* **Important:** Rename it to `wsddn-1.27.tgz`. For example:
+* Download [the installer package](https://github.com/gershnik/wsdd-native/releases/download/v1.28/wsddn-1.28-OpenBSD-amd64.tgz)
+* **Important:** Rename it to `wsddn-1.28.tgz`. For example:
 ```sh
-mv wsddn-1.27-OpenBSD-amd64.tgz wsddn-1.27.tgz
+mv wsddn-1.28-OpenBSD-amd64.tgz wsddn-1.28.tgz
 ```
 * Run:
 ```console
