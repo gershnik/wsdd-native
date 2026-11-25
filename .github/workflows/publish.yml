@@ -8,7 +8,8 @@ on:
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions: 
+      contents: write
     steps:
     - name: Make release
       uses: softprops/action-gh-release@v3
@@ -22,6 +23,8 @@ jobs:
     concurrency: ${{ matrix.remote_host }}
     runs-on: [self-hosted, server]
     needs: prepare
+    permissions: 
+      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -76,8 +79,10 @@ jobs:
   mac:
     runs-on: macos-26
     needs: prepare
+    permissions: 
+      contents: write
     env: 
-      DEVELOPER_DIR: /Applications/Xcode_26.2.app
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app
     
     steps:
     - name: Checkout
