@@ -54,6 +54,7 @@ jobs:
         git fetch --all
         git fetch -f --prune --tags
         git reset --hard ${{ github.sha }}
+        git clean -ffd
         export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
         if [[ '${{ matrix.installer }}' == 'freebsd' ]]; then
           mkdir -p out

@@ -216,6 +216,7 @@ jobs:
           git fetch --all
           git fetch -f --prune --tags
           git reset --hard ${{ github.sha }}
+          git clean -ffd
           [ -d "out" ] && tools/uncache out
           if [[ '${{ matrix.remote_host }}' == 'dragonfly' ]]; then
             export CC=gcc11
