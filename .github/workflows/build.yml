@@ -85,10 +85,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v6
 
-    - name: Collect System Info
-      id: system-info
-      uses: kenchan0130/actions-system-info@master
-
     - name: Configure
       run: |
           [ -d "out" ] && tools/uncache out
